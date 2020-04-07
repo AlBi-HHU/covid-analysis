@@ -1,0 +1,13 @@
+rule detectExpectedUniqueKmers:
+	input:
+		'data/input/nCoV-2019.reference.fasta'
+	output:
+		tobigram = report('data/output/tobigram.svg',category='K Detection / K-mer analysis'),
+		uniqueKmers = 'data/auxiliary/uniqueKmers.json'
+	params:
+		krange = ks
+	conda:
+		'../envs/biopythonworkbench.yaml'
+	script:
+		'../scripts/detectUniqueKmers.py'
+	
