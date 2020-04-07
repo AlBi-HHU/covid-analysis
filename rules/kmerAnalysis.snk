@@ -2,7 +2,7 @@ rule detectExpectedUniqueKmers:
 	input:
 		'data/input/nCoV-2019.reference.fasta'
 	output:
-		tobigram = report('data/output/tobigram.svg',category='K Detection / K-mer analysis'),
+		tobigram = report('data/output/tobigram.svg',category='k detection'),
 		uniqueKmers = 'data/auxiliary/uniqueKmers.json'
 	params:
 		krange = ks
@@ -11,3 +11,73 @@ rule detectExpectedUniqueKmers:
 	script:
 		'../scripts/detectUniqueKmers.py'
 	
+
+rule index_bwa:
+	input:
+		'{any}.bam'
+	output:
+		'{any}.bam.bai'
+	conda:
+		'../envs/biopythonworkbench.yaml'
+	shell:
+		'samtools index {input}'
+
+rule extractSoftClippedReads:
+	input:
+		alignment = 'data/input/result_hac/barcode{barcode}.{basecalling_method}.primertrimmed.sorted.bam',
+		index = 'data/input/result_hac/barcode{barcode}.{basecalling_method}.primertrimmed.sorted.bam.bai'
+	output:
+		'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fasta'
+	conda:
+		'../envs/biopythonworkbench.yaml'
+	script:
+		'../scripts/extractSoftClippedReads.py'
+
+rule createKmerProfiles:
+	input:
+		'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fasta'
+	output:
+		'data/auxiliary/kmerProfiles/{basecalling_method}/{barcode}_{k}.json'
+	params:
+		k = lambda wildcards: int(wildcards.k)
+	conda:
+		'../envs/biopythonworkbench.yaml'
+	script:
+		'../scripts/createKmerProfiles.py'	
+
+
+rule plotKmerHistogram:
+	input:
+		kmerProfile = 'data/auxiliary/kmerProfiles/{basecalling_method}/{barcode}_{k}.json',
+		uniqueKmers = 'data/auxiliary/uniqueKmers.json'
+	output:
+		report('data/output/kmerHistograms/{basecalling_method}/{barcode}_{k}.svg',category='k-mer histograms')
+	params:
+		k = lambda wildcards: wildcards.k
+	conda:
+		'../envs/biopythonworkbench.yaml'
+	script:
+		'../scripts/createKmerHistogram.py'	
+
+
+rule addPseudoQualities:
+	input:
+		'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fasta'
+	output:
+		'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fq'
+	conda:
+		'../envs/perl.yaml'
+	shell:
+		'perl scripts/fasta_to_fastq.pl {input} > {output}'
+
+rule overabundance_analysis:
+	input:
+		'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fq'
+	output:
+		reporthtml = report('data/output/softClippedSeqs/{basecalling_method}/{barcode}.html',category='Quality Control'),
+		reportjson = report('data/output/softClippedSeqs/{basecalling_method}/{barcode}.json',category='Quality Control'),
+		fixedFasta = 'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.corrected.fasta'
+	conda:
+		'../envs/fastp.yaml'
+	shell:
+		'fastp -i {input} -o {output.fixedFasta} -p -j {output.reportjson} -h {output.reporthtml}'

@@ -1,7 +1,8 @@
 .snakemake
 CovidSandbox.ipynb
-unsortedOutput
+unsorted
 Bandage_Ubuntu_static_v0_8_1
-data
+data/auxiliary
+data/output
 logs
 benchmarks

@@ -1,0 +1,10 @@
+name: Perl
+
+channels:
+  - anaconda
+  - defaults
+
+
+dependencies:
+  - perl = 5.26.2
+

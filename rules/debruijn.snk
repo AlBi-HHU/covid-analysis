@@ -1,6 +1,6 @@
 rule bCalm:
 	input:
-		'data/auxiliary/softClippedSeqs/medaka/{barcode}.fasta'
+		'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fasta'
 	output:
 		unitigs = 'data/auxiliary/graphs/{basecalling_method}/{barcode}/{k}.unitigs.fa'
 	params:
