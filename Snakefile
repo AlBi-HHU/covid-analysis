@@ -16,7 +16,7 @@ rule all:
 		expand('data/output/kmerHistograms/{method}/{barcode}_{k}.svg',method=methods,barcode=barcodes,k=ks),
 		'data/output/tobigram.svg',
 		'data/auxiliary/interestingPositions.json',
-		expand('data/auxiliary/pileupAnalysis/{method}/{barcode}.pileupanalysis.txt',method=methods,barcode=barcodes)
+		expand('data/auxiliary/pileupAnalysis/{method}/{barcode}.labels.json',method=methods,barcode=barcodes)
 
 include: 'rules/errorCorrection.snk'
 include: 'rules/debruijn.snk'

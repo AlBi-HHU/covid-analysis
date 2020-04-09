@@ -18,3 +18,15 @@ rule pileupAnalysis:
 		'../envs/biopythonworkbench.yaml'
 	shell:
 		'perl scripts/getCompleteMycoFrequencies.pl --BAM {input.alignment} --output {output} --minMappingQuality 0 --minBaseQuality 0 --referenceGenome {input.reference}'
+
+
+rule labelAlleles:
+	input:
+		pileupAnalysis = 'data/auxiliary/pileupAnalysis/{method}/{barcode}.pileupanalysis.txt',
+		vcfFile = 'data/input/result_hac/barcode{barcode}.{method}.primertrimmed.vcf'
+	output:
+		'data/auxiliary/pileupAnalysis/{method}/{barcode}.labels.json'
+	conda:
+		'../envs/biopythonworkbench.yaml'
+	script:
+		'../scripts/labelVariantCalls.py'
