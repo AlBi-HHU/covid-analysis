@@ -30,3 +30,13 @@ rule labelAlleles:
 		'../envs/biopythonworkbench.yaml'
 	script:
 		'../scripts/labelVariantCalls.py'
+
+rule getHOMVariantPositions:
+	input:	
+		labels = expand('data/auxiliary/pileupAnalysis/{method}/{barcode}.labels.json',method=methods,barcode=barcodes)
+	output:
+		'data/auxiliary/interestingHOMPositions.json'
+	conda:
+		'../envs/biopythonworkbench.yaml'
+	script:
+		'../scripts/assembleHOMPositions.py'

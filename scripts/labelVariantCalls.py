@@ -43,14 +43,14 @@ for rec in vcfFile.fetch():
 		# + strand
 		altAlleleCount += localSpreadDict[altAllele] if altAllele in localSpreadDict else 0
 		# - strand
-		altAlleleCount += localSpreadDict[altAllele.lower()] if altAllele in localSpreadDict else 0
+		altAlleleCount += localSpreadDict[altAllele.lower()] if altAllele.lower() in localSpreadDict else 0
 
 		freq = altAlleleCount/totalReads
 
 		if freq >= threshold:
 			label = 'HOM'
 		else:
-			label = 'HET'
+			label = 'NONHOM'
 		
 		callLabels[position][altAllele] = (label,freq)
 

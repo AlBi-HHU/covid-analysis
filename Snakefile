@@ -15,8 +15,7 @@ rule all:
 		expand('data/output/softClippedSeqs/{method}/{barcode}.html',method=methods,barcode=barcodes),
 		expand('data/output/kmerHistograms/{method}/{barcode}_{k}.svg',method=methods,barcode=barcodes,k=ks),
 		'data/output/tobigram.svg',
-		'data/auxiliary/interestingPositions.json',
-		expand('data/auxiliary/pileupAnalysis/{method}/{barcode}.labels.json',method=methods,barcode=barcodes)
+		'data/auxiliary/interestingHOMPositions.json'
 
 include: 'rules/errorCorrection.snk'
 include: 'rules/debruijn.snk'
