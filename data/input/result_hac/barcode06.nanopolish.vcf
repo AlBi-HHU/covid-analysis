@@ -1,0 +1,15 @@
+##fileformat=VCFv4.2
+##nanopolish_window=MN908947.3:1-29902
+##INFO=<ID=TotalReads,Number=1,Type=Integer,Description="The number of event-space reads used to call the variant">
+##INFO=<ID=SupportFraction,Number=1,Type=Float,Description="The fraction of event-space reads that support the variant">
+##INFO=<ID=BaseCalledReadsWithVariant,Number=1,Type=Integer,Description="The number of base-space reads that support the variant">
+##INFO=<ID=BaseCalledFraction,Number=1,Type=Float,Description="The fraction of base-space reads that support the variant">
+##INFO=<ID=AlleleCount,Number=1,Type=Integer,Description="The inferred number of copies of the allele">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	sample
+MN908947.3	1440	.	G	A	3109.9	PASS	BaseCalledReadsWithVariant=374;BaseCalledFraction=0.935;TotalReads=395;AlleleCount=1;SupportFraction=0.891077	GT	1
+MN908947.3	2891	.	G	A	769.1	PASS	BaseCalledReadsWithVariant=367;BaseCalledFraction=0.4599;TotalReads=759;AlleleCount=1;SupportFraction=0.510753	GT	1
+MN908947.3	4655	.	C	T	2786.3	PASS	BaseCalledReadsWithVariant=352;BaseCalledFraction=0.877805;TotalReads=400;AlleleCount=1;SupportFraction=0.956622	GT	1
+MN908947.3	13494	.	T	C	2257.0	PASS	BaseCalledReadsWithVariant=342;BaseCalledFraction=0.855;TotalReads=398;AlleleCount=1;SupportFraction=0.80289	GT	1
+MN908947.3	19484	.	C	T	77.4	PASS	BaseCalledReadsWithVariant=32;BaseCalledFraction=0.266667;TotalReads=120;AlleleCount=1;SupportFraction=0.599747	GT	1
+MN908947.3	22323	.	C	T	8623.5	PASS	BaseCalledReadsWithVariant=441;BaseCalledFraction=0.706731;TotalReads=623;AlleleCount=1;SupportFraction=0.802863	GT	1

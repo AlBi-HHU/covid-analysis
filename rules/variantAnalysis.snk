@@ -1,0 +1,9 @@
+rule getVariantPositions:
+	input:
+		vcfFiles = expand('data/input/result_hac/barcode{barcode}.{method}.primertrimmed.vcf',method=methods,barcode=barcodes)
+	output:
+		'data/auxiliary/interestingPositions.json'
+	conda:
+		'../envs/biopythonworkbench.yaml'
+	script:
+		'../scripts/determineVariantPositions.py'

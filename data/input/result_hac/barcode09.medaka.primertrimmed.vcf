@@ -1,0 +1,13 @@
+##fileformat=VCFv4.1
+##contig=<ID=MN908947.3>
+##INFO=<ID=ref_prob,Number=1,Type=Float,Description="Medaka probability for reference allele">
+##INFO=<ID=primary_prob,Number=1,Type=Float,Description="Medaka probability of primary call">
+##INFO=<ID=primary_call,Number=1,Type=String,Description="Medaka primary call">
+##INFO=<ID=secondary_prob,Number=1,Type=Float,Description="Medaka probability of secondary call">
+##INFO=<ID=secondary_call,Number=1,Type=String,Description="Medaka secondary call">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Medaka genotype">
+##FORMAT=<ID=GQ,Number=1,Type=Float,Description="Medaka genotype quality score">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMPLE
+MN908947.3	1440	.	G	A	70.0	PASS	primary_call=A;primary_prob=1.000;ref_prob=0.000;secondary_call=C;secondary_prob=0.000	GT:GQ	1/1:70.000
+MN908947.3	2891	.	G	A	70.0	PASS	primary_call=A;primary_prob=1.000;ref_prob=0.000;secondary_call=C;secondary_prob=0.000	GT:GQ	1/1:70.000
+MN908947.3	27849	.	C	T	18.5	PASS	primary_call=T;primary_prob=0.986;ref_prob=0.014;secondary_call=C;secondary_prob=0.014	GT:GQ	1/1:18.500

@@ -1,0 +1,41 @@
+##fileformat=VCFv4.1
+##contig=<ID=MN908947.3>
+##INFO=<ID=ref_prob,Number=1,Type=Float,Description="Medaka probability for reference allele">
+##INFO=<ID=primary_prob,Number=1,Type=Float,Description="Medaka probability of primary call">
+##INFO=<ID=primary_call,Number=1,Type=String,Description="Medaka primary call">
+##INFO=<ID=secondary_prob,Number=1,Type=Float,Description="Medaka probability of secondary call">
+##INFO=<ID=secondary_call,Number=1,Type=String,Description="Medaka secondary call">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Medaka genotype">
+##FORMAT=<ID=GQ,Number=1,Type=Float,Description="Medaka genotype quality score">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMPLE
+MN908947.3	1440	.	G	A	70.0	PASS	primary_call=A;primary_prob=1.000;ref_prob=0.000;secondary_call=C;secondary_prob=0.000	GT:GQ	1/1:70.000
+MN908947.3	2891	.	G	A	70.0	PASS	primary_call=A;primary_prob=1.000;ref_prob=0.000;secondary_call=C;secondary_prob=0.000	GT:GQ	1/1:70.000
+MN908947.3	5298	.	C	A	61.455	PASS	primary_call=A;primary_prob=1.000;ref_prob=0.000;secondary_call=*;secondary_prob=0.000	GT:GQ	1/1:61.455
+MN908947.3	5300	.	G	T	40.299	PASS	primary_call=T;primary_prob=1.000;ref_prob=0.000;secondary_call=G;secondary_prob=0.000	GT:GQ	1/1:40.299
+MN908947.3	5302	.	A	T	37.577	PASS	primary_call=T;primary_prob=1.000;ref_prob=0.000;secondary_call=A;secondary_prob=0.000	GT:GQ	1/1:37.577
+MN908947.3	5304	.	T	A	29.102	PASS	primary_call=A;primary_prob=0.999;ref_prob=0.001;secondary_call=T;secondary_prob=0.001	GT:GQ	1/1:29.102
+MN908947.3	5305	.	G	T	32.544	PASS	primary_call=T;primary_prob=0.999;ref_prob=0.000;secondary_call=A;secondary_prob=0.000	GT:GQ	1/1:32.544
+MN908947.3	5308	.	A	C	53.674	PASS	primary_call=C;primary_prob=1.000;ref_prob=0.000;secondary_call=A;secondary_prob=0.000	GT:GQ	1/1:53.674
+MN908947.3	5312	.	C	G	63.216	PASS	primary_call=G;primary_prob=1.000;ref_prob=0.000;secondary_call=C;secondary_prob=0.000	GT:GQ	1/1:63.216
+MN908947.3	5313	.	T	A	70.0	PASS	primary_call=A;primary_prob=1.000;ref_prob=0.000;secondary_call=G;secondary_prob=0.000	GT:GQ	1/1:70.000
+MN908947.3	5314	.	C	G	64.466	PASS	primary_call=G;primary_prob=1.000;ref_prob=0.000;secondary_call=C;secondary_prob=0.000	GT:GQ	1/1:64.466
+MN908947.3	5319	.	A	C	69.237	PASS	primary_call=C;primary_prob=1.000;ref_prob=0.000;secondary_call=G;secondary_prob=0.000	GT:GQ	1/1:69.237
+MN908947.3	5323	.	A	T	59.694	PASS	primary_call=T;primary_prob=1.000;ref_prob=0.000;secondary_call=*;secondary_prob=0.000	GT:GQ	1/1:59.694
+MN908947.3	5326	.	G	C	64.466	PASS	primary_call=C;primary_prob=1.000;ref_prob=0.000;secondary_call=G;secondary_prob=0.000	GT:GQ	1/1:64.466
+MN908947.3	5330	.	A	T	53.439	PASS	primary_call=T;primary_prob=1.000;ref_prob=0.000;secondary_call=A;secondary_prob=0.000	GT:GQ	1/1:53.439
+MN908947.3	5333	.	T	C	55.257	PASS	primary_call=C;primary_prob=1.000;ref_prob=0.000;secondary_call=*;secondary_prob=0.000	GT:GQ	1/1:55.257
+MN908947.3	5334	.	T	C	39.882	PASS	primary_call=C;primary_prob=1.000;ref_prob=0.000;secondary_call=A;secondary_prob=0.000	GT:GQ	1/1:39.882
+MN908947.3	5335	.	T	A,C	33.098	PASS	primary_call=A;primary_prob=0.674;ref_prob=0.000;secondary_call=C;secondary_prob=0.326	GT:GQ	1/2:33.098
+MN908947.3	5338	.	T	C	16.747	PASS	primary_call=C;primary_prob=0.979;ref_prob=0.000;secondary_call=A;secondary_prob=0.021	GT:GQ	1/1:16.747
+MN908947.3	5340	.	C	A	42.773	PASS	primary_call=C;primary_prob=0.625;ref_prob=0.625;secondary_call=A;secondary_prob=0.374	GT:GQ	0/1:42.773
+MN908947.3	5344	.	T	A	41.558	PASS	primary_call=A;primary_prob=1.000;ref_prob=0.000;secondary_call=T;secondary_prob=0.000	GT:GQ	1/1:41.558
+MN908947.3	5345	.	G	T	56.449	PASS	primary_call=T;primary_prob=1.000;ref_prob=0.000;secondary_call=C;secondary_prob=0.000	GT:GQ	1/1:56.449
+MN908947.3	5346	.	C	A	50.316	PASS	primary_call=A;primary_prob=1.000;ref_prob=0.000;secondary_call=C;secondary_prob=0.000	GT:GQ	1/1:50.316
+MN908947.3	5349	.	T	C	48.63	PASS	primary_call=C;primary_prob=1.000;ref_prob=0.000;secondary_call=A;secondary_prob=0.000	GT:GQ	1/1:48.630
+MN908947.3	5351	.	C	A	25.457	PASS	primary_call=A;primary_prob=0.997;ref_prob=0.003;secondary_call=C;secondary_prob=0.003	GT:GQ	1/1:25.457
+MN908947.3	5353	.	A	C	30.701	PASS	primary_call=C;primary_prob=0.999;ref_prob=0.001;secondary_call=A;secondary_prob=0.001	GT:GQ	1/1:30.701
+MN908947.3	5356	.	T	A	69.237	PASS	primary_call=A;primary_prob=1.000;ref_prob=0.000;secondary_call=*;secondary_prob=0.000	GT:GQ	1/1:69.237
+MN908947.3	5362	.	T	C	39.933	PASS	primary_call=C;primary_prob=1.000;ref_prob=0.000;secondary_call=T;secondary_prob=0.000	GT:GQ	1/1:39.933
+MN908947.3	5363	.	T	G	38.32	PASS	primary_call=G;primary_prob=1.000;ref_prob=0.000;secondary_call=T;secondary_prob=0.000	GT:GQ	1/1:38.320
+MN908947.3	5365	.	C	T	49.506	PASS	primary_call=T;primary_prob=1.000;ref_prob=0.000;secondary_call=C;secondary_prob=0.000	GT:GQ	1/1:49.506
+MN908947.3	7798	.	G	T	69.237	PASS	primary_call=T;primary_prob=1.000;ref_prob=0.000;secondary_call=G;secondary_prob=0.000	GT:GQ	1/1:69.237

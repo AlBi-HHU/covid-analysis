@@ -1,0 +1,18 @@
+##fileformat=VCFv4.2
+##nanopolish_window=MN908947.3:1-29902
+##INFO=<ID=TotalReads,Number=1,Type=Integer,Description="The number of event-space reads used to call the variant">
+##INFO=<ID=SupportFraction,Number=1,Type=Float,Description="The fraction of event-space reads that support the variant">
+##INFO=<ID=BaseCalledReadsWithVariant,Number=1,Type=Integer,Description="The number of base-space reads that support the variant">
+##INFO=<ID=BaseCalledFraction,Number=1,Type=Float,Description="The fraction of base-space reads that support the variant">
+##INFO=<ID=AlleleCount,Number=1,Type=Integer,Description="The inferred number of copies of the allele">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	sample
+MN908947.3	241	.	C	T	3221.1	PASS	BaseCalledReadsWithVariant=341;BaseCalledFraction=0.8525;TotalReads=400;AlleleCount=1;SupportFraction=0.782756	GT	1
+MN908947.3	3037	.	C	T	3379.6	PASS	BaseCalledReadsWithVariant=236;BaseCalledFraction=0.59;TotalReads=399;AlleleCount=1;SupportFraction=0.558601	GT	1
+MN908947.3	14408	.	C	T	3090.2	PASS	BaseCalledReadsWithVariant=314;BaseCalledFraction=0.785;TotalReads=398;AlleleCount=1;SupportFraction=0.915294	GT	1
+MN908947.3	19484	.	C	T	53.2	PASS	BaseCalledReadsWithVariant=10;BaseCalledFraction=0.27027;TotalReads=37;AlleleCount=1;SupportFraction=0.650311	GT	1
+MN908947.3	23403	.	A	G	4111.5	PASS	BaseCalledReadsWithVariant=347;BaseCalledFraction=0.8675;TotalReads=398;AlleleCount=1;SupportFraction=0.979993	GT	1
+MN908947.3	27046	.	C	T	3956.7	PASS	BaseCalledReadsWithVariant=372;BaseCalledFraction=0.93;TotalReads=399;AlleleCount=1;SupportFraction=0.96851	GT	1
+MN908947.3	28881	.	G	A	6481.2	PASS	BaseCalledReadsWithVariant=376;BaseCalledFraction=0.94;TotalReads=396;AlleleCount=1;SupportFraction=0.966813	GT	1
+MN908947.3	28882	.	G	A	6481.2	PASS	BaseCalledReadsWithVariant=361;BaseCalledFraction=0.9025;TotalReads=396;AlleleCount=1;SupportFraction=0.920554	GT	1
+MN908947.3	28883	.	G	C	6481.2	PASS	BaseCalledReadsWithVariant=363;BaseCalledFraction=0.9075;TotalReads=396;AlleleCount=1;SupportFraction=0.986982	GT	1
