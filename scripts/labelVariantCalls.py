@@ -23,7 +23,7 @@ with open(snakemake.input['pileupAnalysis'],'r') as infile:
 		pileupAnalysis[pos] = spreadDict
 
 threshold = float(snakemake.config['thresholdHomCall'])
-
+coverageThreshold = int(snakemake.config['thresholdHomCall_coverage'])
 #Decision Making:
 #If MEDAKA -> just check if HOM or HET
 #If Nanopolish -> Check Coverage at position, use 85% (tune in config) threshold for HOM
@@ -47,12 +47,12 @@ for rec in vcfFile.fetch():
 
 		freq = altAlleleCount/totalReads
 
-		if freq >= threshold:
+		if freq >= threshold and totalReads >= coverageThreshold:
 			label = 'HOM'
 		else:
 			label = 'NONHOM'
 		
-		callLabels[position][altAllele] = (label,freq)
+		callLabels[position][altAllele] = (label,freq,localSpreadDict)
 
 
 with open(snakemake.output[0],'w') as outfile:

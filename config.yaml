@@ -4,3 +4,5 @@ ks : [11]
 
 #fraction (between 0 and 1) of reads that need to support a variant for it to be labeled homozygous
 thresholdHomCall : 0.85
+
+thresholdHomCall_coverage : 50
