@@ -6,6 +6,8 @@ callLabels = {}
 
 vcfFile = VariantFile(snakemake.input['vcfFile'])
 
+isMedaka = 'medaka' in snakemake.input['vcfFile']
+
 pileupAnalysis = {}
 
 
@@ -33,6 +35,13 @@ for rec in vcfFile.fetch():
 	localSpreadDict = pileupAnalysis[position]
 	totalReads = sum(localSpreadDict.values())
 
+	#skip if medaka predicts het
+	medakaSkip = False
+	if isMedaka:
+		calledAlleles = set(rec.samples.values()[0])
+		if len(calledAlleles) != 1:
+			medakaSkip = True
+
 	callLabels[position] = {}
 
 	for altAllele in rec.alts:
@@ -47,7 +56,7 @@ for rec in vcfFile.fetch():
 
 		freq = altAlleleCount/totalReads
 
-		if freq >= threshold and totalReads >= coverageThreshold:
+		if freq >= threshold and totalReads >= coverageThreshold and medakaSkip == False:
 			label = 'HOM'
 		else:
 			label = 'NONHOM'
