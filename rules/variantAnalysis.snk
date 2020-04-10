@@ -11,6 +11,7 @@ rule getVariantPositions:
 rule pileupAnalysis:
 	input:
 		alignment = 'data/input/result_hac/barcode{barcode}.{method}.primertrimmed.sorted.bam',
+                alignment_index = 'data/input/result_hac/barcode{barcode}.{method}.primertrimmed.sorted.bam.bai',
 		reference = 'data/input/nCoV-2019.reference.fasta'
 	output:
 		'data/auxiliary/pileupAnalysis/{method}/{barcode}.pileupanalysis.txt'
