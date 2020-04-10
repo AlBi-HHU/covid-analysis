@@ -6,8 +6,10 @@ rule bCalm:
 	params:
 		outprefix = 'data/auxiliary/graphs/{basecalling_method}/{barcode}/{k}',
 		k = lambda wildcards: wildcards.k
-	singularity:
-		'docker://cimendes/bcalm:2.2.1-1'
+	conda:
+		'../envs/bcalm.yaml'
+	#singularity:
+	#	'docker://cimendes/bcalm:2.2.1-1'
 	log:
 		'logs/{basecalling_method}_{barcode}_{k}_bCalm.log'
 	shell:
