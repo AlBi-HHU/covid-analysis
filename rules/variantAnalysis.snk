@@ -1,6 +1,18 @@
+def fetchAllVCFs():
+	list = []
+	for run in barcodes:
+		list+= expand('data/input/'+run+'/result_hac/barcode{barcode}.{method}.primertrimmed.vcf',method=methods,barcode=barcodes[run])	
+	return list
+
+def fetchAllLabels():
+	list = []
+	for run in barcodes:
+		list+= expand('data/auxiliary/pileupAnalysis/{method}/'+run+'/{barcode}.labels.json',method=methods,barcode=barcodes[run])	
+	return list	
+
 rule getVariantPositions:
 	input:
-		vcfFiles = expand('data/input/result_hac/barcode{barcode}.{method}.primertrimmed.vcf',method=methods,barcode=barcodes)
+		vcfFiles = fetchAllVCFs()
 	output:
 		'data/auxiliary/interestingPositions.json'
 	conda:
@@ -10,11 +22,11 @@ rule getVariantPositions:
 
 rule pileupAnalysis:
 	input:
-		alignment = 'data/input/result_hac/barcode{barcode}.{method}.primertrimmed.sorted.bam',
-                alignment_index = 'data/input/result_hac/barcode{barcode}.{method}.primertrimmed.sorted.bam.bai',
+		alignment = 'data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.sorted.bam',
+                alignment_index = 'data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.sorted.bam.bai',
 		reference = 'data/input/nCoV-2019.reference.fasta'
 	output:
-		'data/auxiliary/pileupAnalysis/{method}/{barcode}.pileupanalysis.txt'
+		'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.pileupanalysis.txt'
 	conda:
 		'../envs/biopythonworkbench.yaml'
 	shell:
@@ -23,10 +35,10 @@ rule pileupAnalysis:
 
 rule labelAlleles:
 	input:
-		pileupAnalysis = 'data/auxiliary/pileupAnalysis/{method}/{barcode}.pileupanalysis.txt',
-		vcfFile = 'data/input/result_hac/barcode{barcode}.{method}.primertrimmed.vcf'
+		pileupAnalysis = 'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.pileupanalysis.txt',
+		vcfFile = 'data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.vcf'
 	output:
-		'data/auxiliary/pileupAnalysis/{method}/{barcode}.labels.json'
+		'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.labels.json'
 	conda:
 		'../envs/biopythonworkbench.yaml'
 	script:
@@ -34,7 +46,7 @@ rule labelAlleles:
 
 rule getHOMVariantPositions:
 	input:	
-		labels = expand('data/auxiliary/pileupAnalysis/{method}/{barcode}.labels.json',method=methods,barcode=barcodes)
+		labels = fetchAllLabels()
 	output:
 		'data/auxiliary/interestingHOMPositions.json'
 	conda:

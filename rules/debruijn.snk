@@ -1,29 +1,29 @@
 rule bCalm:
 	input:
-		'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fasta'
+		'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta'
 	output:
-		unitigs = 'data/auxiliary/graphs/{basecalling_method}/{barcode}/{k}.unitigs.fa'
+		unitigs = 'data/auxiliary/graphs/{basecalling_method}/{run}/{barcode}/{k}.unitigs.fa'
 	params:
-		outprefix = 'data/auxiliary/graphs/{basecalling_method}/{barcode}/{k}',
+		outprefix = 'data/auxiliary/graphs/{basecalling_method}/{run}/{barcode}/{k}',
 		k = lambda wildcards: wildcards.k
 	conda:
 		'../envs/bcalm.yaml'
 	#singularity:
 	#	'docker://cimendes/bcalm:2.2.1-1'
 	log:
-		'logs/{basecalling_method}_{barcode}_{k}_bCalm.log'
+		'logs/{basecalling_method}_{run}_{barcode}_{k}_bCalm.log'
 	shell:
 		'bcalm -in {input} -kmer-size {params.k} -out {params.outprefix} -abundance-min 50 2> {log}' #Determine abundance min based on k-mer histograms
 
 
 rule convertToGFA:
 	input:
-		'data/auxiliary/graphs/{basecalling_method}/{barcode}/{k}.unitigs.fa'
+		'data/auxiliary/graphs/{basecalling_method}/{run}/{barcode}/{k}.unitigs.fa'
 	output:
-		'data/auxiliary/graphs/{basecalling_method}/{barcode}/{k}.gfa'
+		'data/auxiliary/graphs/{basecalling_method}/{run}/{barcode}/{k}.gfa'
 	params:
 		k = lambda wildcards: wildcards.k
 	log:
-		'logs/{basecalling_method}_{barcode}_{k}_faToGFA.log'
+		'logs/{basecalling_method}_{run}_{barcode}_{k}_faToGFA.log'
 	shell:
 		'python3 scripts/convertToGFA.py {input} {output} {params.k} 2> {log}'

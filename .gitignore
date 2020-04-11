@@ -2,8 +2,6 @@
 CovidSandbox.ipynb
 unsorted
 Bandage_Ubuntu_static_v0_8_1
-data/input/result_hac/*bam.bai
-data/auxiliary
-data/output
+data
 logs
 benchmarks

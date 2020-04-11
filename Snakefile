@@ -6,17 +6,36 @@ ks = config['ks']
 
 methods = ['medaka','nanopolish']
 #Uses the IGV sessions which is completely arbitrary, could use any other input file here to get the barcode ids
-barcodes= glob_wildcards('data/input/result_hac/barcode{barcode}.igv.xml').barcode
+runs = glob_wildcards('data/input/{run}/result_hac').run
+barcodes = {}
+for run in runs:
+	barcodes[run] = glob_wildcards('data/input/'+run+'/result_hac/barcode{barcode}.medaka.primertrimmed.vcf').barcode
 
 
-rule all:
-	input:
-		expand('data/auxiliary/graphs/{method}/{barcode}/{k}.gfa',method=methods,barcode=barcodes,k=ks),
-		expand('data/output/softClippedSeqs/{method}/{barcode}.html',method=methods,barcode=barcodes),
-		expand('data/output/kmerHistograms/{method}/{barcode}_{k}.svg',method=methods,barcode=barcodes,k=ks),
+
+def getInput():
+	inputList = []
+
+	inputList.append([
 		'data/output/tobigram.svg',
 		'data/auxiliary/interestingHOMPositions.json',
 		'data/auxiliary/interestingPositions.json'
+	]
+	)
+
+	for run in runs:
+		inputList += expand('data/auxiliary/graphs/{method}/'+run+'/{barcode}/{k}.gfa',method=methods,barcode=barcodes[run],k=ks)
+		inputList += expand('data/output/softClippedSeqs/{method}/'+run+'/{barcode}.html',method=methods,barcode=barcodes[run])
+		inputList += expand('data/output/kmerHistograms/{method}/'+run+'/{barcode}_{k}.svg',method=methods,barcode=barcodes[run],k=ks)
+	
+	return inputList
+
+rule all:
+	input:
+		getInput()
+
+
+
 include: 'rules/errorCorrection.snk'
 include: 'rules/debruijn.snk'
 include: 'rules/kmerAnalysis.snk'

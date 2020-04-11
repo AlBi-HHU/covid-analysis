@@ -24,10 +24,10 @@ rule index_bwa:
 
 rule extractSoftClippedReads:
 	input:
-		alignment = 'data/input/result_hac/barcode{barcode}.{basecalling_method}.primertrimmed.sorted.bam',
-		index = 'data/input/result_hac/barcode{barcode}.{basecalling_method}.primertrimmed.sorted.bam.bai'
+		alignment = 'data/input/{run}/result_hac/barcode{barcode}.{basecalling_method}.primertrimmed.sorted.bam',
+		index = 'data/input/{run}/result_hac/barcode{barcode}.{basecalling_method}.primertrimmed.sorted.bam.bai'
 	output:
-		'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fasta'
+		'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta'
 	conda:
 		'../envs/biopythonworkbench.yaml'
 	script:
@@ -35,23 +35,23 @@ rule extractSoftClippedReads:
 
 rule createKmerProfiles:
 	input:
-		'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fasta'
+		'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta'
 	output:
-		'data/auxiliary/kmerProfiles/{basecalling_method}/{barcode}_{k}.json'
+		'data/auxiliary/kmerProfiles/{basecalling_method}/{run}/{barcode}_{k}.json'
 	params:
 		k = lambda wildcards: int(wildcards.k)
 	conda:
 		'../envs/biopythonworkbench.yaml'
 	script:
-		'../scripts/createKmerProfiles.py'	
+		'../scripts/createKmerProfiles.py'
 
 
 rule plotKmerHistogram:
 	input:
-		kmerProfile = 'data/auxiliary/kmerProfiles/{basecalling_method}/{barcode}_{k}.json',
+		kmerProfile = 'data/auxiliary/kmerProfiles/{basecalling_method}/{run}/{barcode}_{k}.json',
 		uniqueKmers = 'data/auxiliary/uniqueKmers.json'
 	output:
-		report('data/output/kmerHistograms/{basecalling_method}/{barcode}_{k}.svg',category='k-mer histograms')
+		report('data/output/kmerHistograms/{basecalling_method}/{run}/{barcode}_{k}.svg',category='k-mer histograms')
 	params:
 		k = lambda wildcards: wildcards.k
 	conda:
@@ -62,9 +62,9 @@ rule plotKmerHistogram:
 
 rule addPseudoQualities:
 	input:
-		'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fasta'
+		'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta'
 	output:
-		'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fq'
+		'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fq'
 	conda:
 		'../envs/perl.yaml'
 	shell:
@@ -72,11 +72,11 @@ rule addPseudoQualities:
 
 rule overabundance_analysis:
 	input:
-		'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fq'
+		'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fq'
 	output:
-		reporthtml = report('data/output/softClippedSeqs/{basecalling_method}/{barcode}.html',category='Quality Control'),
-		reportjson = report('data/output/softClippedSeqs/{basecalling_method}/{barcode}.json',category='Quality Control'),
-		fixedFasta = 'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.corrected.fasta'
+		reporthtml = report('data/output/softClippedSeqs/{basecalling_method}/{run}/{barcode}.html',category='Quality Control'),
+		reportjson = report('data/output/softClippedSeqs/{basecalling_method}/{run}/{barcode}.json',category='Quality Control'),
+		fixedFasta = 'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.corrected.fasta'
 	conda:
 		'../envs/fastp.yaml'
 	shell:
