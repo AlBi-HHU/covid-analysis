@@ -1,9 +1,9 @@
-name: Bcalm
+name: Dsk
 
 channels:
   - bioconda
   - defaults
 
 dependencies:
-  - bcalm = 2.2.2
+  - dsk = 2.3.1
 

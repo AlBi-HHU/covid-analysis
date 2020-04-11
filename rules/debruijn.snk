@@ -1,6 +1,22 @@
+rule dsk:
+        input:
+                ref  = 'data/input/nCoV-2019.reference.fasta',
+                reads = 'data/auxiliary/softClippedSeqs/{basecalling_method}/{barcode}.fasta'
+        output:
+                count = 'data/auxiliary/graphs/{basecalling_method}/{barcode}/{k}.h5',
+        params:
+                k = lambda wildcards: wildcards.k,
+		abundance_min = 50
+        conda:
+                '../envs/dsk.yaml'
+        log:
+                'logs/{basecalling_method}_{barcode}_{k}_dsk.log'
+        shell:
+                'dsk -file {input.reads},{input.ref} -kmer-size {params.k} -abundance-min {params.abundance_min},1 -solidity-kind one -repartition-type 1 -minimizer-type 1 -out {output.count}'
+
 rule bCalm:
 	input:
-		'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta'
+                count = 'data/auxiliary/graphs/{basecalling_method}/{barcode}/{k}.h5'
 	output:
 		unitigs = 'data/auxiliary/graphs/{basecalling_method}/{run}/{barcode}/{k}.unitigs.fa'
 	params:
@@ -13,7 +29,7 @@ rule bCalm:
 	log:
 		'logs/{basecalling_method}_{run}_{barcode}_{k}_bCalm.log'
 	shell:
-		'bcalm -in {input} -kmer-size {params.k} -out {params.outprefix} -abundance-min 50 2> {log}' #Determine abundance min based on k-mer histograms
+		'bcalm -in {input} -kmer-size {params.k} -out {params.outprefix} 2> {log}' #Determine abundance min based on k-mer histograms
 
 
 rule convertToGFA:
