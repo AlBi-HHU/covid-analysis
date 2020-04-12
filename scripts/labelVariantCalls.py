@@ -1,10 +1,14 @@
-from pysam import VariantFile
 from shared import *
 import json
 
 callLabels = {}
 
-vcfFile = VariantFile(snakemake.input['vcfFile'])
+vcfFile = []
+with open(snakemake.input['vcfFile'],'r') as vcffileRaw:
+	for line in vcffileRaw.read().splitlines():
+		if line.startswith('#'):
+			continue
+		vcfFile.append(line.split('\t'))
 
 isMedaka = 'medaka' in snakemake.input['vcfFile']
 
@@ -27,21 +31,23 @@ with open(snakemake.input['pileupAnalysis'],'r') as infile:
 threshold = float(snakemake.config['thresholdHomCall'])
 coverageThreshold = int(snakemake.config['thresholdHomCall_coverage'])
 
-for rec in vcfFile.fetch():
-	position = rec.pos
+for rec in vcfFile:
+	position = int(rec[1])
 	localSpreadDict = pileupAnalysis[position]
 	totalReads = sum(localSpreadDict.values())
 
-	#skip if medaka predicts het
+	#check if Medaka predicts HET
 	medakaHETCall = False
 	if isMedaka:
-		calledAlleles = set(rec.samples.values()[0])
-		if len(calledAlleles) != 1:
+		sampleCol = rec[-1]
+		calls = sampleCol.split(':')[0].split('/')
+		#print(calls)
+		if calls[0] != calls[1]:
 			medakaHETCall = True
 
 	callLabels[position] = {}
-
-	for altAllele in rec.alts:
+	alts = rec[4].split(',')
+	for altAllele in alts:
 
 		label = '???'
 
