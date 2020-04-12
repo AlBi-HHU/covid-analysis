@@ -44,6 +44,17 @@ rule labelAlleles:
 	script:
 		'../scripts/labelVariantCalls.py'
 
+rule labelSamples:
+	input:
+		labels = fetchAllLabels()
+	output:
+		'data/auxiliary/sampleClassification.tsv'
+	conda:
+		'../envs/biopythonworkbench.yaml'
+	script:
+		'../scripts/labelSamples.py'
+
+
 rule getHOMVariantPositions:
 	input:	
 		labels = fetchAllLabels()

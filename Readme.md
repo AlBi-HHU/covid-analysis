@@ -57,3 +57,12 @@ report with
 20887 (bc 17/24bc)
 
 23683 (bc 18/24bc)
+
+
+
+
+
+```
+outputList:
+run/barcode hom/het addedToDBID    frequencies if hom
+```

@@ -26,9 +26,6 @@ with open(snakemake.input['pileupAnalysis'],'r') as infile:
 
 threshold = float(snakemake.config['thresholdHomCall'])
 coverageThreshold = int(snakemake.config['thresholdHomCall_coverage'])
-#Decision Making:
-#If MEDAKA -> just check if HOM or HET
-#If Nanopolish -> Check Coverage at position, use 85% (tune in config) threshold for HOM
 
 for rec in vcfFile.fetch():
 	position = rec.pos
@@ -36,11 +33,11 @@ for rec in vcfFile.fetch():
 	totalReads = sum(localSpreadDict.values())
 
 	#skip if medaka predicts het
-	medakaSkip = False
+	medakaHETCall = False
 	if isMedaka:
 		calledAlleles = set(rec.samples.values()[0])
 		if len(calledAlleles) != 1:
-			medakaSkip = True
+			medakaHETCall = True
 
 	callLabels[position] = {}
 
@@ -56,8 +53,12 @@ for rec in vcfFile.fetch():
 
 		freq = altAlleleCount/totalReads
 
-		if freq >= threshold and totalReads >= coverageThreshold and medakaSkip == False:
+		#If the frequency is above the threshold, and we have a minimum coverage and medaka did not call it as HET, we label it as HOM
+		if freq >= threshold and totalReads >= coverageThreshold and medakaHETCall == False:
 			label = 'HOM'
+		#If medaka labels as HET we can look into it further (mixture model) TODO: Define criterion for Non-Medaka VCFs/pileups when we label as HET
+		elif totalReads >= coverageThreshold and medakaHETCall == True:
+			label = 'HET'
 		else:
 			label = 'NONHOM'
 		

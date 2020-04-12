@@ -6,3 +6,12 @@ ks : [11]
 thresholdHomCall : 0.85
 
 thresholdHomCall_coverage : 50
+
+#Generate k-mer profiles (and histograms) based on ks and soft-clipped reads from alignments
+generateKmerProfiles: False
+
+#Generate gfa files for each barcode
+generateGFAs: False
+
+performQualityControl: False
+
