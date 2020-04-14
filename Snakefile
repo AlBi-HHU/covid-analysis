@@ -15,6 +15,7 @@ for run in runs:
 def getInput():
 	inputList = []
 
+
 	inputList.append([
 		'data/output/tobigram.svg',
 		'data/auxiliary/interestingHOMPositions.json',
@@ -23,6 +24,7 @@ def getInput():
 	]
 	)
 
+
 	for run in runs:
 		if config['generateGFAs']:		
 			inputList += expand('data/auxiliary/graphs/{method}/'+run+'/{barcode}/{k}.gfa',method=methods,barcode=barcodes[run],k=ks)
@@ -30,7 +32,8 @@ def getInput():
 			inputList += expand('data/output/softClippedSeqs/{method}/'+run+'/{barcode}.html',method=methods,barcode=barcodes[run])
 		if config['generateKmerProfiles']:		
 			inputList += expand('data/output/kmerHistograms/{method}/'+run+'/{barcode}_{k}.svg',method=methods,barcode=barcodes[run],k=ks)
-	
+		inputList += expand('data/output/IgvSessions/{method}/'+run+'/{barcode}.igv.xml',method=methods,barcode=barcodes[run])
+
 	return inputList
 
 rule all:

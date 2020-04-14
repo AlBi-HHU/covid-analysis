@@ -10,6 +10,20 @@ def fetchAllLabels():
 		list+= expand('data/auxiliary/pileupAnalysis/{method}/'+run+'/{barcode}.labels.json',method=methods,barcode=barcodes[run])	
 	return list	
 
+rule generateIGVSessions:
+	input:
+		reference = 'data/input/nCoV-2019.reference.fasta',
+		vcfFileNano = 'data/input/{run}/result_hac/barcode{barcode}.nanopolish.primertrimmed.vcf',
+		vcfFileMeda = 'data/input/{run}/result_hac/barcode{barcode}.medaka.primertrimmed.vcf',
+		alignmentFileIndex = 'data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.sorted.bam.bai'
+	output:
+		report('data/output/IgvSessions/{method}/{run}/{barcode}.igv.xml',category='IGVSessions')
+	params:
+		alignmentFile = 'data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.sorted.bam'
+	conda:
+		'../envs/perl.yaml'
+	shell:
+		'perl scripts/generate_IGV.pl --covidReference {input.reference} --BAM {params.alignmentFile} --output {output} --VCF_Medaka {input.vcfFileMeda} --VCF_Nano {input.vcfFileNano}'
 rule getVariantPositions:
 	input:
 		vcfFiles = fetchAllVCFs()
