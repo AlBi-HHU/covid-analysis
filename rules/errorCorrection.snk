@@ -1,0 +1,88 @@
+rule count_kmer_ref_and_read:
+    input:
+        reads = "data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta",
+        reference = "data/input/nCoV-2019.reference.fasta",
+
+    output:
+        count = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.h5",
+
+    params:
+        k = lambda wildcards: wildcards.k,
+        abundance_min = 50,
+        
+    conda:
+        '../envs/dsk.yaml',
+
+     threads:
+        48
+        
+    log:
+        'logs/{basecalling_method}_{run}_{barcode}_{k}_dsk.log',
+
+    shell:
+        'dsk -file {input.reads},{input.reference} -kmer-size {params.k} -abundance-min {params.abundance_min},1 -solidity-kind one -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {output.count} 2> {log}'
+
+
+rule asm_kmer:
+    input:
+        count = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.h5",
+
+    output:
+        asm = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.unitigs.fa",
+        
+    params:
+        outprefix = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}",
+        k = lambda wildcards: wildcards.k,
+        
+    conda:
+        '../envs/bcalm.yaml',
+
+    threads:
+        48
+        
+    log:
+        'logs/{basecalling_method}_{run}_{barcode}_{k}_bcalm.log',
+
+    shell:
+        'bcalm -in {input.count} -kmer-size {params.k} -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {params.outprefix} 2> {log}'
+
+rule generate_gfa:
+    input:
+        asm = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.unitigs.fa",
+
+    output:
+        graph = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.unitigs.gfa",
+        
+    params:
+        k = lambda wildcards: wildcards.k,
+
+    log:
+        'logs/{basecalling_method}_{run}_{barcode}_{k}_asm2gfa.log',
+
+    shell:
+        'python3 scripts/convertToGFA.py {input.asm} {output.graph} {params.k} 2> {log}'
+
+rule corrections_reads:
+    input:
+        graph = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.unitigs.gfa",
+        reads = "data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta",
+
+    output:
+        alignments = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.gaf",
+        correct_reads = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.fasta",
+        
+    params:
+        k = lambda wildcards: wildcards.k,
+
+    conda:
+        '../envs/graphaligner.yaml',
+
+    threads:
+        48
+                
+    log:
+        'logs/{basecalling_method}_{run}_{barcode}_{k}_graphaligner.log',
+
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.reads} --corrected-out {output.correct_reads} -a {output.alignments}"
+        

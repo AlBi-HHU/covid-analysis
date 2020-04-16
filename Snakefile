@@ -32,6 +32,8 @@ def getInput():
 			inputList += expand('data/output/softClippedSeqs/{method}/'+run+'/{barcode}.html',method=methods,barcode=barcodes[run])
 		if config['generateKmerProfiles']:		
 			inputList += expand('data/output/kmerHistograms/{method}/'+run+'/{barcode}_{k}.svg',method=methods,barcode=barcodes[run],k=ks)
+		if config['generateCorrections']:
+                        inputList += expand('data/auxiliary/corrections/{method}/'+run+'/{k}/{barcode}.fasta',method=methods,barcode=barcodes[run],k=ks)
 		inputList += expand('data/output/IgvSessions/{method}/'+run+'/{barcode}.igv.xml',method=methods,barcode=barcodes[run])
 
 	return inputList
