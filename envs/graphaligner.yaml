@@ -1,9 +1,9 @@
-name: Bcalm
+name: GraphAligner
 
 channels:
   - bioconda
   - defaults
 
 dependencies:
-  - bcalm = 2.2.2
+  - graphaligner = 1.0.10
 
