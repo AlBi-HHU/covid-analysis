@@ -2,7 +2,7 @@
 
 
 
-get data from luke (now too big to include in git)
+get data from sciebo (see slack channel, pinned posts)
 
 move data into input folder in following structure
 
@@ -10,7 +10,7 @@ data/input/{run}/result_hac
 
 
 
-(rename barcodeX.medaka.primertrimmed.medaka.Y into barcodeX.medaka.primertrimmed.Y to have coherence with nanopolish and avoid "double" indexing)
+(renamed barcodeX.medaka.primertrimmed.medaka.Y into barcodeX.medaka.primertrimmed.Y to have coherence with nanopolish and avoid "double" indexing, already done in .zip on sciebo)
 
 
 
@@ -24,7 +24,24 @@ report with
 
 
 
+# To-Do
 
+- Realign corrected fasta and create .igv sessions (Maryam)
+- Re-Variant call corrected fasta (Philipp)
+- Diff vcf s (Philipp)
+
+- K-mer graph for all samples (Pierre)
+- (Add support for only generating files for specific run/barcode combinations) (Someone)
+
+# Mixed Samples (posterchilds)
+
+NRW-31 -> 26_37 / 8
+NRW-27 -> 26_37 / 4
+NRW-15 -> 14_25 / 4
+
+# Pure Samples (posterchilds)
+
+NRW-4 -> 03_11 / 3
 
 # Various Notes
 
