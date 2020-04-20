@@ -1,6 +1,12 @@
-rule count_kmer_ref_and_read:
+rule count_kmer_ref_and_raw_read:
     input:
-        reads = "data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta",
+        reads = lambda wildcards: expand("data/auxiliary/{origin}/{method}/{run}/{k}{barcode}.fasta",
+                                         origin = "softClippedSeqs" if config["kmerUseForCorrections"][0] == int(wildcards.k) else "corrections",
+                                         method = wildcards.basecalling_method,
+                                         run = wildcards.run,
+                                         k = "" if config["kmerUseForCorrections"][0] == int(wildcards.k) else str(int(wildcards.k) - 2) + "/",
+                                         barcode = wildcards.barcode
+        ),
         reference = "data/input/nCoV-2019.reference.fasta",
 
     output:
@@ -13,7 +19,7 @@ rule count_kmer_ref_and_read:
     conda:
         '../envs/dsk.yaml',
 
-     threads:
+    threads:
         48
         
     log:
@@ -21,7 +27,6 @@ rule count_kmer_ref_and_read:
 
     shell:
         'dsk -file {input.reads},{input.reference} -kmer-size {params.k} -abundance-min {params.abundance_min},1 -solidity-kind one -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {output.count} 2> {log}'
-
 
 rule asm_kmer:
     input:
@@ -65,7 +70,13 @@ rule generate_gfa:
 rule corrections_reads:
     input:
         graph = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.unitigs.gfa",
-        reads = "data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta",
+        reads = lambda wildcards: expand("data/auxiliary/{origin}/{method}/{run}/{k}{barcode}.fasta",
+                                         origin = "softClippedSeqs" if config["kmerUseForCorrections"][0] == int(wildcards.k) else "corrections",
+                                         method = wildcards.basecalling_method,
+                                         run = wildcards.run,
+                                         k = "" if config["kmerUseForCorrections"][0] == int(wildcards.k) else str(int(wildcards.k) - 2) + "/",
+                                         barcode = wildcards.barcode
+        ),
 
     output:
         alignments = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.gaf",

@@ -15,4 +15,5 @@ generateGFAs: False
 
 performQualityControl: False
 
-generateCorrections: True
+performCorrections: True
+kmerUseForCorrections: [11, 19]
