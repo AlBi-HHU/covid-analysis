@@ -11,9 +11,9 @@ rule bCalm:
 	#singularity:
 	#	'docker://cimendes/bcalm:2.2.1-1'
 	log:
-		'logs/{basecalling_method}_{run}_{barcode}_{k}_bCalm.log'
+	        'logs/{basecalling_method}_{run}_{barcode}_{k}_bCalm.log'
 	shell:
-		'bcalm -in {input} -kmer-size {params.k} -out {params.outprefix} -abundance-min 50 2> {log}' #Determine abundance min based on k-mer histograms
+                'bcalm -in {input} -kmer-size {params.k} -out {params.outprefix} -abundance-min 50 2> {log}' #Determine abundance min based on k-mer histograms
 
 
 rule convertToGFA:

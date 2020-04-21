@@ -1,16 +1,19 @@
+def found_reads(wildcards):
+    return expand("data/auxiliary/{origin}/{method}/{run}/{k}{barcode}.fasta",
+           origin = "softClippedSeqs" if config["kmerUseForCorrections"][0] == int(wildcards.k) else wildcards.corrections_type,
+           method = wildcards.basecalling_method,
+           run = wildcards.run,
+           k = "" if config["kmerUseForCorrections"][0] == int(wildcards.k) else str(int(wildcards.k) - 2) + "/",
+           barcode = wildcards.barcode
+        )
+
 rule count_kmer_ref_and_raw_read:
     input:
-        reads = lambda wildcards: expand("data/auxiliary/{origin}/{method}/{run}/{k}{barcode}.fasta",
-                                         origin = "softClippedSeqs" if config["kmerUseForCorrections"][0] == int(wildcards.k) else "corrections",
-                                         method = wildcards.basecalling_method,
-                                         run = wildcards.run,
-                                         k = "" if config["kmerUseForCorrections"][0] == int(wildcards.k) else str(int(wildcards.k) - 2) + "/",
-                                         barcode = wildcards.barcode
-        ),
+        reads = lambda wildcards: found_reads(wildcards),
         reference = "data/input/nCoV-2019.reference.fasta",
 
     output:
-        count = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.h5",
+        count = "data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.h5",
 
     params:
         k = lambda wildcards: wildcards.k,
@@ -23,20 +26,20 @@ rule count_kmer_ref_and_raw_read:
         48
         
     log:
-        'logs/{basecalling_method}_{run}_{barcode}_{k}_dsk.log',
+        'logs/{corrections_type}_{basecalling_method}_{run}_{barcode}_{k}_dsk.log',
 
     shell:
         'dsk -file {input.reads},{input.reference} -kmer-size {params.k} -abundance-min {params.abundance_min},1 -solidity-kind one -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {output.count} 2> {log}'
 
 rule asm_kmer:
     input:
-        count = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.h5",
+        count = "data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.h5",
 
     output:
-        asm = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.unitigs.fa",
+        asm = "data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.unitigs.fa",
         
     params:
-        outprefix = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}",
+        outprefix = "data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}",
         k = lambda wildcards: wildcards.k,
         
     conda:
@@ -46,44 +49,39 @@ rule asm_kmer:
         48
         
     log:
-        'logs/{basecalling_method}_{run}_{barcode}_{k}_bcalm.log',
+        'logs/{corrections_type}_{basecalling_method}_{run}_{barcode}_{k}_bcalm.log',
 
     shell:
         'bcalm -in {input.count} -kmer-size {params.k} -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {params.outprefix} 2> {log}'
 
 rule generate_gfa:
     input:
-        asm = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.unitigs.fa",
+        asm = "data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.unitigs.fa",
 
     output:
-        graph = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.unitigs.gfa",
+        graph = "data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.unitigs.gfa",
         
     params:
         k = lambda wildcards: wildcards.k,
 
     log:
-        'logs/{basecalling_method}_{run}_{barcode}_{k}_asm2gfa.log',
+        'logs/{corrections_type}_{basecalling_method}_{run}_{barcode}_{k}_asm2gfa.log',
 
     shell:
         'python3 scripts/convertToGFA.py {input.asm} {output.graph} {params.k} 2> {log}'
 
 rule corrections_reads:
     input:
-        graph = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.unitigs.gfa",
-        reads = lambda wildcards: expand("data/auxiliary/{origin}/{method}/{run}/{k}{barcode}.fasta",
-                                         origin = "softClippedSeqs" if config["kmerUseForCorrections"][0] == int(wildcards.k) else "corrections",
-                                         method = wildcards.basecalling_method,
-                                         run = wildcards.run,
-                                         k = "" if config["kmerUseForCorrections"][0] == int(wildcards.k) else str(int(wildcards.k) - 2) + "/",
-                                         barcode = wildcards.barcode
-        ),
-
+        graph = "data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.unitigs.gfa",
+        reads = lambda wildcards: found_reads(wildcards),
+        
     output:
-        alignments = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.gaf",
-        correct_reads = "data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.fasta",
+        alignments = "data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.gaf",
+        correct_reads = "data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.fasta",
         
     params:
         k = lambda wildcards: wildcards.k,
+        correction_flags = lambda wildcards: "--corrected-out" if wildcards.corrections_type == "corrections" else "--corrected-clipped-out" 
 
     conda:
         '../envs/graphaligner.yaml',
@@ -92,8 +90,8 @@ rule corrections_reads:
         48
                 
     log:
-        'logs/{basecalling_method}_{run}_{barcode}_{k}_graphaligner.log',
+        'logs/{corrections_type}_{basecalling_method}_{run}_{barcode}_{k}_graphaligner.log',
 
     shell:
-        "GraphAligner -t {threads} -g {input.graph} -f {input.reads} --corrected-out {output.correct_reads} -a {output.alignments}"
+        "GraphAligner -t {threads} -g {input.graph} -f {input.reads} {params.correction_flags} {output.correct_reads} -a {output.alignments}"
         
