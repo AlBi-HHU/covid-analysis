@@ -29,7 +29,7 @@ rule count_kmer_ref_and_raw_read:
         'logs/{corrections_type}_{basecalling_method}_{run}_{barcode}_{k}_dsk.log',
 
     shell:
-        'dsk -file {input.reads},{input.reference} -kmer-size {params.k} -abundance-min {params.abundance_min},1 -solidity-kind one -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {output.count} 2> {log}'
+        'dsk -file {input.reads},{input.reference},{input.reference} -kmer-size {params.k} -abundance-min {params.abundance_min},1,1 -solidity-kind one -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {output.count} 2> {log}'
 
 rule asm_kmer:
     input:
