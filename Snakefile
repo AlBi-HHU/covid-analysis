@@ -33,6 +33,8 @@ def getInput():
 			inputList += expand('data/output/kmerHistograms/{method}/'+run+'/{barcode}_{k}.svg',method=methods,barcode=barcodes[run],k=ks)
 		if config['performCorrections']:
                         inputList += expand('data/auxiliary/{corrections_type}/{method}/'+run+'/{k}/{barcode}.fasta',method=methods,barcode=barcodes[run],k=config["kmerUseForCorrections"][-1], corrections_type=["corrections", "corrections_clip"])
+		if config['generatePangenome']:
+                        inputList += ["data/auxiliary/pangenome/all_reads_and_ref.link2cov.csv"]
 		inputList += expand('data/output/IgvSessions/{method}/'+run+'/{barcode}.igv.xml',method=methods,barcode=barcodes[run])
 
 	return inputList
@@ -47,3 +49,4 @@ include: 'rules/errorCorrection.snk'
 include: 'rules/debruijn.snk'
 include: 'rules/kmerAnalysis.snk'
 include: 'rules/variantAnalysis.snk'
+include: 'rules/pangenome.snk'

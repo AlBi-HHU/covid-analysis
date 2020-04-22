@@ -17,3 +17,5 @@ performQualityControl: False
 
 performCorrections: True
 kmerUseForCorrections: [11, 19]
+
+generatePangenome: True

@@ -1,0 +1,111 @@
+all_readss = [expand('data/auxiliary/corrections_clip/{method}/{run}/19/{barcode}.fasta', method=methods, barcode=barcodes[run], run=run) for run in runs]
+
+readss = [item for sublist in all_readss for item in sublist]
+
+k = 21
+
+rule count_kmer_of_all_files:
+    input:
+        readss = expand("{a}", a=readss),
+        reference = "data/input/nCoV-2019.reference.fasta",
+
+    output:
+        count = "data/auxiliary/pangenome/all_reads_and_ref.h5"
+
+    params:
+        k = k,
+        abundance_min = 50,
+
+    conda:
+        '../envs/dsk.yaml',
+
+    threads:
+        48
+
+    log:
+        'logs/pangenome_dsk.log'
+
+    shell:
+        'dsk -file ' + ','.join(readss) + ',{input.reference},{input.reference} -kmer-size {params.k} -abundance-min ' + ','.join(['50' for _ in range(len(readss))]) + ',1,1 -solidity-kind one -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {output.count} 2> {log}'
+
+        
+rule asm_pangenome:
+    input:
+        count = "data/auxiliary/pangenome/all_reads_and_ref.h5",
+
+    output:
+        asm = "data/auxiliary/pangenome/all_reads_and_ref.unitigs.fa",
+        
+    params:
+        outprefix = "data/auxiliary/pangenome/all_reads_and_ref",
+        k = k,
+
+    conda:
+        '../envs/bcalm.yaml',
+
+    threads:
+        48
+
+    log:
+        'logs/pangenome_bcalm.log'
+
+    shell:
+        'bcalm -in {input.count} -kmer-size {params.k} -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {params.outprefix} 2> {log}'
+
+
+rule generate_gfa_pangenome:
+    input:
+        asm = "data/auxiliary/pangenome/all_reads_and_ref.unitigs.fa",
+        
+    output:
+        graph = "data/auxiliary/pangenome/all_reads_and_ref.gfa",
+        
+    params:
+        k = k,
+        
+    log:
+        'logs/pangenome_asm2gfa.log'
+
+    shell:
+        'python3 scripts/convertToGFA.py {input.asm} {output.graph} {params.k} 2> {log}'
+
+rule map_read_on_graph:
+    input:
+        graph = "data/auxiliary/pangenome/all_reads_and_ref.gfa",
+        readss = expand("{a}", a=readss),
+
+    output:
+        mapping = "data/auxiliary/pangenome/all_reads_and_ref.gaf",
+
+    conda:
+        '../envs/graphaligner.yaml',
+
+    threads:
+        48
+
+    log:
+        'logs/pangenome_mapping.log'
+
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.readss} -a {output.mapping}"
+
+rule compute_coverage:
+    input:
+        graph = "data/auxiliary/pangenome/all_reads_and_ref.gfa",
+        mapping = "data/auxiliary/pangenome/all_reads_and_ref.gaf",
+
+    output:
+        tig2cov = "data/auxiliary/pangenome/all_reads_and_ref.tig2cov.csv",
+        link2cov = "data/auxiliary/pangenome/all_reads_and_ref.link2cov.csv",
+        
+    params:
+        # min_cov_tig = 50,
+        # min_cov_link = 20,
+        min_cov_tig = 0,
+        min_cov_link = 0,
+        
+    log:
+        'logs/pangenome_weighted.log'
+        
+    script:
+        '../scripts/compute_coverage.py'
