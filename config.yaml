@@ -15,7 +15,7 @@ generateGFAs: False
 
 performQualityControl: False
 
-performCorrections: True
+performCorrections: False
 kmerUseForCorrections: [11, 19]
 
 generatePangenome: True

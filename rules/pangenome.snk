@@ -91,21 +91,14 @@ rule map_read_on_graph:
 
 rule compute_coverage:
     input:
-        graph = "data/auxiliary/pangenome/all_reads_and_ref.gfa",
-        mapping = "data/auxiliary/pangenome/all_reads_and_ref.gaf",
+        graph = "{prefix}.gfa",
+        mapping = "{prefix}.gaf",
 
     output:
-        tig2cov = "data/auxiliary/pangenome/all_reads_and_ref.tig2cov.csv",
-        link2cov = "data/auxiliary/pangenome/all_reads_and_ref.link2cov.csv",
-        
-    params:
-        # min_cov_tig = 50,
-        # min_cov_link = 20,
-        min_cov_tig = 0,
-        min_cov_link = 0,
+        out_graph = "{prefix}.paths.gfa",
         
     log:
-        'logs/pangenome_weighted.log'
+        'logs/add_gaf_gfa_{prefix}.log'
         
     script:
-        '../scripts/compute_coverage.py'
+        '../scripts/add_gaf_gfa.py'

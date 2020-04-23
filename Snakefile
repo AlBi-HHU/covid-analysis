@@ -34,7 +34,7 @@ def getInput():
 		if config['performCorrections']:
                         inputList += expand('data/auxiliary/{corrections_type}/{method}/'+run+'/{k}/{barcode}.fasta',method=methods,barcode=barcodes[run],k=config["kmerUseForCorrections"][-1], corrections_type=["corrections", "corrections_clip"])
 		if config['generatePangenome']:
-                        inputList += ["data/auxiliary/pangenome/all_reads_and_ref.link2cov.csv"]
+                        inputList += ["data/auxiliary/pangenome/all_reads_and_ref.paths.gfa"]
 		inputList += expand('data/output/IgvSessions/{method}/'+run+'/{barcode}.igv.xml',method=methods,barcode=barcodes[run])
 
 	return inputList
