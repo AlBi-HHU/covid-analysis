@@ -96,6 +96,9 @@ rule compute_coverage:
 
     output:
         out_graph = "{prefix}.paths.gfa",
+
+    params:
+        min_mapping_coverage = 150
         
     log:
         'logs/add_gaf_gfa_{prefix}.log'

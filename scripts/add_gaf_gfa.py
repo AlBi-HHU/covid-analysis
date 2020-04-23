@@ -1,5 +1,7 @@
 log = open(snakemake.log[0], 'w')
 
+threshold = snakemake.params['min_mapping_coverage']
+
 graph_path = snakemake.input['graph']
 mapping_path = snakemake.input['mapping']
 
@@ -13,7 +15,7 @@ from collections import defaultdict, Counter
 tig2cov = defaultdict(list)
 link2cov = defaultdict(list)
 
-paths = dict()
+paths = defaultdict(list)
 
 with open(mapping_path) as map_fh:
     reader = csv.reader(map_fh, delimiter='\t')
@@ -30,14 +32,15 @@ with open(mapping_path) as map_fh:
             else:
                 path.append(tig+'-')
 
-        paths[row[0]] = path
+        paths[tuple(path)].append(row[0])
         
 with open(output_path, 'w') as out_fh:
     with open(graph_path, 'r') as in_fh:
         for line in in_fh:
             print(line, file=out_fh, end="")
 
-    for reads, paths in paths.items():
-        print("P\t{}\t{}\t*".format(reads, ",".join(paths[1:])), file=out_fh)
+    for i, (path, reads) in enumerate(paths.items()):
+        if len(reads) > threshold:
+            print("P\tp{}\t{}\t*\tCO:i:{}\tRE:Z:{}".format(i, ",".join(path), len(reads), ",".join(reads)), file=out_fh)
 
         
