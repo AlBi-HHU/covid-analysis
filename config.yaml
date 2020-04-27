@@ -18,4 +18,13 @@ performQualityControl: False
 performCorrections: False
 kmerUseForCorrections: [11, 19]
 
-generatePangenome: True
+generatePangenome: False
+
+#if True, only use the given subset of run folders
+useSubsetOfRuns: True
+runs: [corona_03_11]
+
+#if True only use the given subset of barcodes
+useSubsetOfBarcodes: True
+barcodes: 
+  corona_03_11 : ['01','04','09']
