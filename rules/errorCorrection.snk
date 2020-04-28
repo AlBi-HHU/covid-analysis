@@ -1,10 +1,10 @@
 def found_reads(wildcards):
     return expand("data/auxiliary/{origin}/{method}/{run}/{k}{barcode}.fasta",
-           origin = "softClippedSeqs" if config["kmerUseForCorrections"][0] == int(wildcards.k) else wildcards.corrections_type,
-           method = wildcards.basecalling_method,
-           run = wildcards.run,
-           k = "" if config["kmerUseForCorrections"][0] == int(wildcards.k) else str(int(wildcards.k) - 2) + "/",
-           barcode = wildcards.barcode
+                  origin = "softClippedSeqs" if config["correctionMinKmer"] == int(wildcards.k) else wildcards.corrections_type,
+                  method = wildcards.basecalling_method,
+                  run = wildcards.run,
+                  k = "" if config["correctionMinKmer"] == int(wildcards.k) else str(int(wildcards.k) - config["correctionKmerStep"]) + "/",
+                  barcode = wildcards.barcode
         )
 
 rule count_kmer_ref_and_raw_read:
@@ -84,8 +84,8 @@ rule corrections_reads:
         correction_flags = lambda wildcards: "--corrected-out" if wildcards.corrections_type == "corrections" else "--corrected-clipped-out" 
 
     wildcard_constraints:
-        corrections_type = "corrections.+" 
-        
+        corrections_type = "correction.+"
+
     conda:
         '../envs/graphaligner.yaml',
 
@@ -98,3 +98,36 @@ rule corrections_reads:
     shell:
         "GraphAligner -t {threads} -g {input.graph} -f {input.reads} {params.correction_flags} {output.correct_reads} -a {output.alignments}"
         
+        
+rule correct_kmer_profiles:
+    input:
+        "data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.fasta",
+        
+    output:
+        "data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.json",
+        
+    params:
+        k = lambda wildcards: int(wildcards.k)
+        
+    conda:
+        '../envs/biopythonworkbench.yaml'
+        
+    script:
+        '../scripts/createKmerProfiles.py'     
+
+rule correct_plot_kmer_histogram:
+    input:
+        kmerProfile = "data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.json",
+        uniqueKmers = 'data/auxiliary/uniqueKmers.json'
+
+    output:
+        report('data/output/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.svg', category='k-mer histograms corrected reads')
+
+    params:
+        k = lambda wildcards: wildcards.k
+                
+    conda:
+        '../envs/biopythonworkbench.yaml'
+
+    script:
+        '../scripts/createKmerHistogram.py'	
