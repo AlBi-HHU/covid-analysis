@@ -1,6 +1,7 @@
 log = open(snakemake.log[0], 'w')
 
 threshold = snakemake.params['min_mapping_coverage']
+path_prefix = snakemake.params['prefix']
 
 graph_path = snakemake.input['graph']
 mapping_path = snakemake.input['mapping']
@@ -41,6 +42,6 @@ with open(output_path, 'w') as out_fh:
 
     for i, (path, reads) in enumerate(paths.items()):
         if len(reads) > threshold:
-            print("P\tp{}\t{}\t*\tCO:i:{}\tRE:Z:{}".format(i, ",".join(path), len(reads), ",".join(reads)), file=out_fh)
+            print("P\t{}{}\t{}\t*\tCO:i:{}\tRE:Z:{}".format(path_prefix, i, ",".join(path), len(reads), ",".join(reads)), file=out_fh)
 
         
