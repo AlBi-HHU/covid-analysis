@@ -1,0 +1,56 @@
+rule map_read_pangenome:
+    input:
+        graph = "data/auxiliary/pangenome/all_reads_and_ref.gfa",
+        reads = "data/auxiliary/softClippedSeqs/{method}/{run}/{barcode}.fasta",
+        
+    output:
+        mappings = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/reads.gaf",
+
+    conda:
+        '../envs/graphaligner.yaml',
+
+    threads:
+        48
+                
+    log:
+        'logs/pangenome_vc_read_mapping_{method}_{run}_{barcode}.log',
+
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.reads} -a {output.mappings} 2> {log}"
+
+
+rule map_ref_pangenome:
+    input:
+        graph = "data/auxiliary/pangenome/all_reads_and_ref.gfa",
+        reads = "data/input/nCoV-2019.reference.fasta",
+        
+    output:
+        mappings = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/reference.gaf",
+
+    conda:
+        '../envs/graphaligner.yaml',
+
+    threads:
+        48
+                
+    log:
+        'logs/pangenome_vc_read_mapping_{method}_{run}_{barcode}.log',
+
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.reads} -a {output.mappings} 2> {log}"
+
+
+rule call_variant:
+    input:
+        graph = "data/auxiliary/pangenome/all_reads_and_ref.gfa",
+        reads_mapping = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/reads.gaf",
+        reference_mapping = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/reference.gaf",
+        
+    output:
+        variant = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf"
+
+    log:
+        'logs/pangenome_vc_call_variant_{method}_{run}_{barcode}.log',
+
+    script:
+        "../scripts/call_variant_pangenome.py"
