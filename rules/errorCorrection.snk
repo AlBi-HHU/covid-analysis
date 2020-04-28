@@ -17,8 +17,8 @@ rule count_kmer_ref_and_raw_read:
 
     params:
         k = lambda wildcards: wildcards.k,
-        abundance_min = 50,
-        
+        abundance_min = 50,       
+
     conda:
         '../envs/dsk.yaml',
 
@@ -83,6 +83,9 @@ rule corrections_reads:
         k = lambda wildcards: wildcards.k,
         correction_flags = lambda wildcards: "--corrected-out" if wildcards.corrections_type == "corrections" else "--corrected-clipped-out" 
 
+    wildcard_constraints:
+        corrections_type = "corrections.+" 
+        
     conda:
         '../envs/graphaligner.yaml',
 

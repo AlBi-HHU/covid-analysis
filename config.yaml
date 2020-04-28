@@ -18,4 +18,6 @@ performQualityControl: False
 performCorrections: False
 kmerUseForCorrections: [11, 19]
 
-generatePangenome: True
+generatePangenome: False
+
+pangenomeVariantCalling: True

@@ -35,6 +35,9 @@ def getInput():
                         inputList += expand('data/auxiliary/{corrections_type}/{method}/'+run+'/{k}/{barcode}.fasta',method=methods,barcode=barcodes[run],k=config["kmerUseForCorrections"][-1], corrections_type=["corrections", "corrections_clip"])
 		if config['generatePangenome']:
                         inputList += ["data/auxiliary/pangenome/all_reads_and_ref.paths.gfa"]
+		if config['pangenomeVariantCalling']:
+                        inputList += expand('data/auxiliary/pangenome_vc/{method}/'+run+'/{barcode}/variant.vcf', method=methods, barcode=barcodes[run])                    
+
 		inputList += expand('data/output/IgvSessions/{method}/'+run+'/{barcode}.igv.xml',method=methods,barcode=barcodes[run])
 
 	return inputList
@@ -50,3 +53,4 @@ include: 'rules/debruijn.snk'
 include: 'rules/kmerAnalysis.snk'
 include: 'rules/variantAnalysis.snk'
 include: 'rules/pangenome.snk'
+include: 'rules/pangenome_variant_call.snk'
