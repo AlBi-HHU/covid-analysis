@@ -6,10 +6,16 @@ ks = config['ks']
 
 methods = ['medaka','nanopolish']
 #Uses the IGV sessions which is completely arbitrary, could use any other input file here to get the barcode ids
-runs = glob_wildcards('data/input/{run}/result_hac').run
+
+runs = config['runs'] if config['useSubsetOfRuns'] else glob_wildcards('data/input/{run}/result_hac').run
+
 barcodes = {}
-for run in runs:
-	barcodes[run] = glob_wildcards('data/input/'+run+'/result_hac/barcode{barcode}.medaka.primertrimmed.vcf').barcode
+
+if config['useSubsetOfBarcodes']:
+	barcodes = config['barcodes']
+else:
+	for run in runs:
+		barcodes[run] = glob_wildcards('data/input/'+run+'/result_hac/barcode{barcode}.medaka.primertrimmed.vcf').barcode
 
 
 def getInput():
