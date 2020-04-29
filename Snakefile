@@ -58,6 +58,9 @@ def getInput():
         if config['pangenomeVariantCalling']:
             inputList += expand('data/auxiliary/pangenome_vc/{method}/'+run+'/{barcode}/variant.vcf', method=methods, barcode=barcodes[run])
 
+        if config['realignment']:
+            inputList += expand('data/auxiliary/realignment/{corrections_type}/{method}/'+run+'/{barcode}.sorted.bam.bai', corrections_type=["corrections", "corrections_clip"], method=methods, barcode=barcodes[run])
+
         inputList += expand('data/output/IgvSessions/{method}/'+run+'/{barcode}.igv.xml',method=methods,barcode=barcodes[run])
 
     return inputList
@@ -73,4 +76,5 @@ include: 'rules/debruijn.snk'
 include: 'rules/kmerAnalysis.snk'
 include: 'rules/variantAnalysis.snk'
 include: 'rules/pangenome.snk'
+include: 'rules/realignment.snk'
 include: 'rules/pangenome_variant_call.snk'

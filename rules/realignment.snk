@@ -1,0 +1,32 @@
+rule realign_corrected_reads:
+	input:
+		reference='data/input/nCoV-2019.reference.fasta',
+		corrected='data/auxiliary/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.fasta',
+	output:
+		aln = temp('data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.bam')
+	log:
+	        'logs/{basecalling_method}_{corrections_type}_{run}_{barcode}_{k}_realign_corrected_reads.log'
+	shell:
+                '(time bwa mem {input} | samtools view -bS > {output}) 2> {log}'
+
+rule sort_bams:
+	input:
+		aln = temp('data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.bam')
+	output:
+		aln = 'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam'
+	log:
+	        'logs/{basecalling_method}{corrections_type}_{run}_{barcode}_{k}_sort_realignments.log'
+	shell:
+                '(time samtools sort -o {output} {input}) 2> {log}'
+
+rule index_bams:
+	input:
+		aln = 'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam'
+	output:
+		aln = 'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam.bai'
+	log:
+	        'logs/{basecalling_method}_{corrections_type}_{run}_{barcode}_{k}_index_realignment_bams.log'
+	shell:
+                '(time samtools index {input}) 2> {log}'
+
+
