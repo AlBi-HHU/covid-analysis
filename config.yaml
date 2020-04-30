@@ -24,11 +24,13 @@ generatePangenome: False
 
 pangenomeVariantCalling: False
 
+realignment: True
+
 #if True, only use the given subset of run folders
 useSubsetOfRuns: True
-runs: [corona_03_11]
+runs: [corona_26_37]
 
 #if True only use the given subset of barcodes
 useSubsetOfBarcodes: True
 barcodes: 
-  corona_03_11: ['01', '04', '09']
+  corona_26_37: ['01', '04', '09']
