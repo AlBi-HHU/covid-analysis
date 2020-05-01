@@ -59,7 +59,7 @@ def getInput():
             inputList += expand('data/auxiliary/pangenome_vc/{method}/'+run+'/{barcode}/variant.vcf', method=methods, barcode=barcodes[run])
 
         if config['realignment']:
-            inputList += expand('data/auxiliary/realignment/{corrections_type}/{method}/'+run+'/{barcode}.sorted.bam.bai', corrections_type=["corrections", "corrections_clip"], method=methods, barcode=barcodes[run])
+            inputList += expand('data/output/IgvSessions/realignment/{corrections_type}/{method}/'+run+'/{k}/{barcode}.igv.xml', corrections_type=["corrections", "corrections_clip"], method=methods, k=ks, barcode=barcodes[run])
 
         inputList += expand('data/output/IgvSessions/{method}/'+run+'/{barcode}.igv.xml',method=methods,barcode=barcodes[run])
 

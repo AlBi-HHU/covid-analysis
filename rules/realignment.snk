@@ -11,22 +11,39 @@ rule realign_corrected_reads:
 
 rule sort_bams:
 	input:
-		aln = temp('data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.bam')
+		'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.bam'
 	output:
-		aln = 'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam'
+		'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam'
 	log:
 	        'logs/{basecalling_method}{corrections_type}_{run}_{barcode}_{k}_sort_realignments.log'
 	shell:
                 '(time samtools sort -o {output} {input}) 2> {log}'
 
-rule index_bams:
+rule variant_calling:
 	input:
-		aln = 'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam'
+		ref = 'data/input/nCoV-2019.reference.fasta',
+		bam = 'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam',
+		bai = 'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam.bai'
 	output:
-		aln = 'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam.bai'
+		'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.snvs.vcf'
 	log:
-	        'logs/{basecalling_method}_{corrections_type}_{run}_{barcode}_{k}_index_realignment_bams.log'
+	        'logs/{basecalling_method}_{corrections_type}_{run}_{barcode}_{k}_variant_calling.log'
 	shell:
-                '(time samtools index {input}) 2> {log}'
+        	'''
+		samtools mpileup -g -f {input.ref} {input.bam} | bcftools call -mv - \
+		| bcftools view --genotype het --types snps - > {output} 2> {log}
+		'''
 
-
+rule generate_igv_Sessions:
+	input:
+		ref = 'data/input/nCoV-2019.reference.fasta',
+		bam = 'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam',
+		bai = 'data/auxiliary/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam.bai',
+		vcf_medaka = 'data/auxiliary/realignment/{corrections_type}/medaka/{run}/{k}/{barcode}.snvs.vcf',
+		vcf_nanopolish = 'data/auxiliary/realignment/{corrections_type}/nanopolish/{run}/{k}/{barcode}.snvs.vcf'
+	output:
+		report('data/output/IgvSessions/realignment/{corrections_type}/{basecalling_method}/{run}/{k}/{barcode}.igv.xml',category='IGVSessions')
+	conda:
+		'../envs/perl.yaml'
+	shell:
+		'perl scripts/generate_IGV.pl --covidReference {input.ref} --BAM {input.bam} --output {output} --VCF_Medaka {input.vcf_medaka} --VCF_Nano {input.vcf_nanopolish}'
