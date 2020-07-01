@@ -1,0 +1,61 @@
+
+#k's that are analyzed for k-mer based approaches
+ks : [11, 13, 15, 17, 19, 21]
+
+#fraction (between 0 and 1) of reads that need to support a variant for it to be labeled homozygous
+thresholdHomCall : 0.85
+
+thresholdHomCall_coverage : 50
+
+#Generate k-mer profiles (and histograms) based on ks and soft-clipped reads from alignments
+generateKmerProfiles: True
+
+#Generate gfa files for each barcode
+generateGFAs: False
+
+performQualityControl: False
+
+# Correction section
+performCorrections: True
+
+correctionMinKmer: 11
+correctionMaxKmer: 21
+correctionKmerStep: 2
+
+kmerFilterMin: 10                 # kmer lower than this threshold is discard
+kmerFilterFRMinRatio: 0.3         # if forward / (forward + reverse) is lower than this threshold is discard
+kmerFilterTrustAbundance: 50      # kmer with abundance lower than this threshold must pass guess coverage ratio
+kmerFilterGuessCoverageRatio: 0.7 # kmer with abundance lower than guess coverage times this threshold kmer is discard
+
+correctionClip: False
+
+# Discovery section
+discovery: True
+discovery_fb: True
+discovery_ctx: True
+
+#FreeBayes
+freebayesMaxEntropyTh: 1.7
+feebayesMaxRefCovRatio: 0.8
+#Cortex
+stampyPath: '../stampy-latest'
+cortexPath: '../cortex'
+cortexK: '31' #Write as string
+lowCovSupernodesCutoff: '100' #Write as string
+
+# Pangenome section
+generatePangenome: True
+pangenomeCorrectionK: 15
+
+# Pangenome variant calling
+pangenomeVariantCalling: True
+pangenomeRVTThreshold: 0.01
+
+#if True, only use the given subset of run folders
+useSubsetOfRuns: True
+runs: [corona_03_11]
+
+#if True only use the given subset of barcodes
+useSubsetOfBarcodes: True
+barcodes: 
+  corona_03_11: ['01', '04', '09']

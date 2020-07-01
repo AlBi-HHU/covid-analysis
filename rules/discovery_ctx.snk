@@ -1,0 +1,142 @@
+rule fastaToList:
+    input:
+        '{path}/{prefix}.fasta'
+    output:
+        '{path}/{prefix,[-.\w]+}.flist'
+    params:
+        prefix = lambda wildcards : wildcards.prefix,
+        # Cluster Execution
+        cpus = '1',
+        mem = '128M',
+        gpus = '0',
+        walltime = '00:01:00'
+    shell:
+        'echo {params.prefix}.fasta>{output}'
+
+rule cortexBinaryReference:
+    input:
+        reference = "data/input/nCoV-2019.reference.flist"
+    output:
+        'data/auxiliary/discovery/cortex/reference.ctx',
+    params:
+        # Cluster Execution
+        cpus = '1',
+        mem = '4G',
+        gpus = '0',
+        walltime = '00:05:00'
+    benchmark:
+        'benchmarks/cortexCreateBinary_reference.txt'
+    shell:
+        config['cortexPath']+'/bin/cortex_var_'+config['cortexK']+'_c1 --kmer_size '+config['cortexK']+' --mem_height 17 --mem_width 100 --se_list {input.reference} --max_read_len 10000 --dump_binary {output}'
+
+rule cortexBinarySample:
+    input:
+        correctedReads = 'data/auxiliary/corrections/{method}/{run}/{k}/{barcode}.flist'
+    output:
+        'data/auxiliary/discovery/cortex/{method}/{run}/{k}/{barcode}.ctx'
+    params:
+        # Cluster Execution
+        cpus = '1',
+        mem = '4G',
+        gpus = '0',
+        walltime = '00:05:00'
+    benchmark:
+        'benchmarks/cortexCreateBinary_{method}_{run}_{barcode}_{k}.txt'
+    shell:
+        config['cortexPath']+'/bin/cortex_var_'+config['cortexK']+'_c1 --kmer_size '+config['cortexK']+' --mem_height 17 --mem_width 100 --se_list {input.correctedReads} --max_read_len 10000 --dump_binary {output} --remove_low_coverage_supernodes '+config['lowCovSupernodesCutoff']
+
+rule toSingleItemList:
+    input:
+        binary = '{prefix}.ctx'
+    output:
+        list = '{prefix}.list'
+    params:
+        # Cluster Execution
+        cpus = '1',
+        mem = '128M',
+        gpus = '0',
+        walltime = '00:05:00'
+    run:
+        with open(output.list,'w') as outfile:
+            noPath = input.binary.split('/')[-1]
+            outfile.write(noPath)    
+
+rule toColorList:
+    input:
+        bc = 'data/auxiliary/discovery/cortex/{method}/{run}/{k}/{barcode}.list',
+        ref = 'data/auxiliary/discovery/cortex/reference.list'
+    output:
+        'data/auxiliary/discovery/cortex/{method}/{run}/{k}/{barcode}.clist'
+    shell:
+        'echo {input.ref} > {output} && echo {input.bc} >> {output}'
+
+#Annoying: Cortex has very specific relative path scheme/ maybe there is a more elegant solution
+rule fixColorListPaths:
+    input:
+        clist= 'data/auxiliary/discovery/cortex/{method}/{run}/{k}/{barcode}.clist'
+    output:
+        clist = 'data/auxiliary/discovery/cortex/{method}/{run}/{k}/{barcode}.fclist'
+    run:
+        with open(output.clist,'w') as outfile, open(input.clist,'r') as infile:
+            d = infile.read().splitlines()
+            outfile.write('../../../reference.list\n')
+            outfile.write(d[1].split('/')[-1])        
+
+rule cortexDiscovery:
+    input:
+        ref = "data/input/nCoV-2019.reference.flist",
+        clist = 'data/auxiliary/discovery/cortex/{method}/{run}/{k}/{barcode}.fclist'
+    params:
+        prefix = 'data/auxiliary/discovery/cortex/{method}/{run}/{k}/{barcode}'
+    output:
+        pdcalls = 'data/auxiliary/discovery/cortex/{method}/{run}/{k}/{barcode}_pd_calls',
+        pdlogs = 'data/auxiliary/discovery/cortex/{method}/{run}/{k}/{barcode}_pd_calls.log'
+    shell:
+        config['cortexPath']+'/bin/cortex_var_'+config['cortexK']+'_c2 --colour_list {input.clist}  --max_var_len 200 --path_divergence_caller 1 --ref_colour 0 --list_ref_fasta {input.ref} --kmer_size '+config['cortexK']+' --mem_height 17 --mem_width 100 --path_divergence_caller_output {params.prefix} --print_colour_coverages  > {output.pdlogs}'
+
+#Unused: Bubble Caller for Variant Discovery
+'''
+rule cortexDiscoveryBubble:
+    input:
+        ref = "data/input/nCoV-2019.reference.flist",
+        clist = 'data/auxiliary/discovery/cortex/{method}/{run}/{k}/{barcode}.fclist'
+    output:
+        bubbles = 'data/auxiliary/discovery/cortex/{method}/{run}/{k}/{barcode}_bubbles',
+        bubbleslog = 'data/auxiliary/discovery/cortex/{method}/{run}/{k}/{barcode}_bubbles.log',
+    shell:
+        config['cortexPath']+'/bin/cortex_var_'+config['cortexK']+'_c2 --colour_list {input.clist} --print_colour_coverages --max_var_len 200 --detect_bubbles 1,0/1,0 --ref_colour 0 --list_ref_fasta {input.ref} --kmer_size '+config['cortexK']+' --mem_height 17 --mem_width 100 --output_bubbles1 {output.bubbles} > {output.bubbleslog}'
+'''
+
+rule stampy:
+    input:
+        ref = "data/input/nCoV-2019.reference.fasta"
+    output:
+        hash = 'data/auxiliary/discovery/cortex/referenceStampy.sthash',
+        idx = 'data/auxiliary/discovery/cortex/referenceStampy.stidx'
+    params:
+        folder = 'data/auxiliary/discovery/cortex'
+    shell:
+        'python2 '+config['stampyPath']+'/stampy-1.0.32/stampy.py -G {params.folder}/referenceStampy {input} && python2 '+config['stampyPath']+'/stampy-1.0.32/stampy.py -g {params.folder}/referenceStampy -H {params.folder}/referenceStampy'
+
+
+rule cortexToVCF:
+    input:
+        callfile = "{prefix}_pd_calls",
+        calllog = "{prefix}_pd_calls.log",
+        dummylist = 'data/input/dummylist.txt',
+        stampyHash = 'data/auxiliary/discovery/cortex/referenceStampy.sthash'
+    output:
+        vcf = "{prefix}_calls/call.raw.vcf"
+    params:
+        outfolder = lambda wildcards: wildcards.prefix+'_calls/',
+        stampyPrefix = 'data/auxiliary/discovery/cortex/referenceStampy'
+    shell:
+        'perl '+config['cortexPath']+'/scripts/analyse_variants/process_calls.pl --callfile {input.callfile} --callfile_log {input.calllog} --outvcf call --outdir {params.outfolder} --samplename_list {input.dummylist} --num_cols 2 --ploidy 1 --caller PD --kmer '+config['cortexK']+' --stampy_bin '+config['stampyPath']+'/stampy-1.0.32/stampy.py --stampy_hash {params.stampyPrefix} --refcol 0  --vcftools_dir /usr/local/bin'
+
+rule cortexCP:
+    input:
+        "{prefix}/{barcode}_calls/call.raw.vcf"
+    output:
+        "{prefix}/{barcode,\d+}.vcf.ugly"
+    shell:
+        "cp {input} {output}"

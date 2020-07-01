@@ -1,0 +1,10 @@
+name: realign
+
+channels:
+  - bioconda
+  - defaults
+
+dependencies:
+  - bwa = 0.7.17
+  - samtools = 1.10
+  - bcftools = 1.10.2

@@ -1,0 +1,172 @@
+
+def get_read(wcs):
+    if wcs.k == str(config["correctionMinKmer"]):
+        return "data/auxiliary/softClippedSeqs/{basecalling}/{run}/{barcode}.fasta".format(**wcs)
+    else:
+        wcs.k = str(int(wcs.k) - config["correctionKmerStep"])
+        return "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.fasta".format(**wcs)
+
+
+def get_csv(wcs):
+    if wcs.k == str(config["correctionMinKmer"]):
+        return "data/auxiliary/softClippedSeqs/{basecalling}/{run}/{barcode}.k{k}.csv".format(**wcs),
+    else:
+        wcs = dict(wcs)
+        wcs["prev_k"]= str(int(wcs["k"]) - config["correctionKmerStep"])
+        return "data/auxiliary/corrections/{basecalling}/{run}/{prev_k}/{barcode}.k{k}.csv".format(**wcs),
+
+
+rule count_jellyfish:
+    input:
+        reference = "{prefix}.fasta",
+        
+    output:
+        count = "{prefix}.k{k}.jellyfish",
+        csv = "{prefix}.k{k}.csv",
+
+    params:
+        k = lambda wcs: wcs.k,
+
+    conda:
+        '../envs/jellyfish.yaml',
+
+    threads:
+        48        
+    log:
+        'logs/jellyfish_count_{prefix}_k{k}.log',
+
+    shell:
+        "jellyfish count -s 100000 -t {threads} -m {params.k} -o {output.count} {input.reference} && jellyfish dump -c -o {output.csv} {output.count}"
+
+        
+rule select_kmer:
+    input:
+        reads = lambda wcs: get_csv(wcs),
+        reference = "data/input/nCoV-2019.reference.k{k}.csv",
+
+    output:
+        kmerset = "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.kmerset.fasta",
+
+    params:
+        k = lambda wcs: wcs.k,
+        th_min  = config["kmerFilterMin"],
+        th_frmr = config["kmerFilterFRMinRatio"],
+        th_max  = config["kmerFilterTrustAbundance"],
+        th_covr = config["kmerFilterGuessCoverageRatio"],
+
+    log:
+        'logs/select_kmer_{basecalling}_{run}_{barcode}_{k}_dsk.log',
+
+    script:
+        '../scripts/select_kmer.py'
+
+        
+rule asm_select_kmer:
+    input:
+        kmerset = "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.kmerset.fasta",
+
+    output:
+        asm = "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.unitigs.fa"
+
+    params:
+        outprefix = "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}",
+        k = lambda wcs: wcs.k
+        
+    conda:
+        '../envs/bcalm.yaml'
+        
+    log:
+        'logs/corrections/graph_first_{basecalling}_{run}_{k}_{barcode}.log'
+
+    threads:
+        48
+
+    shell:
+        'bcalm -in {input.kmerset} -abundance-min 0 -kmer-size {params.k} -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {params.outprefix}'
+
+
+rule asm2graph:
+    input:
+        asm = "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.unitigs.fa"
+
+    output:
+        graph = "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.gfa"
+
+    params:
+        k = lambda wcs: wcs.k,
+        # Cluster Execution
+        cpus = '1',
+        mem = '1G',
+        gpus = '0',
+        walltime = '00:05:00'
+    log:
+        'logs/corrections/asm2graph_{basecalling}_{run}_{k}_{barcode}.log'
+        
+    shell:
+        'python3 scripts/convertToGFA.py {input.asm} {output.graph} {params.k} 2> {log}'
+
+        
+rule correct_read:
+    input:
+        reads = lambda wcs: get_read(wcs),
+        graph = "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.gfa"
+        
+    output:
+        corrected = "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.fasta",
+        alignment = "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.gaf"
+        
+    wildcard_constraints:
+        barcode = "\d+"
+        
+    params:
+        k = lambda wcs: wcs.k,
+        correction_param = "--corrected-clipped-out" if config["correctionClip"] else "--corrected-out"
+        
+    conda:
+        '../envs/graphaligner.yaml'
+
+    threads:
+        48
+
+    log:
+        'logs/corrections/corrections_{basecalling}_{run}_{k}_{barcode}.log'
+        
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.reads} {params.correction_param} {output.corrected} --alignments-out {output.alignment}  --seeds-minimizer-count 5 --seeds-minimizer-length {params.k} --seeds-minimizer-windowsize 30 --seeds-minimizer-chunksize 100 2> {log}"
+
+
+rule correct_kmer_profiles:
+    input:
+        "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.fasta",
+        
+    output:
+        "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.json",
+        
+    params:
+        k = lambda wcs: int(wcs.k)
+        
+    conda:
+        '../envs/biopythonworkbench.yaml'
+        
+    script:
+        '../scripts/createKmerProfiles.py'     
+
+        
+rule correct_plot_kmer_histogram:
+    input:
+        kmerProfile = "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.json",
+        uniqueKmers = 'data/auxiliary/uniqueKmers.json'
+
+    output:
+        report('data/output/corrections/{basecalling}/{run}/{k}/{barcode}.svg', category='k-mer histograms corrected reads')
+
+    params:
+        k = lambda wcs: int(wcs.k)
+                
+    conda:
+        '../envs/biopythonworkbench.yaml'
+
+    script:
+        '../scripts/createKmerHistogram.py'
+
+

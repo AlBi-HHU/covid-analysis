@@ -1,0 +1,10 @@
+name: Perl
+
+channels:
+  - nodefaults
+  - http://conda.repo.test.hhu.de/main
+
+
+dependencies:
+  - perl = 5.26.2
+

@@ -1,0 +1,9 @@
+name: jellyfish
+
+channels:
+  - bioconda
+  - defaults
+
+dependencies:
+  - jellyfish = 2.2.10
+

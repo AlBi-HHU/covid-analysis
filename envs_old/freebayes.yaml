@@ -1,0 +1,9 @@
+name: FreeBayes
+
+channels:
+  - bioconda
+  - defaults
+
+dependencies:
+  - vcfpy
+  - freebayes

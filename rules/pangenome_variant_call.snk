@@ -1,0 +1,69 @@
+rule map_read_pangenome:
+    input:
+        graph = "data/auxiliary/pangenome/pangenome.gfa",
+        reads = "data/auxiliary/softClippedSeqs/{method}/{run}/{barcode}.fasta",
+        
+    output:
+        mappings = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/reads.gaf",
+
+    conda:
+        '../envs/graphaligner.yaml',
+
+    threads:
+        48
+                
+    log:
+        'logs/pangenome_vc_read_mapping_{method}_{run}_{barcode}.log',
+
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.reads} -a {output.mappings} 2> {log}"
+
+
+rule map_ref_pangenome:
+    input:
+        graph = "data/auxiliary/pangenome/pangenome.gfa",
+        ref = "data/input/nCoV-2019.reference.fasta",
+        
+    output:
+        mappings = "data/auxiliary/pangenome_vc/reference.gaf",
+
+    conda:
+        '../envs/graphaligner.yaml',
+
+    threads:
+        48
+                
+    log:
+        'logs/pangenome_vc_reference_mapping.log',
+
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.ref} -a {output.mappings} 2> {log}"
+
+rule node_pos_on_ref:
+    input:
+        graph = "data/auxiliary/pangenome/pangenome.gfa",
+        mappings = "data/auxiliary/pangenome_vc/reference.gaf",
+
+    output:
+        node_pos_on_ref = "data/auxiliary/pangenome_vc/node2pos.csv"
+
+    script:
+        "../scripts/pangenome/node2pos.py"
+        
+rule call_variant:
+    input:
+        pangenome = "data/auxiliary/pangenome/pangenome.gfa",
+        reads = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/reads.gaf",
+        node2pos = "data/auxiliary/pangenome_vc/node2pos.csv"
+
+    output:
+        variant = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf.ugly",
+
+    params:
+        rvt = config["pangenomeRVTThreshold"]
+        
+    log:
+        'logs/pangenome_vc_call_variant_{method}_{run}_{barcode}.log',
+
+    script:
+        "../scripts/pangenome/call_variant.py"

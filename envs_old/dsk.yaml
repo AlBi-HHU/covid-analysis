@@ -1,0 +1,8 @@
+name: Dsk
+
+channels:
+  - bioconda
+  - defaults
+
+dependencies:
+  - dsk = 2.3.1

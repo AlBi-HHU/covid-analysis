@@ -1,0 +1,10 @@
+name: GraphAligner
+
+channels:
+  - nodefaults
+  - http://conda.repo.test.hhu.de/bioconda
+  - http://conda.repo.test.hhu.de/main
+
+dependencies:
+  - graphaligner = 1.0.10
+

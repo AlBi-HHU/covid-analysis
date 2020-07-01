@@ -1,0 +1,46 @@
+all_vcfs = [expand('data/auxiliary/discovery/freebayes/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
+all_vcfs += [expand('data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
+
+vcfs = [item for sublist in all_vcfs for item in sublist]
+
+
+rule concatenate_vcf:
+    input:
+        vcfs = lambda wlc: vcfs,
+
+    output:
+        out = "data/auxiliary/pangenome/merge.vcf"
+
+    conda:
+        '../envs/freebayes.yaml',
+
+    threads:
+        48
+
+    log:
+        'logs/pangenome_concatenate_vcf.log'
+
+    script:
+        '../scripts/pangenome/concate_vcf.py'
+
+
+        
+rule pangenome:
+    input:
+        vcf = "data/auxiliary/pangenome/merge.vcf",
+        reference = "data/input/nCoV-2019.reference.fasta"
+
+    output:
+        asm = "data/auxiliary/pangenome/pangenome.gfa",
+
+    conda:
+        '../envs/vg.yaml',
+
+    threads:
+        48
+
+    log:
+        'logs/pangenome_build_pangenome.log'
+
+    shell:
+        "vg construct -t {threads} -S -i -r {input.reference} -v {input.vcf} | vg view -g - > {output}"

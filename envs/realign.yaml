@@ -1,0 +1,12 @@
+name: realign
+
+channels:
+  - nodefaults
+  - http://conda.repo.test.hhu.de/conda-forge
+  - http://conda.repo.test.hhu.de/bioconda
+  - http://conda.repo.test.hhu.de/main
+
+dependencies:
+  - bwa = 0.7.17
+  - samtools = 1.10
+  - bcftools = 1.10.2

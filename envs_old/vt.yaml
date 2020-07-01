@@ -1,0 +1,8 @@
+name: vt
+
+channels:
+  - bioconda
+  - defaults
+
+dependencies:
+  - vt = 2015.11.10

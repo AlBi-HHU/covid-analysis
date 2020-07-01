@@ -1,0 +1,242 @@
+import json
+
+all_reads_eval = []
+for run in runs:
+    all_reads_eval += expand('data/auxiliary/corrections/{method}/'+run+'/21/{barcode}.fasta',method=methods,barcode=barcodes[run])
+
+#Randomly samples subsets and saves them to disk
+checkpoint createSubsets:
+    input:
+        all_reads_eval
+    output:
+        'data/auxiliary/pangenomeEval/sampleSets.json'
+    script:
+        '../scripts/createSubsets.py'
+
+def subset(subsetFile,wildcards):
+    sampleSets = json.load(open(subsetFile,'r'))
+    ret = sampleSets[wildcards.cohortSize][int(wildcards.sampleSet)]
+    print(ret)
+    return ret
+
+k = config["pangenomeKSize"]
+
+rule count_kmer_of_all_files:
+    input:
+        subsetFile = 'data/auxiliary/pangenomeEval/sampleSets.json',
+        reference = "data/input/nCoV-2019.reference.fasta"
+    output:
+        count = "data/auxiliary/pangenome/{cohortSize}/{sampleSet}/all_reads_and_ref.h5"
+    params:
+        k = k,
+        abundance_min = lambda wildcards,input : ','.join([str(config["pangenomeMinCov"]) for _ in range(len(subset(input.subsetFile,wildcards)))]),
+        readss = lambda wildcards,input : ','.join(subset(input.subsetFile,wildcards))
+    conda:
+        '../envs/dsk.yaml',
+    threads:
+        48
+    log:
+        'logs/{cohortSize}/{sampleSet}/pangenome_dsk.log'
+    shell:
+        'dsk -file {params.readss},{input.reference},{input.reference} -kmer-size {params.k} -abundance-min {params.abundance_min},1,1 -solidity-kind one -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {output.count} 2> {log}'
+
+        
+rule asm_pangenome:
+    input:
+        count = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.h5",
+
+    output:
+        asm = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.unitigs.fa",
+        
+    params:
+        outprefix = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref",
+        k = k,
+
+    conda:
+        '../envs/bcalm.yaml',
+
+    threads:
+        48
+
+    log:
+        'logs/{cohortSize}/{sampling}/pangenome_bcalm.log'
+
+    shell:
+        'bcalm -in {input.count} -kmer-size {params.k} -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {params.outprefix} 2> {log}'
+
+
+rule generate_gfa_pangenome:
+    input:
+        asm = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.unitigs.fa",
+        
+    output:
+        graph = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.gfa",
+        
+    params:
+        k = k,
+        
+    log:
+        'logs/{cohortSize}/{sampling}/pangenome_asm2gfa.log'
+
+    shell:
+        'python3 scripts/convertToGFA.py {input.asm} {output.graph} {params.k} 2> {log}'
+
+rule map_read_on_graph:
+    input:
+        graph = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.gfa",
+        subsetFile = 'data/auxiliary/pangenomeEval/sampleSets.json',
+        readss = lambda wildcards : subset(input.subsetFile,wildcards)
+
+    output:
+        mapping = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.gaf",
+
+    conda:
+        '../envs/graphaligner.yaml',
+
+    threads:
+        48
+
+    log:
+        'logs/{cohortSize}/{sampling}/pangenome_mapping.log'
+
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.readss} -a {output.mapping}"
+
+
+rule add_reads_path:
+    input:
+        graph = "{prefix}.gfa",
+        mapping = "{prefix}.gaf",
+
+    output:
+        out_graph = "{prefix}.paths.gfa",
+        
+    params:
+        min_mapping_coverage = 150,
+        prefix = "p",
+        
+    log:
+        'logs/add_gaf_gfa_{prefix}.log'
+        
+    script:
+        '../scripts/add_gaf_gfa.py'
+
+rule map_reference_on_graph:
+    input:
+        graph = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.gfa",
+        reference = "data/input/nCoV-2019.reference.fasta"
+
+    output:
+        mapping = "data/auxiliary/{cohortSize}/{sampling}/pangenome/all_reads_and_ref.reference.gaf",
+
+    conda:
+        '../envs/graphaligner.yaml',
+
+    threads:
+        48
+
+    log:
+        'logs/{cohortSize}/{sampling}/pangenome_ref_mapping.log'
+
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.reference} -a {output.mapping}"
+
+        
+rule add_reference_path:
+    input:
+        graph = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.paths.gfa",
+        mapping = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.reference.gaf",
+
+    output:
+        out_graph = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.paths.ref.gfa",
+        
+    params:
+        min_mapping_coverage = 0,
+        prefix = "ref",
+        
+    log:
+        'logs/{cohortSize}/{sampling}/add_gaf_gfa_reference.log'
+        
+    script:
+        '../scripts/add_gaf_gfa.py'
+
+########### VC ##############
+
+rule map_read_pangenome:
+    input:
+        graph = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.gfa",
+        reads = "data/auxiliary/softClippedSeqs/{method}/{run}/{barcode}.fasta",
+    output:
+        mappings = "data/auxiliary/pangenome_vc/{cohortSize}/{sampling}/{method}/{run}/{barcode}/reads.gaf",
+
+    conda:
+        '../envs/graphaligner.yaml',
+
+    threads:
+        48
+                
+    log:
+        'logs/{cohortSize}/{sampling}/pangenome_vc_read_mapping_{method}_{run}_{barcode}.log',
+
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.reads} -a {output.mappings} 2> {log}"
+
+
+rule map_ref_pangenome:
+    input:
+        graph = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.gfa",
+        ref = "data/input/nCoV-2019.reference.fasta",
+        
+    output:
+        mappings = "data/auxiliary/pangenome_vc/{cohortSize}/{sampling}/reference.gaf",
+
+    conda:
+        '../envs/graphaligner.yaml',
+
+    threads:
+        48
+                
+    log:
+        'logs/{cohortSize}/{sampling}/pangenome_vc_reference_mapping.log',
+
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.ref} -a {output.mappings} 2> {log}"
+
+
+rule call_variant:
+    input:
+        graph = "data/auxiliary/pangenome/{cohortSize}/{sampling}/all_reads_and_ref.gfa",
+        reads_mapping = "data/auxiliary/pangenome_vc/{cohortSize}/{sampling}/{method}/{run}/{barcode}/reads.gaf",
+        reference_mapping = "data/auxiliary/pangenome_vc/{cohortSize}/{sampling}/reference.gaf",
+        
+    output:
+        variant = "data/auxiliary/pangenome_vc/{cohortSize}/{sampling}/{method}/{run}/{barcode}/variant_ugly.vcf",
+        node_pos_on_ref = "data/auxiliary/pangenome_vc/{cohortSize}/{sampling}/{method}/{run}/{barcode}/node2pos.csv"
+
+    params:
+        ksize = config["pangenomeKSize"],
+        rvt_threshold = config["pangenomeRVTThreshold"]
+        
+    log:
+        'logs/{cohortSize}/{sampling}/pangenome_vc_call_variant_{method}_{run}_{barcode}.log',
+
+    script:
+        "../scripts/call_variant_pangenome.py"
+
+
+rule normalize_variant:
+    input:
+        ugly_variant = "data/auxiliary/pangenome_vc/{cohortSize}/{sampling}/{method}/{run}/{barcode}/variant_ugly.vcf",
+        reference = "data/input/nCoV-2019.reference.fasta",
+
+    output:
+        variant = "data/auxiliary/pangenome_vc/{cohortSize}/{sampling}/{method}/{run}/{barcode}/variant.vcf",
+
+    conda:
+        '../envs/vt.yaml',
+
+    log:
+        'logs/{cohortSize}/{sampling}/pangenome_vc_normalize_variant_{method}_{run}_{barcode}.log'
+
+    shell:
+        'vt normalize -r {input.reference} -o {output.variant} {input.ugly_variant} 2> {log}'

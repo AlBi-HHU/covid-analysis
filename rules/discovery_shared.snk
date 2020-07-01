@@ -1,0 +1,128 @@
+def fetchAllVCFDiffs(k,discoveryTool):
+    list = []
+    for run in barcodes:
+        list += expand('data/auxiliary/discovery/'+discoveryTool+'/{method}/'+run+'/'+k+'/{barcode}.diff',method=methods,barcode=barcodes[run])
+    return list
+
+def fetchAllPileups():
+    list = []
+    for run in barcodes:
+        list += expand('data/auxiliary/pileupAnalysis/{method}/'+run+'/{barcode}.pileupanalysis.txt',method=methods,barcode=barcodes[run])
+    return list
+
+
+        
+rule realign_corrected_reads:
+    input:
+        index = 'data/input/nCoV-2019.reference.fasta.bwt',
+        corrected = 'data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.fasta',
+
+    output:
+        'data/auxiliary/realignment/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam'
+
+    params:
+        reference = 'data/input/nCoV-2019.reference.fasta'
+        
+    conda:
+        '../envs/realign.yaml',
+        
+    log:
+        'logs/{basecalling_method}_{run}_{barcode}_{k}_realign_corrected_reads.log'
+        
+    shell:
+        'bwa mem {params.reference} {input.corrected} | samtools sort - > {output} 2> {log}'
+
+
+rule variant_calling:
+    input:
+        ref = 'data/input/nCoV-2019.reference.fasta',
+        bam = 'data/auxiliary/realignment/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam',
+        bai = 'data/auxiliary/realignment/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam.bai'
+        
+    output:
+        'data/auxiliary/realignment/{basecalling_method}/{run}/{k}/{barcode}.snvs.vcf'
+
+    conda:
+        '../envs/realign.yaml',
+                
+    log:
+        'logs/{basecalling_method}_{run}_{barcode}_{k}_variant_calling.log'
+
+    shell:
+        "samtools mpileup -g -f {input.ref} {input.bam} | bcftools call -mv - | bcftools view --genotype het --types snps - > {output} 2> {log}"
+
+rule generate_igv_Sessions:
+    input:
+        ref = 'data/input/nCoV-2019.reference.fasta',
+        bam = 'data/auxiliary/realignment/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam',
+        bai = 'data/auxiliary/realignment/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam.bai',
+        vcf_medaka = 'data/auxiliary/realignment/medaka/{run}/{k}/{barcode}.snvs.vcf',
+        vcf_nanopolish = 'data/auxiliary/realignment/nanopolish/{run}/{k}/{barcode}.snvs.vcf'
+
+    output:
+        report('data/output/IgvSessions/realignment/{basecalling_method}/{run}/{k}/{barcode}.igv.xml',category='IGVSessions')
+
+    conda:
+        '../envs/perl.yaml'
+
+    shell:
+        'perl scripts/generate_IGV.pl --covidReference {input.ref} --BAM {input.bam} --output {output} --VCF_Medaka {input.vcf_medaka} --VCF_Nano {input.vcf_nanopolish}'
+
+
+rule normalize_variant:
+    input:
+        ugly_variant = '{prefix}.vcf.ugly',
+        reference = "data/input/nCoV-2019.reference.fasta",
+    output:
+        variant = '{prefix}.vcf',
+    conda:
+        '../envs/vt.yaml',
+    log:
+        'logs/pangenome_vc_normalize_variant_{prefix}.log'
+
+    shell:
+        'vt normalize -r {input.reference} -o {output.variant} {input.ugly_variant} 2> {log}'
+
+rule vcfdiff_discovery:
+    input:
+        originalVCF = 'data/input/{run}/result_hac/barcode{barcode}.{basecalling_method}.primertrimmed.vcf',
+        newVCF = 'data/auxiliary/discovery/{discoveryTool}/{basecalling_method}/{run}/{k}/{barcode}.vcf'
+    output:
+        'data/auxiliary/discovery/{discoveryTool}/{basecalling_method}/{run}/{k}/{barcode}.diff'
+    conda:
+        '../envs/pyvcf.yaml'
+    script:
+        '../scripts/vcfdiff.py'
+
+rule aggregate_vcf_diffs:
+    input:
+        lambda wildcards : fetchAllVCFDiffs(wildcards.k,wildcards.discoveryTool)
+    output:
+        'data/output/discovery/aggregatedDiffs_{discoveryTool}_{k}.json'
+    params:
+        # Cluster Execution
+        cpus = '1',
+        mem = '256M',
+        gpus = '0',
+        walltime = '00:01:00'
+    conda:
+        '../envs/pyvcf.yaml'
+    script:
+        '../scripts/aggregateDiffs.py'
+
+rule annotate_aggregated_vcf_diffs:
+    input:
+        pileups = fetchAllPileups(),
+        diffs = 'data/output/discovery/aggregatedDiffs_{discoveryTool}_{k}.json'
+    output:
+        diffs = 'data/output/discovery/annotatedAggregatedDiffs_{discoveryTool}_{k}.json'
+    params:
+        # Cluster Execution
+        cpus = '1',
+        mem = '512M',
+        gpus = '0',
+        walltime = '00:05:00'
+    conda:
+        '../envs/biopythonworkbench.yaml'
+    script:
+        '../scripts/annotateDiffs.py'
