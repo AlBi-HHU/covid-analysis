@@ -42,14 +42,14 @@ def parsePileupPosition(f,pos):
             for val in spread.split(';'):
                 entry = val.split('=')
                 spreadDict[entry[0]] = int(entry[1])
-        bias = 0
-        for entry in spreadDict:
-            if entry.islower() or entry == ')':
-                bias -= spreadDict[entry]
-            else:
-                bias += spreadDict[entry]
+            bias = 0
+            for entry in spreadDict:
+                if entry.islower() or entry == ')':
+                    bias -= spreadDict[entry]
+                else:
+                    bias += spreadDict[entry]
 
-    return bias,sum(spreadDict.values())
+            return bias,sum(spreadDict.values())
     
 complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'} 
 def rev_comp(seq):
