@@ -31,13 +31,14 @@ def parsePileup(pileupfile):
             pileupAnalysis[pos] = spreadDict
     return pileupAnalysis
 
+#returns the strand bias and the coverage for a given position and a pileup file
 def parsePileupPosition(f,pos):
     with open(f,'r') as infile:
         for line in infile.read().splitlines():
             columns = line.split()
-            if pos != columns[0]:
-                continue
-            spread = columns[2]
+            if pos != columns[0]: #column 0 contains the position
+                continue #we loop until we hit the position we are interested in
+            spread = columns[2] #column 2 contains the observed alleles
             spreadDict = {}
             for val in spread.split(';'):
                 entry = val.split('=')
@@ -50,7 +51,7 @@ def parsePileupPosition(f,pos):
                     bias += spreadDict[entry]
 
             return bias,sum(spreadDict.values())
-    
+        raise Exception('Can\'t find an entry for position {} in file {}'.format(pos,f))
 complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'} 
 def rev_comp(seq):
     return "".join(reversed([complement[n] for n in seq]))

@@ -13,6 +13,14 @@ diffs = json.load(open(snakemake.input['diffs'],'r'))
 for pos in diffs:
     for variant in diffs[pos]:
         print('Annotating {} {} ...'.format(pos,variant))
+        #Determine Length of Variant
+        tmp = variant.split('->')
+        variantLength = -1
+        if (tmp[0] == 'Missing'): #We detected  a new variant
+            pass
+        else:
+            continue #We missed an existing variant ... doesn't matter
+        variantLength = max(len(tmp[1]),len(tmp[2]))
         strandBiases = []
         coverageValues = []
         for f in snakemake.input['pileups']:
@@ -20,7 +28,17 @@ for pos in diffs:
             for fn in diffs[pos][variant]:
                 fnp = parseFilename(fn)
                 if fnp == fp:
-                    strandBias,coverage = parsePileupPosition(f,pos)
+                    #get strand bias and coverage across the entire length of variant
+                    strandBias = 0
+                    coverage = 0
+                    posAsInt = int(pos)
+                    for p in range(posAsInt,posAsInt+variantLength):
+                        sbAtP,covAtP = parsePileupPosition(f,str(p))
+                        strandBias += sbAtP
+                        coverage += covAtP
+                    #Normalize
+                    strandBias /= variantLength
+                    coverage /= variantLength
                     strandBiases.append(strandBias)
                     coverageValues.append(coverage)
         filenames = diffs[pos][variant]
