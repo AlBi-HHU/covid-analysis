@@ -1,0 +1,79 @@
+
+rule compress_vcf:
+    input: 
+        vcf = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf"
+
+    output:
+        gvcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz"
+
+    conda:
+        '../envs/realign.yaml'
+
+    shell:
+        'bgzip -c {input.vcf} > {output.gvcf}'
+
+rule index_vcf:
+    input: 
+        vcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz"
+        
+    output:
+        index = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz.csi"
+
+    conda:
+        '../envs/realign.yaml'
+
+    shell:
+        'bcftools index {input.vcf}'
+
+        
+rule apply_vcf:
+    input:
+        ref = "data/input/nCoV-2019.reference.fasta",
+        vcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz",
+        index = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz.csi"
+        
+    output:
+        var_ref = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant_applied.fasta"
+
+    conda:
+        '../envs/realign.yaml'
+        
+    shell:
+        'bcftools consensus -f {input.ref} {input.vcf} > {output.var_ref}'
+
+rule map_on_consensus:
+    input:
+        new_ref = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant_applied.fasta",
+        index = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant_applied.fasta.bwt",
+        raw_reads = "data/auxiliary/softClippedSeqs/{method}/{run}/{barcode}.fasta"
+
+    output:
+        mapping = 'data/auxiliary/consensus/{method}/{run}/{barcode}/mapping.bam'
+        
+    threads:
+        48
+        
+    conda:
+        '../envs/realign.yaml'
+
+    shell:
+        'bwa mem -t {threads} {input.new_ref} {input.raw_reads} | samtools sort - > {output.mapping} && samtools index {output.mapping}'
+
+
+rule final_consensus:
+    input:
+        reference = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant_applied.fasta",
+        mapping = 'data/auxiliary/consensus/{method}/{run}/{barcode}/mapping.bam',
+
+    output:
+        consensus = "data/output/consensus/{method}/{run}/{barcode}/consensus.fasta"
+
+    conda:
+        '../envs/biopythonworkbench.yaml'
+        
+    params:
+        threshold = 0.8
+
+    script:
+        '../scripts/build_consensus.py'
+        

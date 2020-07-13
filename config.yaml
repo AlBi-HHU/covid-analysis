@@ -51,6 +51,9 @@ pangenomeCorrectionK: 15
 pangenomeVariantCalling: True
 pangenomeRVTThreshold: 0.01
 
+# Consensus section
+consensus: True
+
 #if True, only use the given subset of run folders
 useSubsetOfRuns: True
 runs: [corona_03_11]
@@ -61,7 +64,6 @@ barcodes:
   corona_03_11 : ['04']
 
 splitsteps: 0.01
-
 
 
 ############# Evaluation ##############

@@ -61,7 +61,10 @@ def getInput(wildcards):
                 inputList += expand('data/auxiliary/discovery/cortex/{method}/'+run+'/{k}/{barcode}.vcf',method=methods,k=ks,barcode=barcodes[run])
                 inputList += expand('data/output/discovery/annotatedAggregatedDiffs_cortex_{k}.json',k=ks)
 
+        if config['consensus']:
+            inputList += expand('data/auxiliary/consensus/{method}/'+run+'/{barcode}/variant_applied.fasta', method=methods, k=ks, barcode=barcodes[run])
 
+                
         if config['performMethodEvaluation']:
             sampleSetsFile = checkpoints.createSubsets.get().output
             with open(str(sampleSetsFile),'r') as infile:
@@ -93,6 +96,7 @@ include: 'rules/errorCorrection.snk'
 include: 'rules/debruijn.snk'
 include: 'rules/kmerAnalysis.snk'
 include: 'rules/variantAnalysis.snk'
+include: 'rules/consensus.snk'
 
 if config['performMethodEvaluation']:
     include: 'rules/pangenome_eval.snk'
