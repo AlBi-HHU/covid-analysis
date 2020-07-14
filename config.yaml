@@ -49,7 +49,7 @@ pangenomeCorrectionK: 15
 
 # Pangenome variant calling
 pangenomeVariantCalling: True
-pangenomeRVTThreshold: 0.01
+pangenomeRVTThreshold: 0.2
 
 # Consensus section
 consensus: True
