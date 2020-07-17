@@ -53,6 +53,8 @@ pangenomeRVTThreshold: 0.2
 
 # Consensus section
 consensus: True
+consensusMinCov: 20
+consensusHet: 0.8
 
 #if True, only use the given subset of run folders
 useSubsetOfRuns: True

@@ -72,8 +72,8 @@ rule final_consensus:
         '../envs/biopythonworkbench.yaml'
         
     params:
-        th_cov = 20,
-        th_het = 0.8
+        th_cov = config["consensusMinCov"],
+        th_het = config["consensusHet"],
 
     script:
         '../scripts/build_consensus.py'

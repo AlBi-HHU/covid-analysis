@@ -62,7 +62,7 @@ def getInput(wildcards):
                 inputList += expand('data/output/discovery/annotatedAggregatedDiffs_cortex_{k}.json',k=ks)
 
         if config['consensus']:
-            inputList += expand('data/auxiliary/consensus/{method}/'+run+'/{barcode}/variant_applied.fasta', method=methods, k=ks, barcode=barcodes[run])
+            inputList += expand('data/output/consensus/{method}/'+run+'/{barcode}/consensus.fasta', method=methods, k=ks, barcode=barcodes[run])
 
                 
         if config['performMethodEvaluation']:

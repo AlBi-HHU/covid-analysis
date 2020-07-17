@@ -53,14 +53,15 @@ def main(ref, mapping, th_cov, th_het, consensus):
         all_count = sum(counts.values())
 
         if all_count < th_cov:
+            #print(f"ref {ref_nuc} counts {counts} all_count {all_count}")
             out.append('N')
         elif counts[ref_nuc] / all_count > th_het:
             out.append(ref_nuc)
         else:
-            print(f"ref {ref_nuc} counts {counts} all_count {all_count} {counts[ref_nuc] / all_count}")
+            #print(f"ref {ref_nuc} counts {counts} all_count {all_count} {counts[ref_nuc] / all_count}")
 
             nucs = frozenset((k for k, v in counts.items() if v / all_count > 1 - th_het))
-            print(f"degenerate {degenerate[nucs]}")
+            #print(f"degenerate {degenerate[nucs]}")
             out.append(degenerate[nucs])
 
     print(f">{record.id}\n{''.join(out)}", file=open(consensus, "w"))
