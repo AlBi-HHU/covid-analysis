@@ -79,9 +79,8 @@ rule normalize_variant:
         '../envs/vt.yaml',
     log:
         'logs/pangenome_vc_normalize_variant_{prefix}.log'
-
     shell:
-        'vt normalize -r {input.reference} -o {output.variant} {input.ugly_variant} 2> {log}'
+        'if [ -s {input.ugly_variant} ]; then vt normalize -r {input.reference} -o {output.variant} {input.ugly_variant}; else touch {output.variant}; fi 2> {log}'
 
 rule vcfdiff_discovery:
     input:

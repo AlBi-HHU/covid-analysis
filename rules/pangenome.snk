@@ -1,4 +1,5 @@
 all_vcfs = [expand('data/auxiliary/discovery/freebayes/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
+all_vcfs += [expand('data/auxiliary/discovery/cortex/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
 all_vcfs += [expand('data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
 
 vcfs = [item for sublist in all_vcfs for item in sublist]
@@ -23,13 +24,35 @@ rule concatenate_vcf:
     script:
         '../scripts/pangenome/concate_vcf.py'
 
+rule sortVCF:
+    input:
+        "data/auxiliary/pangenome/merge.vcf"
+    output:
+        "data/auxiliary/pangenome/merge_sorted.vcf"
+    shell:
+        "cat {input} | awk \'$1 ~ /^#/ {{print $0;next}} {{print $0 | \"sort -k1,1 -k2,2n\"}}\' > {output}"
 
-        
+rule bgzip:
+    input:
+        "data/auxiliary/pangenome/merge_sorted.vcf"
+    output:
+        "data/auxiliary/pangenome/merge_sorted.vcf.gz"
+    shell:
+        "bgzip {input}"
+
+rule indexVcf:
+    input:
+        "data/auxiliary/pangenome/merge_sorted.vcf.gz"
+    output:
+        "data/auxiliary/pangenome/merge_sorted.vcf.gz.tbi"
+    shell:
+        "tabix -f -p vcf {input}"
+       
 rule pangenome:
     input:
-        vcf = "data/auxiliary/pangenome/merge.vcf",
-        reference = "data/input/nCoV-2019.reference.fasta"
-
+        vcf = "data/auxiliary/pangenome/merge_sorted.vcf.gz",
+        reference = "data/input/nCoV-2019.reference.fasta",
+        idx ="data/auxiliary/pangenome/merge_sorted.vcf.gz.tbi"
     output:
         asm = "data/auxiliary/pangenome/pangenome.gfa",
 

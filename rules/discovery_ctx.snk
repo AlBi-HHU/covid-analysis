@@ -118,6 +118,7 @@ rule stampy:
     shell:
         'python2 '+config['stampyPath']+'/stampy-1.0.32/stampy.py -G {params.folder}/referenceStampy {input} && python2 '+config['stampyPath']+'/stampy-1.0.32/stampy.py -g {params.folder}/referenceStampy -H {params.folder}/referenceStampy'
 
+import os
 
 rule cortexToVCF:
     input:
@@ -130,8 +131,11 @@ rule cortexToVCF:
     params:
         outfolder = lambda wildcards: wildcards.prefix+'_calls/',
         stampyPrefix = 'data/auxiliary/discovery/cortex/referenceStampy'
-    shell:
-        'perl '+config['cortexPath']+'/scripts/analyse_variants/process_calls.pl --callfile {input.callfile} --callfile_log {input.calllog} --outvcf call --outdir {params.outfolder} --samplename_list {input.dummylist} --num_cols 2 --ploidy 1 --caller PD --kmer '+config['cortexK']+' --stampy_bin '+config['stampyPath']+'/stampy-1.0.32/stampy.py --stampy_hash {params.stampyPrefix} --refcol 0  --vcftools_dir /usr/local/bin'
+    run:
+        if os.stat(input['callfile']).st_size == 0:
+            shell('touch {output.vcf}')
+        else:
+            shell('perl '+config['cortexPath']+'/scripts/analyse_variants/process_calls.pl --callfile {input.callfile} --callfile_log {input.calllog} --outvcf call --outdir {params.outfolder} --samplename_list {input.dummylist} --num_cols 2 --ploidy 1 --caller PD --kmer '+config['cortexK']+' --stampy_bin '+config['stampyPath']+'/stampy-1.0.32/stampy.py --stampy_hash {params.stampyPrefix} --refcol 0  --vcftools_dir /usr/local/bin')
 
 rule cortexCP:
     input:
