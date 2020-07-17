@@ -56,14 +56,14 @@ def getInput(wildcards):
             
             if config['discovery_fb']:
                 inputList += expand('data/auxiliary/discovery/freebayes/{method}/'+run+'/{k}/{barcode}.vcf', method=methods, k=ks, barcode=barcodes[run])
-                inputList += expand('data/output/discovery/annotatedAggregatedDiffs_freebayes_{k}.json',k=ks)
+                #inputList += expand('data/output/discovery/annotatedAggregatedDiffs_freebayes_{k}.json',k=ks)
             if config['discovery_ctx']:
                 inputList += expand('data/auxiliary/discovery/cortex/{method}/'+run+'/{k}/{barcode}.vcf',method=methods,k=ks,barcode=barcodes[run])
-                inputList += expand('data/output/discovery/annotatedAggregatedDiffs_cortex_{k}.json',k=ks)
+                #inputList += expand('data/output/discovery/annotatedAggregatedDiffs_cortex_{k}.json',k=ks)
 
         if config['consensus']:
             inputList += expand('data/output/consensus/{method}/'+run+'/{barcode}/consensus.fasta', method=methods, k=ks, barcode=barcodes[run])
-
+            #inputList += expand('data/output/consensus/{method}/curation.xlsx' method=methods)
                 
         if config['performMethodEvaluation']:
             sampleSetsFile = checkpoints.createSubsets.get().output
