@@ -47,7 +47,7 @@ def getInput(wildcards):
            inputList += ["data/auxiliary/pangenome/pangenome.gfa"]
 
         if config['pangenomeVariantCalling']:
-            inputList += expand('data/auxiliary/pangenome_vc/{method}/'+run+'/{barcode}/variant.vcf', method=methods, barcode=barcodes[run])
+            inputList += expand('data/auxiliary/pangenome_vc/{method}/'+run+'/{barcode}/filter.vcf', method=methods, barcode=barcodes[run])
 
         if config['discovery']:
             #TODO: Rename to "Discovery"? but is mandatory ...

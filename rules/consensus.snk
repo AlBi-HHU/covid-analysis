@@ -1,7 +1,7 @@
 
 rule compress_vcf:
     input: 
-        vcf = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf"
+        vcf = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf"
 
     output:
         gvcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz"

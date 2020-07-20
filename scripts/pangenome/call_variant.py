@@ -110,6 +110,7 @@ def vcf_header(fh, ref_name, length):
     print("##INFO=<ID=VCOV,Number=1,Type=Integer,Description=\"Coverage of variant path\">", file=fh)
     print("##INFO=<ID=RCOV,Number=1,Type=Integer,Description=\"Coverage of reference path\">", file=fh)
     print("##INFO=<ID=RVT,Number=1,Type=Float,Description=\"Ratio between coverage of variant and total coverage\">", file=fh)
+    print("##INFO=<ID=VARIANT_PATH,Number=1,Type=String,Description=\"Id of variant node in pangenome graph\">", file=fh)
     print("##contig=<ID={},length={}>".format(ref_name, length), file=fh)
     print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT", file=fh)
 

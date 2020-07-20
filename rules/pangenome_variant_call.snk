@@ -67,3 +67,18 @@ rule call_variant:
 
     script:
         "../scripts/pangenome/call_variant.py"
+
+        
+rule filter_same_pos_variant:
+    input:
+        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf"
+
+    output:
+        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf"
+
+    conda:
+        '../envs/freebayes.yaml',
+
+    script:
+        '../scripts/pangenome/clean_variant.py'
+    
