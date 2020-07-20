@@ -66,8 +66,8 @@ rule final_consensus:
         mapping = 'data/auxiliary/consensus/{method}/{run}/{barcode}/mapping.bam',
 
     output:
-        consensus = "data/output/consensus/{method}/{run}/{barcode}/consensus.fasta"
-
+        consensus = "data/output/consensus/{method}/{run}/{barcode}/consensus.fasta",
+        variant_index = "data/auxiliary/consensus/{method}/{run}/{barcode}/vi.json"
     conda:
         '../envs/biopythonworkbench.yaml'
         

@@ -1,6 +1,8 @@
 
 from collections import Counter
 
+import json
+
 import pysam
 
 from Bio import SeqIO
@@ -23,7 +25,9 @@ degenerate = {
     frozenset(('A', 'C', 'T', 'G')): 'N'
 }
 
-def main(ref, mapping, th_cov, th_het, consensus):
+def main(ref, mapping, th_cov, th_het, consensus,variant_index):
+
+    vi = {}
 
     record = next(SeqIO.parse(ref, "fasta"))
     reference = record.seq
@@ -59,17 +63,16 @@ def main(ref, mapping, th_cov, th_het, consensus):
             out.append(ref_nuc)
         else:
             #print(f"ref {ref_nuc} counts {counts} all_count {all_count} {counts[ref_nuc] / all_count}")
-
             nucs = frozenset((k for k, v in counts.items() if v / all_count > 1 - th_het))
             #print(f"degenerate {degenerate[nucs]}")
             out.append(degenerate[nucs])
-
+            vi[col.pos] = degenerate[nucs]
     print(f">{record.id}\n{''.join(out)}", file=open(consensus, "w"))
-
+    json.dump(vi,open(variant_index,'w'))
 if "snakemake" in locals():
-    main(snakemake.input["reference"], snakemake.input["mapping"], int(snakemake.params["th_cov"]), float(snakemake.params["th_het"]), snakemake.output["consensus"])
+    main(snakemake.input["reference"], snakemake.input["mapping"], int(snakemake.params["th_cov"]), float(snakemake.params["th_het"]), snakemake.output["consensus"],snakemake.output['variant_index'])
 else:
     import sys
 
-    main(sys.argv[1], sys.argv[2], int(sys.argv[3]), float(sys.argv[4]), sys.argv[5])
+    main(sys.argv[1], sys.argv[2], int(sys.argv[3]), float(sys.argv[4]), sys.argv[5],sys.argv[6])
 
