@@ -16,13 +16,12 @@ def main(in_vcf, out_vcf):
     header.add_info_line({"ID": "MULTIPLE", "Type": "Flag", "Number": "1", "Description": "Pangenome found multiple variant at this position"})
     writer = vcfpy.Writer.from_path(out_vcf, reader.header)
     
-    for key, values in pos2var.items() :
+    for key, values in pos2var.items():
         if len(values) == 1:
-            record.INFO["MULTIPLE"] = False
             writer.write_record(values[0][1])
         else:
-            record.INFO["MULTIPLE"] = True
             values.sort(key=lambda x: x[0], reverse=True)
+            values[0][1].INFO["MULTIPLE"] = True
             writer.write_record(values[0][1])
 
 
