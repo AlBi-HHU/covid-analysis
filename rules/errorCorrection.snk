@@ -21,7 +21,7 @@ rule count_jellyfish:
         reference = "{prefix}.fasta",
         
     output:
-        count = "{prefix}.k{k}.jellyfish",
+        countfile = "{prefix}.k{k}.jellyfish",
         csv = "{prefix}.k{k}.csv",
 
     params:
@@ -36,7 +36,7 @@ rule count_jellyfish:
         'logs/jellyfish_count_{prefix}_k{k}.log',
 
     shell:
-        "jellyfish count -s 100000 -t {threads} -m {params.k} -o {output.count} {input.reference} && jellyfish dump -c -o {output.csv} {output.count}"
+        "jellyfish count -s 100000 -t {threads} -m {params.k} -o {output.countfile} {input.reference} && jellyfish dump -c -o {output.csv} {output.countfile}"
 
         
 rule select_kmer:

@@ -82,6 +82,10 @@ rule normalize_variant:
     shell:
         'if [ -s {input.ugly_variant} ]; then vt normalize -r {input.reference} -o {output.variant} {input.ugly_variant}; else touch {output.variant}; fi 2> {log}'
 
+
+
+### VCF Diffs
+
 rule vcfdiff_discovery:
     input:
         originalVCF = 'data/input/{run}/result_hac/barcode{barcode}.{basecalling_method}.primertrimmed.vcf',

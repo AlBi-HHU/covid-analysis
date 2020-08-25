@@ -82,3 +82,27 @@ rule filter_same_pos_variant:
     script:
         '../scripts/pangenome/clean_variant.py'
     
+### Debug / Evaluation Only
+
+all_vcfs = []
+freebayes_vcfs = [expand('data/auxiliary/discovery/freebayes/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
+freebayes_vcfs = [item for sublist in freebayes_vcfs for item in sublist]
+all_vcfs += freebayes_vcfs
+cortex_vcfs = [expand('data/auxiliary/discovery/cortex/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
+cortex_vcfs = [item for sublist in cortex_vcfs for item in sublist]
+all_vcfs += cortex_vcfs
+original_vcfs = [expand('data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
+original_vcfs = [item for sublist in original_vcfs for item in sublist]
+all_vcfs += original_vcfs
+
+rule get_contributions:
+    input:
+        cortex_calls = cortex_vcfs,
+        other_calls = list(set(all_vcfs) - set(cortex_vcfs)),
+        filter_vcfs = [expand('data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
+    output:
+        contrib = 'data/auxiliary/pangenome_vc/contrib.txt'
+    conda:
+        '../envs/vcfpy.yaml'
+    script:
+        '../scripts/getExclusiveCortex.py'

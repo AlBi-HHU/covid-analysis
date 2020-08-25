@@ -84,6 +84,9 @@ def getInput(wildcards):
         inputList += expand('data/output/IgvSessions/{method}/'+run+'/{barcode}.igv.xml',method=methods,barcode=barcodes[run])
 		
 
+        #Debug/Eval Stuff
+        inputList += ['data/auxiliary/pangenome_vc/contrib.txt']
+
     return inputList
 
 
