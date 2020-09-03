@@ -56,6 +56,9 @@ consensus: True
 consensusMinCov: 20
 consensusHet: 0.8
 
+# VariantAnotation
+VarAnnotSnpEff: True
+
 #if True, only use the given subset of run folders
 useSubsetOfRuns: True
 runs: [corona_03_11]

@@ -47,6 +47,7 @@ rule generateIGVSessions:
         '../envs/perl.yaml'
     shell:
         'perl scripts/generate_IGV.pl --covidReference {input.reference} --BAM {params.alignmentFile} --output {output} --VCF_Medaka {input.vcfFileMeda} --VCF_Nano {input.vcfFileNano}'
+
 rule getVariantPositions:
     input:
         vcfFiles = fetchAllVCFs()
@@ -249,3 +250,16 @@ rule assembleReferenceEmissions:
         '../envs/biopythonworkbench.yaml'
     script:
         '../scripts/assembleReferenceEmissions.py'
+
+rule annote_variant_snpeff:
+    input:
+        vcf = '{path}.vcf',
+
+    output:
+        annoted = '{path}.annoted.vcf'
+
+    conda:
+        '../envs/snpEff.yaml'
+        
+    shell:
+       "sed 's/MN908947.3/NC_045512.2/' {input.vcf} | snpEff NC_045512.2 | sed 's/NC_045512.2/MN908947.3/' > {output.annoted}"

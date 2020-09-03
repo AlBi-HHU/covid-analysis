@@ -64,7 +64,11 @@ def getInput(wildcards):
         if config['consensus']:
             inputList += expand('data/output/consensus/{method}/'+run+'/{barcode}/consensus.fasta', method=methods, k=ks, barcode=barcodes[run])
             #inputList += expand('data/output/consensus/{method}/curation.xlsx' method=methods)
-                
+
+        if config['VarAnnotSnpEff']:
+            inputList += expand('data/auxiliary/pangenome_vc/{method}/'+run+'/{barcode}/filter.annoted.vcf', method=methods, barcode=barcodes[run])
+
+            
         if config['performMethodEvaluation']:
             sampleSetsFile = checkpoints.createSubsets.get().output
             with open(str(sampleSetsFile),'r') as infile:
