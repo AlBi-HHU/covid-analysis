@@ -7,7 +7,10 @@ ks = config['ks']
 methods = ['medaka','nanopolish']
 #Uses the IGV sessions which is completely arbitrary, could use any other input file here to get the barcode ids
 
-runs = config['runs'] if config['useSubsetOfRuns'] else glob_wildcards('data/input/{run}/result_hac').run
+runs = config['runs'] if config['useSubsetOfRuns'] else glob_wildcards('data/input/{run}').run
+
+#describes the ending of the vcf files as output by the ARTIC pipeline
+vcf_suffix = config['vcf_suffix']
 
 barcodes = {}
 
@@ -15,7 +18,7 @@ if config['useSubsetOfBarcodes']:
     barcodes = config['barcodes']
 else:
     for run in runs:
-        barcodes[run] = glob_wildcards('data/input/'+run+'/result_hac/barcode{barcode}.medaka.primertrimmed.vcf').barcode
+        barcodes[run] = glob_wildcards('data/input/'+run+'/result_hac/barcode{barcode}.'+vcf_suffix).barcode
 
 
 def getInput(wildcards):

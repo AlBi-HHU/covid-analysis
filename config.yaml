@@ -1,4 +1,7 @@
 
+#suffix definitions for input files
+vcf_suffix : medaka.pass.vcf
+
 #k's that are analyzed for k-mer based approaches
 ks : [11, 13, 15, 17, 19, 21]
 
