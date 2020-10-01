@@ -35,16 +35,16 @@ correctionClip: False
 # Discovery section
 discovery: True
 discovery_fb: True
-discovery_ctx: True
+#discovery_ctx: True
 
 #FreeBayes
 freebayesMaxEntropyTh: 1.7
 feebayesMaxRefCovRatio: 0.8
 #Cortex
-stampyPath: '../stampy-latest'
-cortexPath: '../cortex'
-cortexK: '31' #Write as string
-lowCovSupernodesCutoff: '100' #Write as string
+#stampyPath: '../stampy-latest'
+#cortexPath: '../cortex'
+#cortexK: '31' #Write as string
+#lowCovSupernodesCutoff: '100' #Write as string
 
 # Pangenome section
 generatePangenome: True
