@@ -23,8 +23,8 @@ rule index_bwa:
 
 rule extractSoftClippedReads:
     input:
-        alignment = 'data/input/{run}/result_hac/barcode{barcode}.{basecalling_method}.primertrimmed.sorted.bam',
-        index = 'data/input/{run}/result_hac/barcode{barcode}.{basecalling_method}.primertrimmed.sorted.bam.bai'
+        alignment = 'data/input/{run}/barcode{barcode}.{basecalling_method}.'+bam_suffix,
+        index = 'data/input/{run}/barcode{barcode}.{basecalling_method}.'+bam_suffix+'.bai'
     output:
         'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta'
     conda:

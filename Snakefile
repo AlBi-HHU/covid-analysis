@@ -11,6 +11,7 @@ runs = config['runs'] if config['useSubsetOfRuns'] else glob_wildcards('data/inp
 
 #describes the ending of the vcf files as output by the ARTIC pipeline
 vcf_suffix = config['vcf_suffix']
+bam_suffix = config['bam_suffix']
 
 barcodes = {}
 
@@ -18,7 +19,7 @@ if config['useSubsetOfBarcodes']:
     barcodes = config['barcodes']
 else:
     for run in runs:
-        barcodes[run] = glob_wildcards('data/input/'+run+'/result_hac/barcode{barcode}.'+vcf_suffix).barcode
+        barcodes[run] = glob_wildcards('data/input/'+run+'/result_hac/barcode{barcode}.medaka.'+vcf_suffix).barcode
 
 
 def getInput(wildcards):

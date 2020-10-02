@@ -91,7 +91,7 @@ all_vcfs += freebayes_vcfs
 cortex_vcfs = [expand('data/auxiliary/discovery/cortex/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
 cortex_vcfs = [item for sublist in cortex_vcfs for item in sublist]
 all_vcfs += cortex_vcfs
-original_vcfs = [expand('data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
+original_vcfs = [expand('data/input/{run}/barcode{barcode}.{method}.'+vcf_suffix, method=methods, barcode=barcodes[run], run=run) for run in runs]
 original_vcfs = [item for sublist in original_vcfs for item in sublist]
 all_vcfs += original_vcfs
 

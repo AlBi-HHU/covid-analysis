@@ -1,7 +1,7 @@
 def fetchAllVCFs():
     list = []
     for run in barcodes:
-        list+= expand('data/input/'+run+'/result_hac/barcode{barcode}.{method}.primertrimmed.vcf',method=methods,barcode=barcodes[run])
+        list+= expand('data/input/'+run+'/barcode{barcode}.{method}.'+vcf_suffix,method=methods,barcode=barcodes[run])
     return list
 
 def fetchAllLabels():
@@ -31,13 +31,13 @@ def fetchAllVCFDiffs():
 rule generateIGVSessions:
     input:
         reference = 'data/input/nCoV-2019.reference.fasta',
-        vcfFileNano = 'data/input/{run}/result_hac/barcode{barcode}.nanopolish.primertrimmed.vcf',
-        vcfFileMeda = 'data/input/{run}/result_hac/barcode{barcode}.medaka.primertrimmed.vcf',
-        alignmentFileIndex = 'data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.sorted.bam.bai'
+        vcfFileNano = 'data/input/{run}/barcode{barcode}.nanopolish.'+vcf_suffix,
+        vcfFileMeda = 'data/input/{run}/barcode{barcode}.medaka.'+vcf_suffix,
+        alignmentFileIndex = 'data/input/{run}/barcode{barcode}.{method}.'+bam_suffix+'.bai'
     output:
         report('data/output/IgvSessions/{method}/{run}/{barcode}.igv.xml',category='IGVSessions')
     params:
-        alignmentFile = 'data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.sorted.bam',
+        alignmentFile = 'data/input/{run}/barcode{barcode}.{method}.'+bam_suffix,
         # Cluster Execution
         cpus = '1',
         mem = '256M',
@@ -66,8 +66,8 @@ rule getVariantPositions:
 
 rule pileupAnalysis:
     input:
-        alignment = 'data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.sorted.bam',
-                alignment_index = 'data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.sorted.bam.bai',
+        alignment = 'data/input/{run}/barcode{barcode}.{method}.'+bam_suffix,
+                alignment_index = 'data/input/{run}/barcode{barcode}.{method}.'+bam_suffix+'.bai',
         reference = 'data/input/nCoV-2019.reference.fasta'
     output:
         'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.pileupanalysis.txt'
@@ -85,8 +85,8 @@ rule pileupAnalysis:
 
 rule labelAlleles:
     input:
-        pileupAnalysis = 'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.pileupanalysis.txt',
-        vcfFile = 'data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.vcf'
+        pileupAnalysis = 'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.'+vcf_suffix,
+        vcfFile = 'data/input/{run}/barcode{barcode}.{method}.'+vcf_suffix
     output:
         'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.labels.json'
     params:
@@ -157,7 +157,7 @@ rule probabilisticGenotyping:
 rule diffGenotypingVCFs:
     input:
         newVCF = 'data/output/probabilisticGenotyping/{method}/{run}/{barcode}.vcf',
-        originalVCF = 'data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.vcf'
+        originalVCF = 'data/input/{run}/barcode{barcode}.{method}.'+vcf_suffix
     output:
         'data/auxiliary/probabilisticGenotyping/{method}/{run}/{barcode}.vcfdiff'
     conda:

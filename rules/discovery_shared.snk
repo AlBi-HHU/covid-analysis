@@ -88,7 +88,7 @@ rule normalize_variant:
 
 rule vcfdiff_discovery:
     input:
-        originalVCF = 'data/input/{run}/result_hac/barcode{barcode}.{basecalling_method}.primertrimmed.vcf',
+        originalVCF = 'data/input/{run}/barcode{barcode}.{basecalling_method}.'+vcf_suffix,
         newVCF = 'data/auxiliary/discovery/{discoveryTool}/{basecalling_method}/{run}/{k}/{barcode}.vcf'
     output:
         'data/auxiliary/discovery/{discoveryTool}/{basecalling_method}/{run}/{k}/{barcode}.diff'

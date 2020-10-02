@@ -1,6 +1,6 @@
 all_vcfs = [expand('data/auxiliary/discovery/freebayes/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
 #all_vcfs += [expand('data/auxiliary/discovery/cortex/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
-all_vcfs += [expand('data/input/{run}/result_hac/barcode{barcode}.{method}.primertrimmed.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
+all_vcfs += [expand('data/input/{run}/barcode{barcode}.{method}.'+vcf_suffix, method=methods, barcode=barcodes[run], run=run) for run in runs]
 
 vcfs = [item for sublist in all_vcfs for item in sublist]
 
