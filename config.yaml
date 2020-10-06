@@ -4,7 +4,7 @@ vcf_suffix : pass.vcf
 bam_suffix : primertrimmed.rg.sorted.bam
 
 #k's that are analyzed for k-mer based approaches
-ks : [11, 13, 15, 17, 19, 21]
+ks : [11, 13, 15]
 
 #fraction (between 0 and 1) of reads that need to support a variant for it to be labeled homozygous
 thresholdHomCall : 0.85
@@ -64,11 +64,11 @@ consensusHet: 0.8
 VarAnnotSnpEff: True
 
 #if True, only use the given subset of run folders
-useSubsetOfRuns: True
+useSubsetOfRuns: False
 runs: [corona_03_11]
 
 #if True only use the given subset of barcodes
-useSubsetOfBarcodes: True
+useSubsetOfBarcodes: False
 barcodes: 
   corona_03_11 : ['04']
 
