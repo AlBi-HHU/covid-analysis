@@ -19,7 +19,7 @@ if config['useSubsetOfBarcodes']:
     barcodes = config['barcodes']
 else:
     for run in runs:
-        barcodes[run] = glob_wildcards('data/input/'+run+'/result_hac/barcode{barcode}.medaka.'+vcf_suffix).barcode
+        barcodes[run] = glob_wildcards('data/input/'+run+'/barcode{barcode}.medaka.'+vcf_suffix).barcode
 
 
 def getInput(wildcards):
