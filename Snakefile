@@ -4,7 +4,7 @@ configfile: "config.yaml"
 
 ks = config['ks']
 
-methods = ['medaka','nanopolish']
+methods = ['medaka']
 #Uses the IGV sessions which is completely arbitrary, could use any other input file here to get the barcode ids
 
 runs = config['runs'] if config['useSubsetOfRuns'] else glob_wildcards('data/input/{run}').run
