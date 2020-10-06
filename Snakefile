@@ -115,6 +115,6 @@ else:
     include: 'rules/pangenome.snk'
     include: 'rules/discovery_shared.snk'
     include: 'rules/discovery_fb.snk'
-    include: 'rules/discovery_ctx.snk'
+#    include: 'rules/discovery_ctx.snk'
     include: 'rules/pangenome_variant_call.snk'
 
