@@ -93,7 +93,7 @@ def getInput(wildcards):
 		
 
         #Debug/Eval Stuff
-        inputList += ['data/auxiliary/pangenome_vc/contrib.txt']
+        #inputList += ['data/auxiliary/pangenome_vc/contrib.txt']
 
     return inputList
 
