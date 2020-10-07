@@ -3,7 +3,7 @@ from Bio import Seq,SeqIO,SeqRecord
 
 from shared import rev_comp
 
-alignment = pysam.AlignmentFile("barcode01.medaka.primertrimmed.rg.sorted.bam",'rb')
+alignment = pysam.AlignmentFile(snakemake.input['alignment'],'rb')
 records = []
 
 for segment in alignment.fetch():
@@ -19,5 +19,5 @@ for segment in alignment.fetch():
     rec = SeqRecord.SeqRecord(seq, segment.qname, "", "")
     records.append(rec)
 
-with open("test",'w') as outfile:
+with open(snakemake.output[0],'w') as outfile:
     SeqIO.write(records,outfile,'fasta')
