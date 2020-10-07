@@ -71,14 +71,14 @@ rule generate_igv_Sessions:
 
 rule normalize_variant:
     input:
-        ugly_variant = '{prefix}/{variant}.vcf.ugly',
+        ugly_variant = '{prefix}.vcf.ugly',
         reference = "data/input/nCoV-2019.reference.fasta"
     output:
-        variant = '{prefix}/{variant}.vcf',
+        variant = '{prefix}.vcf',
     conda:
         '../envs/vt.yaml',
     log:
-        'logs/pangenome_vc_normalize_variant_{prefix}_{variant}.log'
+        'logs/pangenome_vc_normalize_variant_{prefix}_variant.log'
     shell:
         'if [ -s {input.ugly_variant} ]; then vt normalize -r {input.reference} -o {output.variant} {input.ugly_variant}; else touch {output.variant}; fi 2> {log}'
 
