@@ -55,8 +55,8 @@ def getInput(wildcards):
 
         if config['discovery']:
             #TODO: Rename to "Discovery"? but is mandatory ...
-            #Realignments
-            inputList += expand('data/output/IgvSessions/realignment/{method}/'+run+'/{k}/{barcode}.igv.xml', method=methods, k=ks, barcode=barcodes[run])
+            #Realignments (removed for now because this is misleading)
+            #inputList += expand('data/output/IgvSessions/realignment/{method}/'+run+'/{k}/{barcode}.igv.xml', method=methods, k=ks, barcode=barcodes[run])
             
             if config['discovery_fb']:
                 inputList += expand('data/auxiliary/discovery/freebayes/{method}/'+run+'/{k}/{barcode}.vcf', method=methods, k=ks, barcode=barcodes[run])
