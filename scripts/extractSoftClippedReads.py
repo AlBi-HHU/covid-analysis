@@ -3,10 +3,14 @@ from Bio import Seq,SeqIO,SeqRecord
 
 from shared import rev_comp
 
-alignment = pysam.AlignmentFile(snakemake.input['alignment'],'rb')
+alignment = pysam.AlignmentFile("barcode01.medaka.primertrimmed.rg.sorted.bam",'rb')
 records = []
 
 for segment in alignment.fetch():
+    #Check for empty segments (Not sure why they would occur?)
+    if segment.query_alignment_sequence == None:
+        continue
+    #Reverse if required
     if segment.is_reverse:
         seq = Seq.Seq(rev_comp(segment.query_alignment_sequence))
     else:
@@ -15,5 +19,5 @@ for segment in alignment.fetch():
     rec = SeqRecord.SeqRecord(seq, segment.qname, "", "")
     records.append(rec)
 
-with open(snakemake.output[0],'w') as outfile:
+with open("test",'w') as outfile:
     SeqIO.write(records,outfile,'fasta')
