@@ -134,13 +134,13 @@ def pos_of_diff(path, reference):
 
     begin_break = None
     for i in range(0, len(path)):
-        try:
-            if path[i] != reference[index_ref + i]:
-                begin_break = i
-                break
-        except:
-            raise Exception('IDX out of range for reference with length {} at position i= {} and index_ref = {}'.format(len(reference),i,index_ref))
-            
+
+        if index_ref + i >= len(reference):
+            continue
+        if path[i] != reference[index_ref + i]:
+            begin_break = i
+            break
+
             
 
     end_break = None
