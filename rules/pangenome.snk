@@ -41,6 +41,9 @@ rule bgzip:
         "data/auxiliary/pangenome/merge_sorted.vcf"
     output:
         "data/auxiliary/pangenome/merge_sorted.vcf.gz"
+    conda:
+        '../envs/tabix.yaml',
+
     shell:
         "bgzip {input}"
 
@@ -49,6 +52,9 @@ rule indexVcf:
         "data/auxiliary/pangenome/merge_sorted.vcf.gz"
     output:
         "data/auxiliary/pangenome/merge_sorted.vcf.gz.tbi"
+    conda:
+        '../envs/tabix.yaml',
+
     shell:
         "tabix -f -p vcf {input}"
        
