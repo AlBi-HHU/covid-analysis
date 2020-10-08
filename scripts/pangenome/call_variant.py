@@ -1,4 +1,3 @@
-
 import csv
 
 from collections import defaultdict, Counter
@@ -135,9 +134,14 @@ def pos_of_diff(path, reference):
 
     begin_break = None
     for i in range(0, len(path)):
-        if path[i] != reference[index_ref + i]:
-            begin_break = i
-            break
+        try:
+            if path[i] != reference[index_ref + i]:
+                begin_break = i
+                break
+        except:
+            raise Exception('IDX out of range for reference with length {} at position i= {} and index_ref = {}'.format(len(reference),i,index_ref))
+            
+            
 
     end_break = None
     for i in range(i, len(path)):
