@@ -94,7 +94,7 @@ rule evaluate_vs_method:
     output:
         'data/output/evaluation/summary_{method}.info'
     conda:
-        '../envs/pyvcf.yaml'
+        '../envs/vcfpy.yaml'
     script:
         '../scripts/vcfdiff_summary.py'
 

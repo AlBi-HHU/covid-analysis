@@ -1,4 +1,4 @@
-import vcf as vcfpy
+import vcfpy
 
 #Part 1: We want to map the files correctly
 mapping = {}
@@ -17,7 +17,7 @@ for vcf in snakemake.input['comparisonVcfs']:
         orig_barcode = parsedData[-2]
 
         if orig_run == new_run and orig_barcode == new_barcode:
-            mapping[vcf] = originalVcf
+            mapping[originalVcf] = vcf
             print('mapped {} to {}'.format(vcf,originalVcf))
             break
     else:
