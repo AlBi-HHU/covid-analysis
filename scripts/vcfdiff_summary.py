@@ -35,9 +35,9 @@ def genotypesToText(samples):
 
 with open(snakemake.output[0],'w') as outfile:
 
-	totalNew = 0
-	totalChanged = 0
-	totalMissed = 0
+    totalNew = 0
+    totalChanged = 0
+    totalMissed = 0
 
     for vcf in mapping:
 
@@ -55,8 +55,8 @@ with open(snakemake.output[0],'w') as outfile:
                         #same in both vcfs
                         break
                     else:
-	                    #changed
-	                    totalChanged += 1
+                        #changed
+                        totalChanged += 1
                         outfile.write('{}\t{}\t{}\n'.format(record.POS,genotypesToText(originalRecord.samples),genotypesToText(record.samples)))
                     break
             else:
@@ -68,7 +68,7 @@ with open(snakemake.output[0],'w') as outfile:
                 if record.POS == originalRecord.POS:
                     break
             else:
-	            totalMissed += 1
+                totalMissed += 1
                 outfile.write('{}\t{}\t{}\n'.format(originalRecord.POS,genotypesToText(originalRecord.samples),'Missing'))
 
     print('New Variants: {} Changed Variants: {} Missed Variants: {}'.format(totalNew,totalChanged,totalMissed))
