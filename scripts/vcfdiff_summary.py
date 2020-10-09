@@ -52,11 +52,11 @@ with open(snakemake.output[0],'w') as outfile:
     totalChanged = 0
     totalMissed = 0
 
-    outfile.write('{}\t{}\t{}\n'.format('Pos', 'Pancov', 'Compared Method'))
+    outfile.write('{}\t{}\t{}\n'.format('Pos', 'Pancov', 'ComparedMethod'))
 
     for vcf in mapping:
 
-        outfile.write('// {} / {} //'.format(vcf,mapping[vcf]))
+        outfile.write(' \t{}\t{}\n'.format(vcf,mapping[vcf]))
 
         originalVCF = [r for r in vcfpy.Reader(open(vcf, 'r'))] #pancov
         newVCF = [r for r in vcfpy.Reader(open(mapping[vcf], 'r'))]
