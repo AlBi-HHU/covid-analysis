@@ -1,4 +1,4 @@
-import vcf
+import vcf as vcfpy
 
 #Part 1: We want to map the files correctly
 mapping = {}
@@ -41,8 +41,8 @@ with open(snakemake.output[0],'w') as outfile:
 
     for vcf in mapping:
 
-        originalVCF = [r for r in vcf.Reader(open(vcf, 'r'))]
-        newVCF = [r for r in vcf.Reader(open(mapping[vcf], 'r'))]
+        originalVCF = [r for r in vcfpy.Reader(open(vcf, 'r'))]
+        newVCF = [r for r in vcfpy.Reader(open(mapping[vcf], 'r'))]
 
         outfile.write('{}\t{}\t{}\n'.format('POS','ORIG','NEW'))
 
