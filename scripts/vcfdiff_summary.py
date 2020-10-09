@@ -39,12 +39,15 @@ with open(snakemake.output[0],'w') as outfile:
     totalChanged = 0
     totalMissed = 0
 
+    outfile.write('{}\t{}\t{}\n'.format('POS', 'ORIG', 'NEW'))
+
     for vcf in mapping:
+
+        outfile.write('// {} / {} //'.format(vcf,mapping[vcf]))
 
         originalVCF = [r for r in vcfpy.Reader(open(vcf, 'r'))]
         newVCF = [r for r in vcfpy.Reader(open(mapping[vcf], 'r'))]
 
-        outfile.write('{}\t{}\t{}\n'.format('POS','ORIG','NEW'))
 
         processedPositions = []
 
