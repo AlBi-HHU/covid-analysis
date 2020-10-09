@@ -58,7 +58,7 @@ with open(snakemake.output[0],'w') as outfile:
 
         outfile.write('// {} / {} //'.format(vcf,mapping[vcf]))
 
-        originalVCF = [r for r in vcfpy.Reader(open(vcf, 'r'))]
+        originalVCF = [r for r in vcfpy.Reader(open(vcf, 'r'))] #pancov
         newVCF = [r for r in vcfpy.Reader(open(mapping[vcf], 'r'))]
 
 
@@ -77,7 +77,7 @@ with open(snakemake.output[0],'w') as outfile:
                     break
             else:
                 totalMissed += 1
-                outfile.write('{}\t{}\t{}\n'.format(record.POS,'Missing',str(record.alleles[0])+'->'+str(record.alleles[1])))
+                outfile.write('{}\t{}\t{}\n'.format(record.POS,'Missing',genotypesToText(record.calls)))
 
         for originalRecord in originalVCF:
             for record in newVCF:
@@ -85,6 +85,6 @@ with open(snakemake.output[0],'w') as outfile:
                     break
             else:
                 totalNew += 1
-                outfile.write('{}\t{}\t{}\n'.format(originalRecord.POS,genotypesToText(originalRecord.samples),'Missing'))
+                outfile.write('{}\t{}\t{}\n'.format(originalRecord.POS,genotypesToText(originalRecord.calls),'Missing'))
 
     print('New Variants: {} Changed Variants: {} Missed Variants: {}'.format(totalNew,totalChanged,totalMissed))
