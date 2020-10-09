@@ -42,7 +42,7 @@ def altEqual(a1,a2):
         return False
     else:
         for x,y in zip(a1,a2):
-            if a1.serialize() != a2.serialize():
+            if x.serialize() != y.serialize():
                 return False
     return True
 
