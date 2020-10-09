@@ -37,6 +37,15 @@ def genotypesToText(samples):
         ret+=sample.gt_bases
     return ret
 
+def altEqual(a1,a2):
+    if len(a1) != len(a2):
+        return False
+    else:
+        for x,y in zip(a1,a2):
+            if a1.serialize() != a2.serialize():
+                return False
+    return True
+
 with open(snakemake.output[0],'w') as outfile:
 
     totalNew = 0
@@ -58,13 +67,13 @@ with open(snakemake.output[0],'w') as outfile:
         for record in newVCF:
             for originalRecord in originalVCF:
                 if record.POS == originalRecord.POS:
-                    if record.ALT.serialize() == originalRecord.ALT.serialize():
+                    if altEqual(record.ALT,originalRecord.ALT):
                         #same in both vcfs
                         break
                     else:
                         #changed
                         totalChanged += 1
-                        outfile.write('{}\t{}\t{}\n'.format(record.POS,genotypesToText(originalRecord.samples),genotypesToText(record.samples)))
+                        outfile.write('{}\t{}\t{}\n'.format(record.POS,genotypesToText(originalRecord.calls),genotypesToText(record.calls)))
                     break
             else:
                 totalMissed += 1
