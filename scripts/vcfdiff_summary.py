@@ -58,7 +58,7 @@ with open(snakemake.output[0],'w') as outfile:
         for record in newVCF:
             for originalRecord in originalVCF:
                 if record.POS == originalRecord.POS:
-                    if record.num_het == originalRecord.num_het:
+                    if record.ALT.serialize() == originalRecord.ALT.serialize():
                         #same in both vcfs
                         break
                     else:
