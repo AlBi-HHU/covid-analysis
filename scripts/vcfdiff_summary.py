@@ -85,7 +85,10 @@ with open(snakemake.output[0],'w') as outfile:
                     break
             else:
                 totalMissed += 1
-                outfile.write('{}\t{}\t{}\n'.format(record.POS,'Missing','{}->{}'.format(record.REF,genotypesToText(record.calls)))
+                outfile.write(
+                    '{}\t{}\t{}\n'.format(record.POS,'Missing','{}->{}'.format(record.REF,genotypesToText(record.calls))
+                                          )
+                )
 
         for originalRecord in originalVCF:
             for record in newVCF:
