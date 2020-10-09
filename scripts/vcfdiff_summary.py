@@ -4,15 +4,17 @@ import vcf as vcfpy
 mapping = {}
 for vcf in snakemake.input['vcfs']:
     mapping[vcf] = 'unknown'
+    #key = pancov vcf, value = comparison vcf
+
 for vcf in snakemake.input['comparisonVcfs']:
     parsedData = vcf.split('/')
-    new_run = parsedData[-3]
-    new_barcode = parsedData[-2]
+    new_run = parsedData[-2]
+    new_barcode = parsedData[-1].split('.')[0][7:]
 
     for originalVcf in mapping:
         parsedData = originalVcf.split('/')
-        orig_run = parsedData[-2]
-        orig_barcode = parsedData[-1].split('.')[0][7:]
+        orig_run = parsedData[-3]
+        orig_barcode = parsedData[-2]
 
         if orig_run == new_run and orig_barcode == new_barcode:
             mapping[vcf] = originalVcf
@@ -41,7 +43,7 @@ with open(snakemake.output[0],'w') as outfile:
     totalChanged = 0
     totalMissed = 0
 
-    outfile.write('{}\t{}\t{}\n'.format('POS', 'ORIG', 'NEW'))
+    outfile.write('{}\t{}\t{}\n'.format('Pos', 'Pancov', 'Compared Method'))
 
     for vcf in mapping:
 
@@ -65,7 +67,7 @@ with open(snakemake.output[0],'w') as outfile:
                         outfile.write('{}\t{}\t{}\n'.format(record.POS,genotypesToText(originalRecord.samples),genotypesToText(record.samples)))
                     break
             else:
-                totalNew += 1
+                totalMissed += 1
                 outfile.write('{}\t{}\t{}\n'.format(record.POS,'Missing',str(record.alleles[0])+'->'+str(record.alleles[1])))
 
         for originalRecord in originalVCF:
@@ -73,7 +75,7 @@ with open(snakemake.output[0],'w') as outfile:
                 if record.POS == originalRecord.POS:
                     break
             else:
-                totalMissed += 1
+                totalNew += 1
                 outfile.write('{}\t{}\t{}\n'.format(originalRecord.POS,genotypesToText(originalRecord.samples),'Missing'))
 
     print('New Variants: {} Changed Variants: {} Missed Variants: {}'.format(totalNew,totalChanged,totalMissed))
