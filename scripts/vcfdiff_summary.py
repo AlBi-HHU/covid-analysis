@@ -34,7 +34,8 @@ print(mapping)
 def genotypesToText(samples):
     ret = ''
     for sample in samples:
-        ret+=str(sample.gt_bases)
+
+        ret+='/'.join(sample.gt_bases)
     return ret
 
 def altEqual(a1,a2):
@@ -64,6 +65,7 @@ with open(snakemake.output[0],'w') as outfile:
 
         processedPositions = []
 
+        #Check all records in the vcf we compare ourselves to
         for record in newVCF:
             for originalRecord in originalVCF:
                 if record.POS == originalRecord.POS:
@@ -73,11 +75,17 @@ with open(snakemake.output[0],'w') as outfile:
                     else:
                         #changed
                         totalChanged += 1
-                        outfile.write('{}\t{}\t{}\n'.format(record.POS,genotypesToText(originalRecord.calls),genotypesToText(record.calls)))
+                        outfile.write(
+                            '{}\t{}\t{}\n'.format(
+                                record.POS,
+                                '{}->{}'.format(record.REF,genotypesToText(originalRecord.calls)),
+                                '{}->{}'.format(record.REF,genotypesToText(record.calls))
+                            )
+                        )
                     break
             else:
                 totalMissed += 1
-                outfile.write('{}\t{}\t{}\n'.format(record.POS,'Missing',genotypesToText(record.calls)))
+                outfile.write('{}\t{}\t{}\n'.format(record.POS,'Missing','{}->{}'.format(record.REF,genotypesToText(record.calls)))
 
         for originalRecord in originalVCF:
             for record in newVCF:
@@ -85,6 +93,6 @@ with open(snakemake.output[0],'w') as outfile:
                     break
             else:
                 totalNew += 1
-                outfile.write('{}\t{}\t{}\n'.format(originalRecord.POS,genotypesToText(originalRecord.calls),'Missing'))
+                outfile.write('{}\t{}\t{}\n'.format(originalRecord.POS,'{}->{}'.format(record.REF,genotypesToText(originalRecord.calls)),'Missing'))
 
     print('New Variants: {} Changed Variants: {} Missed Variants: {}'.format(totalNew,totalChanged,totalMissed))
