@@ -25,6 +25,8 @@ for vcf in mapping:
     if mapping[vcf] == 'unknown':
         print('Could not map anything to: {} '.format(vcf))
 
+print(mapping)
+
 #Step 2 Analysis
 
 def genotypesToText(samples):
