@@ -84,6 +84,20 @@ rule filter_same_pos_variant:
     
 ### Debug / Evaluation Only
 
+all_vcfs = [expand("data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf",method=methods,barcode=barcodes[run],run=run) for run in runs]
+all_vcfs = [item for sublist in all_vcfs for item in sublist]
+
+rule evaluate_vs_method:
+    input:
+        vcfs = all_vcfs,
+        comparisonVcfs = [expand('data/input/{run}/barcode{barcode}.{method}.'+vcf_suffix, method=allMethods, barcode=barcodes[run], run=run) for run in runs]
+    output:
+        'data/output/evaluation/summary_{method}.info'
+    conda:
+        '../envs/pyvcf.yaml'
+    script:
+        '../scripts/vcfdiff_summary.py'
+
 all_vcfs = []
 freebayes_vcfs = [expand('data/auxiliary/discovery/freebayes/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
 freebayes_vcfs = [item for sublist in freebayes_vcfs for item in sublist]
