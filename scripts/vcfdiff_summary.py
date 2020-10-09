@@ -34,7 +34,7 @@ print(mapping)
 def genotypesToText(samples):
     ret = ''
     for sample in samples:
-        ret+=sample.gt_bases
+        ret+=str(sample.gt_bases)
     return ret
 
 def altEqual(a1,a2):
