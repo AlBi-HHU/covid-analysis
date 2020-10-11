@@ -82,7 +82,7 @@ with open(snakemake.output[0],'w') as outfile:
                                 record.POS,
                                 '{}->{}'.format(record.REF,altToText(originalRecord.ALT)),
                                 '{}->{}'.format(record.REF,altToText(record.ALT)),
-                                pileup[originalRecord.POS]
+                                pileup[int(originalRecord.POS)]
                             )
                         )
                     break
@@ -93,7 +93,7 @@ with open(snakemake.output[0],'w') as outfile:
                         record.POS,
                         'Missing',
                         '{}->{}'.format(record.REF,altToText(record.ALT)),
-                        pileup[originalRecord.POS]
+                        pileup[int(originalRecord.POS)]
                     )
                 )
 
@@ -108,7 +108,7 @@ with open(snakemake.output[0],'w') as outfile:
                         originalRecord.POS,
                         '{}->{}'.format(record.REF,altToText(originalRecord.ALT)),
                         'Missing',
-                        pileup[originalRecord.POS]
+                        pileup[int(originalRecord.POS)]
                     )
                 )
 
