@@ -1,3 +1,5 @@
+from shared import *
+
 def altToText(ALT):
     return '/'.join([x.value for x in ALT])
 
