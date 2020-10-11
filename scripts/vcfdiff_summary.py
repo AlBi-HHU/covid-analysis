@@ -52,10 +52,9 @@ with open(snakemake.output[0],'w') as outfile:
 
     outfile.write('{}\t{}\t{}\n'.format('Pos', 'Pancov', 'ComparedMethod'))
 
-    for vcftuple in snakemake.input['vcfs']:
-
-        comparison_vcf = vcftuple[0]
-        pancov_vcf = vcftuple[1]
+    iterator = iter(snakemake.input['vcfs'])
+    for comparison_vcf in iterator:
+        pancov_vcf = next(iterator)
         #TODO: Pileup
 
         outfile.write(' \t{}\t{}\n'.format(pancov_vcf,comparison_vcf))
