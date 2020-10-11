@@ -30,7 +30,7 @@ with open(snakemake.output[0],'w') as outfile:
 
         if comparison_table == '' or not os.path.exists(comparison_table):
             #TODO: Log Debug Output? ...
-            print('No manual curation (GISAID Seq) found for: {}'.format(oancov_vcf))
+            print('No manual curation (GISAID Seq) found for: {}'.format(pancov_vcf))
             continue
 
 
