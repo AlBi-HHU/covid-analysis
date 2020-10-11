@@ -1,4 +1,6 @@
 from shared import *
+import vcfpy
+
 
 def altToText(ALT):
     return '/'.join([x.value for x in ALT])
