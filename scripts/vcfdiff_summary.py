@@ -1,3 +1,5 @@
+from shared import *
+
 import vcfpy
 
 '''
@@ -50,12 +52,12 @@ with open(snakemake.output[0],'w') as outfile:
     totalChanged = 0
     totalMissed = 0
 
-    outfile.write('{}\t{}\t{}\n'.format('Pos', 'Pancov', 'ComparedMethod'))
+    outfile.write('{}\t{}\t{}\t{}\n'.format('Pos', 'Pancov', 'ComparedMethod','Pileup (First Pos)'))
 
     iterator = iter(snakemake.input['vcfs'])
     for comparison_vcf in iterator:
         pancov_vcf = next(iterator)
-        #TODO: Pileup
+        pileup = parsePileup(next(iterator))
 
         outfile.write(' \t{}\t{}\n'.format(pancov_vcf,comparison_vcf))
 
@@ -76,18 +78,23 @@ with open(snakemake.output[0],'w') as outfile:
                         #changed
                         totalChanged += 1
                         outfile.write(
-                            '{}\t{}\t{}\n'.format(
+                            '{}\t{}\t{}\t{}\n'.format(
                                 record.POS,
                                 '{}->{}'.format(record.REF,altToText(originalRecord.ALT)),
-                                '{}->{}'.format(record.REF,altToText(record.ALT))
+                                '{}->{}'.format(record.REF,altToText(record.ALT)),
+                                pileup[originalRecord.POS]
                             )
                         )
                     break
             else:
                 totalMissed += 1
                 outfile.write(
-                    '{}\t{}\t{}\n'.format(record.POS,'Missing','{}->{}'.format(record.REF,altToText(record.ALT))
-                                          )
+                    '{}\t{}\t{}\t{}\n'.format(
+                        record.POS,
+                        'Missing',
+                        '{}->{}'.format(record.REF,altToText(record.ALT)),
+                        pileup[originalRecord.POS]
+                    )
                 )
 
         for originalRecord in originalVCF:
@@ -96,6 +103,13 @@ with open(snakemake.output[0],'w') as outfile:
                     break
             else:
                 totalNew += 1
-                outfile.write('{}\t{}\t{}\n'.format(originalRecord.POS,'{}->{}'.format(record.REF,altToText(originalRecord.ALT)),'Missing'))
+                outfile.write(
+                    '{}\t{}\t{}\t{}\n'.format(
+                        originalRecord.POS,
+                        '{}->{}'.format(record.REF,altToText(originalRecord.ALT)),
+                        'Missing',
+                        pileup[originalRecord.POS]
+                    )
+                )
 
     outfile.write('New Variants: {} Changed Variants: {} Missed Variants: {}'.format(totalNew,totalChanged,totalMissed))
