@@ -93,7 +93,7 @@ def getAllVcfTuples(wildcards):
                 all_vcfs += [
                         'data/input/'+run+'/barcode'+barcode+'.{method}.' + vcf_suffix, #This method remains a wildcard for the comparison
                         'data/auxiliary/pangenome_vc/'+method+'/'+run+'/'+barcode+'/filter.vcf',
-                        'data/auxiliary/pileupAnalysis/'+method+'/{'+run+'/'+barcode+'.pileupanalysis.txt'
+                        'data/auxiliary/pileupAnalysis/'+method+'/'+run+'/'+barcode+'.pileupanalysis.txt'
                     ]
 
     return all_vcfs
