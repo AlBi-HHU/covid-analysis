@@ -17,7 +17,7 @@ with open(snakemake.output[0],'w') as outfile:
 
     outfile.write('{}\t{}\t{}\t{}\n'.format('Pos', 'Pancov', 'ComparedMethod','Pileup (First Pos)'))
 
-    iterator = iter(snakemake.input['vcfs'])
+    iterator = iter(snakemake.params['vcfs'])
     for comparison_table in iterator:
 
         pancov_vcf = next(iterator)

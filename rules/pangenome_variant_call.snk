@@ -130,6 +130,8 @@ def getGisaidFile(run,barcode):
     return ''
 
 
+#Todo: Make this more elegant
+
 def getManualCurationTuples():
     all_vcfs = []
 
@@ -143,12 +145,27 @@ def getManualCurationTuples():
                     ]
 
     return all_vcfs
+
+def getManualCurationTuplesRequiredFiles():
+    all_vcfs = []
+
+    for run in runs:
+        for barcode in barcodes[run]:
+            for method in methods: #TODO: Maybe remove this as this is confusing, methods refers to distinct separate samples here
+                all_vcfs += [
+                        'data/auxiliary/pangenome_vc/'+method+'/'+run+'/'+barcode+'/filter.vcf',
+                        'data/auxiliary/pileupAnalysis/'+method+'/'+run+'/'+barcode+'.pileupanalysis.txt'
+                    ]
+
+    return all_vcfs
     
 rule evaluate_vs_manual:
     input:
-        getManualCurationTuples()
+        getManualCurationTuplesRequiredFiles()
     output:
         'data/output/evaluation/summary_manual.info'
+    params:
+        vcfs = getManualCurationTuples()
     conda:
         '../envs/vcfpy.yaml'
     script:
