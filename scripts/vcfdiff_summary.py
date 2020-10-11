@@ -82,7 +82,7 @@ with open(snakemake.output[0],'w') as outfile:
                         outfile.write(
                             '{}\t{}\t{}\t{}\n'.format(
                                 record.POS,
-                                '{}->{}'.format(record.REF,altToText(originalRecord.ALT)),
+                                '{}->{}'.format(originalRecord.REF,altToText(originalRecord.ALT)),
                                 '{}->{}'.format(record.REF,altToText(record.ALT)),
                                 pileup[zerobasedorig] if zerobasedorig in pileup else 'no pileup available for this position'
                             )
@@ -98,7 +98,7 @@ with open(snakemake.output[0],'w') as outfile:
                         pileup[zerobasedcomp] if zerobasedcomp in pileup else 'no pileup available for this position'
                     )
                 )
-
+        #Check for new variants (exclusively detected by pancov)
         for originalRecord in originalVCF:
             zerobasedorig = int(originalRecord.POS) #- 1
             for record in newVCF:
@@ -109,7 +109,7 @@ with open(snakemake.output[0],'w') as outfile:
                 outfile.write(
                     '{}\t{}\t{}\t{}\n'.format(
                         originalRecord.POS,
-                        '{}->{}'.format(record.REF,altToText(originalRecord.ALT)),
+                        '{}->{}'.format(originalRecord.REF,altToText(originalRecord.ALT)),
                         'Missing',
                         pileup[zerobasedorig] if zerobasedorig in pileup else 'no pileup available for this position'
                     )
