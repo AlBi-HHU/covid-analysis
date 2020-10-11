@@ -69,7 +69,9 @@ with open(snakemake.output[0],'w') as outfile:
 
         #Check all records in the vcf we compare ourselves to
         for record in newVCF:
+            zerobasedcomp = int(record.POS)-1
             for originalRecord in originalVCF:
+                zerobasedorig = int(originalRecord.POS)-1
                 if record.POS == originalRecord.POS:
                     if altEqual(record.ALT,originalRecord.ALT):
                         #same in both vcfs
@@ -82,7 +84,7 @@ with open(snakemake.output[0],'w') as outfile:
                                 record.POS,
                                 '{}->{}'.format(record.REF,altToText(originalRecord.ALT)),
                                 '{}->{}'.format(record.REF,altToText(record.ALT)),
-                                pileup[int(originalRecord.POS)] if int(originalRecord.POS) in pileup else 'no pileup available for this position'
+                                pileup[zerobasedorig] if zerobasedorig in pileup else 'no pileup available for this position'
                             )
                         )
                     break
@@ -93,11 +95,12 @@ with open(snakemake.output[0],'w') as outfile:
                         record.POS,
                         'Missing',
                         '{}->{}'.format(record.REF,altToText(record.ALT)),
-                        pileup[int(originalRecord.POS)] if int(originalRecord.POS) in pileup else 'no pileup available for this position'
+                        pileup[zerobasedcomp] if zerobasedcomp in pileup else 'no pileup available for this position'
                     )
                 )
 
         for originalRecord in originalVCF:
+            zerobasedorig = int(originalRecord.POS) - 1
             for record in newVCF:
                 if record.POS == originalRecord.POS:
                     break
@@ -108,7 +111,7 @@ with open(snakemake.output[0],'w') as outfile:
                         originalRecord.POS,
                         '{}->{}'.format(record.REF,altToText(originalRecord.ALT)),
                         'Missing',
-                        pileup[int(originalRecord.POS)] if int(originalRecord.POS) in pileup else 'no pileup available for this position'
+                        pileup[zerobasedorig] if zerobasedorig in pileup else 'no pileup available for this position'
                     )
                 )
 
