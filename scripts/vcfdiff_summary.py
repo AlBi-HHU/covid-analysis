@@ -31,19 +31,15 @@ print(mapping)
 
 #Step 2 Analysis
 
-def genotypesToText(samples):
-    ret = ''
-    for sample in samples:
-
-        ret+='/'.join(sample.gt_bases)
-    return ret
+def altToText(ALT):
+    return '/'.join([x.value for x in ALT])
 
 def altEqual(a1,a2):
     if len(a1) != len(a2):
         return False
     else:
         for x,y in zip(a1,a2):
-            if x.serialize() != y.serialize():
+            if x.value != y.value:
                 return False
     return True
 
@@ -78,15 +74,15 @@ with open(snakemake.output[0],'w') as outfile:
                         outfile.write(
                             '{}\t{}\t{}\n'.format(
                                 record.POS,
-                                '{}->{}'.format(record.REF,genotypesToText(originalRecord.calls)),
-                                '{}->{}'.format(record.REF,genotypesToText(record.calls))
+                                '{}->{}'.format(record.REF,altToText(originalRecord.calls)),
+                                '{}->{}'.format(record.REF,altToText(record.calls))
                             )
                         )
                     break
             else:
                 totalMissed += 1
                 outfile.write(
-                    '{}\t{}\t{}\n'.format(record.POS,'Missing','{}->{}'.format(record.REF,genotypesToText(record.calls))
+                    '{}\t{}\t{}\n'.format(record.POS,'Missing','{}->{}'.format(record.REF,altToText(record.calls))
                                           )
                 )
 
@@ -96,6 +92,6 @@ with open(snakemake.output[0],'w') as outfile:
                     break
             else:
                 totalNew += 1
-                outfile.write('{}\t{}\t{}\n'.format(originalRecord.POS,'{}->{}'.format(record.REF,genotypesToText(originalRecord.calls)),'Missing'))
+                outfile.write('{}\t{}\t{}\n'.format(originalRecord.POS,'{}->{}'.format(record.REF,altToText(originalRecord.calls)),'Missing'))
 
-    print('New Variants: {} Changed Variants: {} Missed Variants: {}'.format(totalNew,totalChanged,totalMissed))
+    outfile.write('New Variants: {} Changed Variants: {} Missed Variants: {}'.format(totalNew,totalChanged,totalMissed))
