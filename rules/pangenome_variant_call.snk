@@ -125,7 +125,7 @@ with open('data/input/mappingRunsGisaid.csv', 'r') as infile:
 
 
 
-def getManualCurationTuples(wildcards):
+def getManualCurationTuples():
     all_vcfs = []
 
     for run in runs:
@@ -141,7 +141,7 @@ def getManualCurationTuples(wildcards):
     
 rule evaluate_vs_manual:
     input:
-        getManualCurationTuples
+        getManualCurationTuples()
     output:
         'data/output/evaluation/summary_manual.info'
     conda:
