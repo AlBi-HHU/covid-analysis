@@ -1,49 +1,12 @@
-from shared import *
-
-import vcfpy
-
-'''
-#Part 1: We want to map the files correctly
-mapping = {}
-for vcf in snakemake.input['vcfs']:
-    mapping[vcf] = 'unknown'
-    #key = pancov vcf, value = comparison vcf
-
-for vcf in snakemake.input['comparisonVcfs']:
-    parsedData = vcf.split('/')
-    new_run = parsedData[-2]
-    new_barcode = parsedData[-1].split('.')[0][7:]
-
-    for originalVcf in mapping:
-        parsedData = originalVcf.split('/')
-        orig_run = parsedData[-3]
-        orig_barcode = parsedData[-2]
-
-        if orig_run == new_run and orig_barcode == new_barcode:
-            mapping[originalVcf] = vcf
-            print('mapped {} to {}'.format(vcf,originalVcf))
-            break
-    else:
-        print('Could not map anything to: {}'.format(vcf))
-
-for vcf in mapping:
-    if mapping[vcf] == 'unknown':
-        print('Could not map anything to: {} '.format(vcf))
-
-print(mapping)
-'''
-#Step 2 Analysis
-
 def altToText(ALT):
     return '/'.join([x.value for x in ALT])
 
-def altEqual(a1,a2):
-    if len(a1) != len(a2):
+def altEqualVar(alt,var):
+    if len(alt) != 1:
         return False
     else:
-        for x,y in zip(a1,a2):
-            if x.value != y.value:
-                return False
+        if alt[0].value = var:
+            return False
     return True
 
 with open(snakemake.output[0],'w') as outfile:
@@ -55,25 +18,37 @@ with open(snakemake.output[0],'w') as outfile:
     outfile.write('{}\t{}\t{}\t{}\n'.format('Pos', 'Pancov', 'ComparedMethod','Pileup (First Pos)'))
 
     iterator = iter(snakemake.input['vcfs'])
-    for comparison_vcf in iterator:
+    for comparison_table in iterator:
+
         pancov_vcf = next(iterator)
         pileup = parsePileup(next(iterator))
 
-        outfile.write(' \t{}\t{}\n'.format(pancov_vcf,comparison_vcf))
+        if comparison_table == '':
+            #TODO: Log Debug Output? ...
+            print('No manual curation (GISAID Seq) found for: {}'.format(oancov_vcf))
+            continue
+
+
+        outfile.write(' \t{}\t{}\n'.format(pancov_vcf,comparison_table))
 
         originalVCF = [r for r in vcfpy.Reader(open(pancov_vcf, 'r'))] #pancov
-        newVCF = [r for r in vcfpy.Reader(open(comparison_vcf, 'r'))]
-
+        comparisonTable = {}
+        with open(comparison_table,'r') as infile:
+            for l in infile.read().splitlines():
+                data = l.split()
+                pos1based = int(data[0])
+                ref = data[1]
+                alt = data[2]
+                comparisonTable[pos1based] = (ref,alt)
 
         processedPositions = []
 
         #Check all records in the vcf we compare ourselves to
-        for record in newVCF:
-            onebasedcomp = int(record.POS)#-1
+        for onebasedcomp in comparisonTable:
             for originalRecord in originalVCF:
                 onebasedorig = int(originalRecord.POS)#-1
                 if record.POS == originalRecord.POS:
-                    if altEqual(record.ALT,originalRecord.ALT):
+                    if altEqualVar(originalRecord.ALT,comparisonTable[onebasedcomp][1]):
                         #same in both vcfs
                         break
                     else:
@@ -83,7 +58,7 @@ with open(snakemake.output[0],'w') as outfile:
                             '{}\t{}\t{}\t{}\n'.format(
                                 record.POS,
                                 '{}->{}'.format(originalRecord.REF,altToText(originalRecord.ALT)),
-                                '{}->{}'.format(record.REF,altToText(record.ALT)),
+                                '{}->{}'.format(comparisonTable[onebasedcomp][0],comparisonTable[onebasedcomp][1]),
                                 pileup[onebasedorig] if onebasedorig in pileup else 'no pileup available for this position'
                             )
                         )
@@ -94,15 +69,15 @@ with open(snakemake.output[0],'w') as outfile:
                     '{}\t{}\t{}\t{}\n'.format(
                         record.POS,
                         'Missing',
-                        '{}->{}'.format(record.REF,altToText(record.ALT)),
+                        '{}->{}'.format(comparisonTable[onebasedcomp][0],comparisonTable[onebasedcomp][1]),
                         pileup[onebasedcomp] if onebasedcomp in pileup else 'no pileup available for this position'
                     )
                 )
         #Check for new variants (exclusively detected by pancov)
         for originalRecord in originalVCF:
             onebasedorig = int(originalRecord.POS) #- 1
-            for record in newVCF:
-                if record.POS == originalRecord.POS:
+            for onebasedcomp in comparisonTable:
+                if onebasedcomp == originalRecord.POS:
                     break
             else:
                 totalNew += 1

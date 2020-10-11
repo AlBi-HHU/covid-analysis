@@ -108,6 +108,45 @@ rule evaluate_vs_method:
     script:
         '../scripts/vcfdiff_summary.py'
 
+# TODO: Make file dynamic in config, move this parsing elsewhere?
+gisaidMapping = {}
+with open('data/input/mappingRunsGisaid.csv', 'r') as infile:
+    lines = infile.read().splitlines()
+    for l in lines:
+        data = l.split()
+        run = data[0]
+        barcode = data[1]
+        file = data[2]
+        if not run in mapping:
+            mapping[run] = {}
+        mapping[run][barcode] = file
+
+
+
+def getManualCurationTuples(wildcards):
+    all_vcfs = []
+
+    for run in runs:
+        for barcode in barcodes[run]:
+            for method in methods: #TODO: Maybe remove this as this is confusing, methods refers to distinct separate samples here
+                all_vcfs += [
+                        'data/input/gisaid/'+mapping[run][barcode], #This method remains a wildcard for the comparison
+                        'data/auxiliary/pangenome_vc/'+method+'/'+run+'/'+barcode+'/filter.vcf',
+                        'data/auxiliary/pileupAnalysis/'+method+'/'+run+'/'+barcode+'.pileupanalysis.txt'
+                    ]
+
+    return all_vcfs
+    
+rule evaluate_vs_manual:
+    input:
+        getManualCurationCombos
+    output:
+    'data/output/evaluation/summary_manual.info'
+    conda:
+    '../envs/vcfpy.yaml'
+    script:
+    '../scripts/vcfdiff_summary_manual.py'
+
 all_vcfs = []
 freebayes_vcfs = [expand('data/auxiliary/discovery/freebayes/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
 freebayes_vcfs = [item for sublist in freebayes_vcfs for item in sublist]
