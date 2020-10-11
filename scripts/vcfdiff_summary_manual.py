@@ -5,7 +5,7 @@ def altEqualVar(alt,var):
     if len(alt) != 1:
         return False
     else:
-        if alt[0].value = var:
+        if alt[0].value == var:
             return False
     return True
 
