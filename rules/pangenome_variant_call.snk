@@ -123,6 +123,11 @@ with open('data/input/mappingRunsGisaid.csv', 'r') as infile:
             gisaidMapping[run] = {}
         gisaidMapping[run][barcode] = file
 
+def getGisaidFile(run,barcode):
+    if run in gisaidMapping:
+        if barcode in gisaidMapping[run]:
+            return gisaidMapping[run][barcode]
+    return ''
 
 
 def getManualCurationTuples():
@@ -132,7 +137,7 @@ def getManualCurationTuples():
         for barcode in barcodes[run]:
             for method in methods: #TODO: Maybe remove this as this is confusing, methods refers to distinct separate samples here
                 all_vcfs += [
-                        'data/input/gisaid/'+gisaidMapping[run][barcode], #This method remains a wildcard for the comparison
+                        'data/input/gisaid/'+getGisaidFile(run,barcode),#This method remains a wildcard for the comparison
                         'data/auxiliary/pangenome_vc/'+method+'/'+run+'/'+barcode+'/filter.vcf',
                         'data/auxiliary/pileupAnalysis/'+method+'/'+run+'/'+barcode+'.pileupanalysis.txt'
                     ]
