@@ -116,7 +116,9 @@ with open('data/input/mappingRunsGisaid.csv', 'r') as infile:
         data = l.split()
         run = data[0]
         barcode = data[1]
-        file = data[2]
+        file = ''
+        if len(data) != 2: #entry in the table
+            file = data[2]
         if not run in gisaidMapping:
             gisaidMapping[run] = {}
         gisaidMapping[run][barcode] = file
