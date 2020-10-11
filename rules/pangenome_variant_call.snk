@@ -96,7 +96,7 @@ def getAllVcfTuples(wildcards):
                         'data/auxiliary/pangenome_vc/'+method+'/'+run+'/'+barcode+'/filter.vcf'
                         # TODO: Add Pileup
                     ]
-                )
+                
     return all_vcfs
 
 rule evaluate_vs_method:
