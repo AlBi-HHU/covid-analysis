@@ -84,7 +84,7 @@ rule filter_same_pos_variant:
     
 ### Debug / Evaluation Only
 
-def getAllVcfTuples:
+def getAllVcfTuples():
     all_vcfs = []
 
     for run in runs:
