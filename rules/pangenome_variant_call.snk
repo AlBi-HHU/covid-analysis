@@ -84,13 +84,24 @@ rule filter_same_pos_variant:
     
 ### Debug / Evaluation Only
 
-all_vcfs = [expand("data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf",method=methods,barcode=barcodes[run],run=run) for run in runs]
-all_vcfs = [item for sublist in all_vcfs for item in sublist]
+def getAllVcfTuples:
+    all_vcfs = []
+
+    for run in runs:
+        for barcode in barcodes[run]:
+            for method in methods: #TODO: Maybe remove this as this is confusing, methods refers to distinct separate samples here
+                all_vcfs.append(
+                    (
+                        'data/input/'+run+'/barcode'+barcode+'.{method}.' + vcf_suffix, #This method remains a wildcard for the comparison
+                        'data/auxiliary/pangenome_vc/'+method+'/'+run+'/'+barcode+'/filter.vcf'
+                        # TODO: Add Pileup
+                    )
+                )
+    return all_vcfs
 
 rule evaluate_vs_method:
     input:
-        vcfs = all_vcfs,
-        comparisonVcfs = [expand('data/input/{run}/barcode{barcode}.{method}.'+vcf_suffix, method=allMethods, barcode=barcodes[run], run=run) for run in runs]
+        vcfs = getAllVcfTuples
     output:
         'data/output/evaluation/summary_{method}.info'
     conda:

@@ -1,5 +1,6 @@
 import vcfpy
 
+'''
 #Part 1: We want to map the files correctly
 mapping = {}
 for vcf in snakemake.input['vcfs']:
@@ -28,7 +29,7 @@ for vcf in mapping:
         print('Could not map anything to: {} '.format(vcf))
 
 print(mapping)
-
+'''
 #Step 2 Analysis
 
 def altToText(ALT):
@@ -51,12 +52,16 @@ with open(snakemake.output[0],'w') as outfile:
 
     outfile.write('{}\t{}\t{}\n'.format('Pos', 'Pancov', 'ComparedMethod'))
 
-    for vcf in mapping:
+    for vcftuple in snakemake.input['vcfs']:
 
-        outfile.write(' \t{}\t{}\n'.format(vcf,mapping[vcf]))
+        comparison_vcf = vcftuple[0]
+        pancov_vcf = vcftuple[1]
+        #TODO: Pileup
 
-        originalVCF = [r for r in vcfpy.Reader(open(vcf, 'r'))] #pancov
-        newVCF = [r for r in vcfpy.Reader(open(mapping[vcf], 'r'))]
+        outfile.write(' \t{}\t{}\n'.format(pancov_vcf,comparison_vcf))
+
+        originalVCF = [r for r in vcfpy.Reader(open(pancov_vcf, 'r'))] #pancov
+        newVCF = [r for r in vcfpy.Reader(open(comparison_vcf, 'r'))]
 
 
         processedPositions = []
@@ -74,15 +79,15 @@ with open(snakemake.output[0],'w') as outfile:
                         outfile.write(
                             '{}\t{}\t{}\n'.format(
                                 record.POS,
-                                '{}->{}'.format(record.REF,altToText(originalRecord.calls)),
-                                '{}->{}'.format(record.REF,altToText(record.calls))
+                                '{}->{}'.format(record.REF,altToText(originalRecord.ALT)),
+                                '{}->{}'.format(record.REF,altToText(record.ALT))
                             )
                         )
                     break
             else:
                 totalMissed += 1
                 outfile.write(
-                    '{}\t{}\t{}\n'.format(record.POS,'Missing','{}->{}'.format(record.REF,altToText(record.calls))
+                    '{}\t{}\t{}\n'.format(record.POS,'Missing','{}->{}'.format(record.REF,altToText(record.ALT))
                                           )
                 )
 
@@ -92,6 +97,6 @@ with open(snakemake.output[0],'w') as outfile:
                     break
             else:
                 totalNew += 1
-                outfile.write('{}\t{}\t{}\n'.format(originalRecord.POS,'{}->{}'.format(record.REF,altToText(originalRecord.calls)),'Missing'))
+                outfile.write('{}\t{}\t{}\n'.format(originalRecord.POS,'{}->{}'.format(record.REF,altToText(originalRecord.ALT)),'Missing'))
 
     outfile.write('New Variants: {} Changed Variants: {} Missed Variants: {}'.format(totalNew,totalChanged,totalMissed))
