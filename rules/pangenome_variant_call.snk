@@ -141,7 +141,7 @@ def getManualCurationTuples(wildcards):
     
 rule evaluate_vs_manual:
     input:
-        getManualCurationCombos
+        getManualCurationTuples
     output:
         'data/output/evaluation/summary_manual.info'
     conda:
