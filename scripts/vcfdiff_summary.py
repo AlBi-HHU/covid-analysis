@@ -82,7 +82,7 @@ with open(snakemake.output[0],'w') as outfile:
                                 record.POS,
                                 '{}->{}'.format(record.REF,altToText(originalRecord.ALT)),
                                 '{}->{}'.format(record.REF,altToText(record.ALT)),
-                                pileup[int(originalRecord.POS)]
+                                pileup[int(originalRecord.POS)] if int(originalRecord.POS) in pileup else 'no pileup available for this position'
                             )
                         )
                     break
@@ -93,7 +93,7 @@ with open(snakemake.output[0],'w') as outfile:
                         record.POS,
                         'Missing',
                         '{}->{}'.format(record.REF,altToText(record.ALT)),
-                        pileup[int(originalRecord.POS)]
+                        pileup[int(originalRecord.POS)] if int(originalRecord.POS) in pileup else 'no pileup available for this position'
                     )
                 )
 
@@ -108,7 +108,7 @@ with open(snakemake.output[0],'w') as outfile:
                         originalRecord.POS,
                         '{}->{}'.format(record.REF,altToText(originalRecord.ALT)),
                         'Missing',
-                        pileup[int(originalRecord.POS)]
+                        pileup[int(originalRecord.POS)] if int(originalRecord.POS) in pileup else 'no pileup available for this position'
                     )
                 )
 
