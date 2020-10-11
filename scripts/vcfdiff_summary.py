@@ -69,9 +69,9 @@ with open(snakemake.output[0],'w') as outfile:
 
         #Check all records in the vcf we compare ourselves to
         for record in newVCF:
-            zerobasedcomp = int(record.POS)-1
+            zerobasedcomp = int(record.POS)#-1
             for originalRecord in originalVCF:
-                zerobasedorig = int(originalRecord.POS)-1
+                zerobasedorig = int(originalRecord.POS)#-1
                 if record.POS == originalRecord.POS:
                     if altEqual(record.ALT,originalRecord.ALT):
                         #same in both vcfs
@@ -100,7 +100,7 @@ with open(snakemake.output[0],'w') as outfile:
                 )
 
         for originalRecord in originalVCF:
-            zerobasedorig = int(originalRecord.POS) - 1
+            zerobasedorig = int(originalRecord.POS) #- 1
             for record in newVCF:
                 if record.POS == originalRecord.POS:
                     break
