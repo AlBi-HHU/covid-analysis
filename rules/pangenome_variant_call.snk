@@ -141,11 +141,11 @@ rule evaluate_vs_manual:
     input:
         getManualCurationCombos
     output:
-    'data/output/evaluation/summary_manual.info'
+        'data/output/evaluation/summary_manual.info'
     conda:
-    '../envs/vcfpy.yaml'
+        '../envs/vcfpy.yaml'
     script:
-    '../scripts/vcfdiff_summary_manual.py'
+        '../scripts/vcfdiff_summary_manual.py'
 
 all_vcfs = []
 freebayes_vcfs = [expand('data/auxiliary/discovery/freebayes/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
