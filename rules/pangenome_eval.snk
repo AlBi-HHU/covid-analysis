@@ -14,9 +14,9 @@ rule generateTestSet:
         eval = set(samples)-set(test)
         with open(output['testSet'],'w') as testSet, open(output['evalSet'],'w') as evalSet:
             for t in test:
-                testSet.write(t+'\n')
+                testSet.write('{}\t{}\n'.format(t[0],t[1]))
             for e in eval:
-                evalSet.write(e+'\n')
+                evalSet.write(e+'{}\t{}\n'.format(e[0],e[1]))
 
 
 rule combineWithReference_pancov:
