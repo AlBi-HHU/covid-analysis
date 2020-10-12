@@ -46,6 +46,10 @@ def altEqual(a1,a2):
                 return False
     return True
 
+
+th_cov = snakemake.params["th_cov"],
+th_het = snakemake.params["th_het"]
+
 with open(snakemake.output[0],'w') as outfile:
 
     totalNew = 0
@@ -70,8 +74,13 @@ with open(snakemake.output[0],'w') as outfile:
         #Check all records in the vcf we compare ourselves to
         for record in newVCF:
             onebasedcomp = int(record.POS)#-1
+
+            #filter based on strand bias and coverage
+
             for originalRecord in originalVCF:
+
                 onebasedorig = int(originalRecord.POS)#-1
+
                 if record.POS == originalRecord.POS:
                     if altEqual(record.ALT,originalRecord.ALT):
                         #same in both vcfs

@@ -28,7 +28,7 @@ with open(snakemake.output[0],'w') as outfile:
         pancov_vcf = next(iterator)
         pileup = parsePileup(next(iterator))
 
-        if comparison_table == '' or not os.path.exists(comparison_table):
+        if comparison_table == '' or not os.path.isfile(comparison_table):
             #TODO: Log Debug Output? ...
             print('No manual curation (GISAID Seq) found for: {}'.format(pancov_vcf))
             continue
