@@ -2,7 +2,7 @@ import os
 
 # Concat
 
-os.system('cat '+ snakemake.input['reference'] + ' ' + snakemake.input['fasta'] + ' > ' + snakemake.output['combined'])
+os.system('cat '+ snakemake.input['reference'] + ' ' + snakemake.input['consensus'] + ' > ' + snakemake.output['combined'])
 
 # Muscle
 alignmentfile = snakemake.output['realignment']
