@@ -59,6 +59,7 @@ pangenomeRVTThreshold: 0.2
 consensus: True
 consensusMinCov: 20
 consensusHet: 0.8
+consensusStrandBiais: 0.1
 
 # VariantAnotation
 VarAnnotSnpEff: True

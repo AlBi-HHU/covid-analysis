@@ -72,6 +72,7 @@ rule final_consensus:
         '../envs/biopythonworkbench.yaml'
         
     params:
+        th_sbiais = config["consensusStrandBiais"]
         th_cov = config["consensusMinCov"],
         th_het = config["consensusHet"],
 

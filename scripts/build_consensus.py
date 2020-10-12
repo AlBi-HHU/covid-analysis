@@ -25,7 +25,7 @@ degenerate = {
     frozenset(('A', 'C', 'T', 'G')): 'N'
 }
 
-def main(ref, mapping, th_cov, th_het, consensus,variant_index):
+def main(ref, mapping, th_cov, th_het, th_sbiais, consensus,variant_index):
 
     vi = {}
 
@@ -37,21 +37,21 @@ def main(ref, mapping, th_cov, th_het, consensus,variant_index):
     out = list()
     
     for col in mapping.pileup():
-        counts_in_del = Counter()
+        counts_in_del = defaultdict(Counter())
         for nuc in col.pileups:
             if nuc.is_del:
-                counts_in_del["D"] += 1
+                counts_in_del[None]["D"] += 1
             elif nuc.is_refskip:
-                counts_in_del["I"] += 1
+                counts_in_del[None]["I"] += 1
             else:
-                counts_in_del[nuc.alignment.query_sequence[nuc.query_position]] += 1
+                counts_in_del[nuc.alignment.is_reverse][nuc.alignment.query_sequence[nuc.query_position]] += 1
 
         ref_nuc = reference[col.pos]
         counts = {
-            'A': counts_in_del['A'],
-            'C': counts_in_del['C'],
-            'T': counts_in_del['T'],
-            'G': counts_in_del['G']
+            'A': strand_biais_filter(counts_in_del, 'A', th_sbiais),
+            'C': strand_biais_filter(counts_in_del, 'C', th_sbiais),
+            'T': strand_biais_filter(counts_in_del, 'T', th_sbiais),
+            'G': strand_biais_filter(counts_in_del, 'G', th_sbiais),
         }
 
         all_count = sum(counts.values())
@@ -67,12 +67,28 @@ def main(ref, mapping, th_cov, th_het, consensus,variant_index):
             #print(f"degenerate {degenerate[nucs]}")
             out.append(degenerate[nucs])
             vi[col.pos] = degenerate[nucs]
+
     print(f">{record.id}\n{''.join(out)}", file=open(consensus, "w"))
+
     json.dump(vi,open(variant_index,'w'))
+
+
+def strand_biais_filter(data, key, th_sbiais):
+    total = data[False][key] + data[True][key];
+    if total == 0:
+        return 0
+
+    ratio = min(data[False][key] / total, data[True][key])
+    if ratio > th_sbiais:
+        return total
+    else:
+        return 0
+    
+
 if "snakemake" in locals():
-    main(snakemake.input["reference"], snakemake.input["mapping"], int(snakemake.params["th_cov"]), float(snakemake.params["th_het"]), snakemake.output["consensus"],snakemake.output['variant_index'])
+    main(snakemake.input["reference"], snakemake.input["mapping"], int(snakemake.params["th_cov"]), float(snakemake.params["th_het"]), float(snakemake.params["th_sbiais"]), snakemake.output["consensus"],snakemake.output['variant_index'])
 else:
     import sys
 
-    main(sys.argv[1], sys.argv[2], int(sys.argv[3]), float(sys.argv[4]), sys.argv[5],sys.argv[6])
+    main(sys.argv[1], sys.argv[2], int(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), sys.argv[6], sys.argv[7])
 
