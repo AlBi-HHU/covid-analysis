@@ -62,5 +62,3 @@ with open(alignmentfile, 'r') as infile, open(infofile, 'w') as outfile:
 				position += 1
 
 		currentLine += 4
-
-

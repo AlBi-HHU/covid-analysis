@@ -98,15 +98,15 @@ rule combineWithReference_nanomeda:
         reference = "data/input/nCoV-2019.reference.fasta",
         consensus = "data/input/{run}/barcode{barcode}.{method}.consensus.fasta"
     output:
-        combined = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.cmb"
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.cmb"
     shell:
         'cat {input.reference} {input.consensus} > {output.combined}'
 
 rule muscle:
     input:
-        "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.cmb"
+        "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.cmb"
     output:
-        "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.aln"
+        "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.aln"
     conda:
         "../envs/muscle.yaml"
     shell:
@@ -115,9 +115,9 @@ rule muscle:
 
 rule createInfoFile:
     input:
-        alignment = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.aln"
+        alignment = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.aln"
     output:
-        info = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.info"
+        info = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info"
     script:
         '../scripts/consensusToTable.py'
 
