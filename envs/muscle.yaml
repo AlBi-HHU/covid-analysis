@@ -1,0 +1,8 @@
+name: fastaToVcf
+channels:
+  - conda-forge
+  - bioconda
+  - anaconda
+  - defaults
+dependencies:
+  - biopython=1.78

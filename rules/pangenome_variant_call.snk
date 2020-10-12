@@ -84,6 +84,51 @@ rule filter_same_pos_variant:
     
 ### Debug / Evaluation Only
 
+rule createInfoFile_pancov:
+    input:
+        reference = "data/input/nCoV-2019.reference.fasta",
+        consensus = "data/output/consensus/{method}/{run}/{barcode}/consensus.fasta"
+    output:
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{method}_{run}_{barcode}.cmb"
+        realignment = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{method}_{run}_{barcode}.aln"
+        info = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{method}_{run}_{barcode}.info"
+    conda:
+        '../envs/muscle.yaml'
+    script:
+        '../scripts/consensusToTable.py'
+
+rule createInfoFile_nanopolishAndMedaka:
+    input:
+        reference = "data/input/nCoV-2019.reference.fasta",
+        consensus = "data/input/{run}/barcode{barcode}.{method}.consensus.fasta"
+    output:
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.cmb"
+        realignment = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.aln"
+        info = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info"
+    conda:
+        '../envs/muscle.yaml'
+    script:
+        '../scripts/consensusToTable.py'
+
+def getAllComparisonFiles(wildcards):
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            for method in methods:
+                allFiles += [
+                    "data/auxiliary/evaluation/consensusVariantExtraction/pancov/medaka_"+run+"_"+barcode+".info",
+                    "data/auxiliary/evaluation/consensusVariantExtraction/{method}/"+run+"_"+barcode+".info",
+                    'data/auxiliary/pileupAnalysis/medaka/' + run + '/' + barcode + '.pileupanalysis.txt'
+                ]
+
+rule comparePancovToX:
+    input:
+        getAllComparisonFiles
+    output:
+        'data/output/evaluation/comparisonFastaBased/{method}.eval'
+    script:
+        '../scripts/variantdiff_summary.py'
+'''
 def getAllVcfTuples(wildcards):
     all_vcfs = []
 
@@ -170,6 +215,8 @@ rule evaluate_vs_manual:
         '../envs/vcfpy.yaml'
     script:
         '../scripts/vcfdiff_summary_manual.py'
+
+'''
 
 all_vcfs = []
 freebayes_vcfs = [expand('data/auxiliary/discovery/freebayes/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]

@@ -72,7 +72,7 @@ with open(snakemake.output[0],'w') as outfile:
                 totalMissed += 1
                 outfile.write(
                     '{}\t{}\t{}\t{}\n'.format(
-                        record.POS,
+                        onebasedcomp,
                         'Missing',
                         '{}->{}'.format(comparisonTable[onebasedcomp][0],comparisonTable[onebasedcomp][1]),
                         pileup[onebasedcomp] if onebasedcomp in pileup else 'no pileup available for this position'
