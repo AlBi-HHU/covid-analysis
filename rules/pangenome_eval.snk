@@ -1,3 +1,24 @@
+import random
+
+#Should only be called on demand and not added to the SF as a default target file
+rule generateTestSet:
+    output:
+        testSet = 'data/output/testSet.txt',
+        evalSet = 'data/output/evaluationSet.txt'
+    run:
+        samples = []
+        for run in runs:
+            for barcode in barcodes[run]:
+                samples.append((run,barcode))
+        test = random.sample(samples,k=30)
+        eval = set(samples)-set(test)
+        with open(snakemake.output['testSet'],'w') as testSet, open(snakemake.output['evalSet'],'w') as evalSet:
+            for t in test:
+                testSet.write(t+'\n')
+            for e in eval:
+                evalSet.write(e+'\n')
+
+'''
 import json
 
 all_reads_eval = []
@@ -240,3 +261,4 @@ rule normalize_variant:
 
     shell:
         'vt normalize -r {input.reference} -o {output.variant} {input.ugly_variant} 2> {log}'
+'''
