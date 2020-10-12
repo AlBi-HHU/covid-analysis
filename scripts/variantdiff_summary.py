@@ -12,8 +12,8 @@ with open(snakemake.output[0],'w') as outfile:
     outfile.write('{}\t{}\t{}\t{}\n'.format('POS','PANCOV','COMPARISON','PILEUP'))
 
     for pancovFilePath in iterator:
-        comparisonFilePath = iterator.next()
-        pileupFilePath = iterator.next()
+        comparisonFilePath = next(iterator)
+        pileupFilePath = next(iterator)
 
         pileup = parsePileup(pileupFilePath)
 
