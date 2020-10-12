@@ -89,8 +89,8 @@ rule createInfoFile_pancov:
         reference = "data/input/nCoV-2019.reference.fasta",
         consensus = "data/output/consensus/{method}/{run}/{barcode}/consensus.fasta"
     output:
-        combined = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{method}_{run}_{barcode}.cmb"
-        realignment = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{method}_{run}_{barcode}.aln"
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{method}_{run}_{barcode}.cmb",
+        realignment = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{method}_{run}_{barcode}.aln",
         info = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{method}_{run}_{barcode}.info"
     conda:
         '../envs/muscle.yaml'
@@ -102,8 +102,8 @@ rule createInfoFile_nanopolishAndMedaka:
         reference = "data/input/nCoV-2019.reference.fasta",
         consensus = "data/input/{run}/barcode{barcode}.{method}.consensus.fasta"
     output:
-        combined = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.cmb"
-        realignment = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.aln"
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.cmb",
+        realignment = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.aln",
         info = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info"
     conda:
         '../envs/muscle.yaml'
