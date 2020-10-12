@@ -2,68 +2,82 @@ from shared import *
 
 iterator = iter(snakemake.input)
 
-for pancovFilePath in iterator:
-    comparisonFilePath = iterator.next()
-    pileupFilePath = iterator.next()
 
-    pileup = parsePileup(pileupFilePath)
+with open(snakemake.output[0],'w') as outfile:
 
-    with open(pancovFilePath,'r') as pcf, open(comparisonFilePath,'r') as cof,snakemake.output[0] as outfile:
+    totalChanged = 0
+    totalMissed = 0
+    totalNew = 0
 
-        comparisonData = {x.split()[0] : (x.split()[1] , x.split()[2]) for x in cof.read().splitlines()}
+    outfile.write('{}\t{}\t{}\t{}\n'.format('POS','PANCOV','COMPARISON','PILEUP'))
 
-        for record in newVCF:
-            onebasedcomp = int(record.POS)  # -1
+    for pancovFilePath in iterator:
+        comparisonFilePath = iterator.next()
+        pileupFilePath = iterator.next()
 
-            # filter based on strand bias and coverage
+        pileup = parsePileup(pileupFilePath)
 
-            for originalRecord in originalVCF:
+        with open(pancovFilePath,'r') as pcf, open(comparisonFilePath,'r') as cof:
 
-                onebasedorig = int(originalRecord.POS)  # -1
+            comparisonData = {x.split()[0] : (x.split()[1] , x.split()[2]) for x in cof.read().splitlines()}
+            pancovData = {x.split()[0] : (x.split()[1] , x.split()[2]) for x in pcf.read().splitlines()}
 
-                if record.POS == originalRecord.POS:
-                    if altEqual(record.ALT, originalRecord.ALT):
-                        # same in both vcfs
-                        break
-                    else:
-                        # changed
-                        totalChanged += 1
-                        outfile.write(
-                            '{}\t{}\t{}\t{}\n'.format(
-                                record.POS,
-                                '{}->{}'.format(originalRecord.REF, altToText(originalRecord.ALT)),
-                                '{}->{}'.format(record.REF, altToText(record.ALT)),
-                                pileup[
-                                    onebasedorig] if onebasedorig in pileup else 'no pileup available for this position'
+            for compPosition in comparisonData:
+
+                for pancPosition in pancovData:
+
+                    if compPosition == pancPosition:
+
+                        pancAlt = pancovData[pancPosition][1]
+                        compAlt = comparisonData[compPosition][1]
+
+                        pancRef = pancovData[pancPosition][0]
+                        compRef = comparisonData[compPosition][0] #Should be equal, add sanity check?
+
+                        if pancAlt == compAlt:
+                            # same in both vcfs
+                            break
+                        else:
+                            # changed
+                            totalChanged += 1
+                            outfile.write(
+                                '{}\t{}\t{}\t{}\n'.format(
+                                    pancPosition,
+                                    '{}->{}'.format(pancRef,pancAlt),
+                                    '{}->{}'.format(compRef,compAlt),
+                                    pileup[
+                                        pancPosition] if pancPosition in pileup else 'no pileup available for this position'
+                                )
                             )
+                        break
+                else:
+                    totalMissed += 1
+                    outfile.write(
+                        '{}\t{}\t{}\t{}\n'.format(
+                            compPosition,
+                            'Missing',
+                            '{}->{}'.format(compRef,compAlt),
+                            pileup[compPosition] if compPosition in pileup else 'no pileup available for this position'
                         )
-                    break
-            else:
-                totalMissed += 1
-                outfile.write(
-                    '{}\t{}\t{}\t{}\n'.format(
-                        record.POS,
-                        'Missing',
-                        '{}->{}'.format(record.REF, altToText(record.ALT)),
-                        pileup[onebasedcomp] if onebasedcomp in pileup else 'no pileup available for this position'
                     )
-                )
-        # Check for new variants (exclusively detected by pancov)
-        for originalRecord in originalVCF:
-            onebasedorig = int(originalRecord.POS)  # - 1
-            for record in newVCF:
-                if record.POS == originalRecord.POS:
-                    break
-            else:
-                totalNew += 1
-                outfile.write(
-                    '{}\t{}\t{}\t{}\n'.format(
-                        originalRecord.POS,
-                        '{}->{}'.format(originalRecord.REF, altToText(originalRecord.ALT)),
-                        'Missing',
-                        pileup[onebasedorig] if onebasedorig in pileup else 'no pileup available for this position'
-                    )
-                )
+            # Check for new variants (exclusively detected by pancov)
+            for pancPosition in pancovData:
+                for compPosition in comparisonData:
+                    if pancPosition == compPosition: #already processed
+                        break
+                else:
+                    pancAlt = pancovData[pancPosition][1]
+                    pancRef = pancovData[pancPosition][0]
 
-    outfile.write(
-        'New Variants: {} Changed Variants: {} Missed Variants: {}'.format(totalNew, totalChanged, totalMissed))
+                    totalNew += 1
+                    outfile.write(
+                        '{}\t{}\t{}\t{}\n'.format(
+                            compPosition,
+                            '{}->{}'.format(pancRef, pancAlt),
+                            'Missing',
+                            pileup[pancPosition] if pancPosition in pileup else 'no pileup available for this position'
+                        )
+                    )
+
+        outfile.write(
+            'New Variants: {} Changed Variants: {} Missed Variants: {}'.format(totalNew, totalChanged, totalMissed))
