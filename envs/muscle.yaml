@@ -1,8 +1,6 @@
-name: fastaToVcf
+name: muscle
 channels:
-  - conda-forge
   - bioconda
-  - anaconda
   - defaults
 dependencies:
-  - biopython=1.78
+  - muscle=3.8.1551
