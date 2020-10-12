@@ -85,8 +85,10 @@ with open(snakemake.output[0],'w') as outfile:
                 else:
                     #strand bias check 20/80
                     if int(pancPosition) in pileup:
-                        if pileup[int(pancPosition)][1] < 0.35 or pileup[int(pancPosition)][1] > 0.65:
-                            continue
+                        strandbias = pileup[int(pancPosition)][1]
+                        for bias in strandbias:
+                            if bias > 80:
+                                continue
 
                     totalNew += 1
                     outfile.write(

@@ -44,14 +44,30 @@ def parsePileupStrandAware(pileupfile):
             for val in spread.split(';'):
                 entry = val.split('=')
                 spreadDict[entry[0]] = int(entry[1])
-            biasplus = 0
-            totalreads = sum(spreadDict.values())
+            biases = []
+            processed = set()
             for entry in spreadDict:
-                if entry.islower() or entry == ')':
-                    pass
+                mode = 'low'
+                if entry == ')' or entry.islower():
+                    mode = 'low'
                 else:
-                    biasplus += spreadDict[entry]
-            pileupAnalysis[pos] = (spreadDict,biasplus/totalreads)
+                    mode = 'high'
+
+                if entry.upper() in processed:
+                    continue
+                else:
+                    processed.add(entry.upper())
+
+                for other in spreadDict:
+                    if other == entry:
+                        continue
+                    if mode == 'low' and other.lower() == entry:
+                        biases += [abs(spreadDict[entry]-spreadDict[other])]
+                        break
+                    elif mode == 'high' and other == entry.lower():
+                        biases += [abs(spreadDict[entry]-spreadDict[other])]
+                        break
+            pileupAnalysis[pos] = (spreadDict,biases)
     return pileupAnalysis
 
 #returns the strand bias and the coverage for a given position and a pileup file
