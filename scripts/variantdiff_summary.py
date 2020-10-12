@@ -19,7 +19,7 @@ with open(snakemake.output[0],'w') as outfile:
 
         with open(pancovFilePath,'r') as pcf, open(comparisonFilePath,'r') as cof:
 
-            outfile.write('{}\t{}\n'.format(pcf,cof))
+            outfile.write('{}\t{}\n'.format(pancovFilePath,comparisonFilePath))
 
             comparisonData = {x.split()[0] : (x.split()[1] , x.split()[2]) for x in cof.read().splitlines()}
             pancovData = {x.split()[0] : (x.split()[1] , x.split()[2]) for x in pcf.read().splitlines()}
@@ -78,7 +78,7 @@ with open(snakemake.output[0],'w') as outfile:
 
                 if pancAlt == 'N':
                     continue
-                    
+
                 for compPosition in comparisonData:
                     if pancPosition == compPosition: #already processed
                         break
@@ -88,7 +88,7 @@ with open(snakemake.output[0],'w') as outfile:
                     totalNew += 1
                     outfile.write(
                         '{}\t{}\t{}\t{}\n'.format(
-                            compPosition,
+                            pancPosition,
                             '{}->{}'.format(pancRef, pancAlt),
                             'Missing',
                             pileup[int(pancPosition)] if int(pancPosition) in pileup else 'no pileup available for this position'
