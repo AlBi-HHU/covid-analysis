@@ -21,8 +21,6 @@ with open(alignmentfile, 'r') as infile, open(infofile, 'w') as outfile:
 
 			if r != v:
 
-
-
 				if r == '-' and mode == 'SNP': #insertion starting
 					mode = 'INS'
 					svstring = v

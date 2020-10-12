@@ -95,7 +95,7 @@ with open(snakemake.output[0],'w') as outfile:
                         if breakout:
                             break
                     '''
-                    
+
                     totalNew += 1
                     outfile.write(
                         '{}\t{}\t{}\t{}\n'.format(
