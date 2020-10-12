@@ -7,7 +7,7 @@ with open(alignmentfile, 'r') as infile, open(infofile, 'w') as outfile:
 	lastStart = len(lines) - 1 - 2
 	currentLine = 0
 
-	position = 0
+	position = 1
 
 	while (currentLine <= lastStart):
 
