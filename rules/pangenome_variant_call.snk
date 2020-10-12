@@ -84,29 +84,40 @@ rule filter_same_pos_variant:
     
 ### Debug / Evaluation Only
 
-rule createInfoFile_pancov:
+rule combineWithReference_pancov:
     input:
         reference = "data/input/nCoV-2019.reference.fasta",
         consensus = "data/output/consensus/medaka/{run}/{barcode}/consensus.fasta"
     output:
-        combined = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.cmb",
-        realignment = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.aln",
-        info = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.info"
-    conda:
-        '../envs/muscle.yaml'
-    script:
-        '../scripts/consensusToTable.py'
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.cmb"
+    shell:
+        'cat {input.reference} {input.consensus} > {output.combined}'
 
-rule createInfoFile_nanopolishAndMedaka:
+rule combineWithReference_nanomeda:
     input:
         reference = "data/input/nCoV-2019.reference.fasta",
         consensus = "data/input/{run}/barcode{barcode}.{method}.consensus.fasta"
     output:
-        combined = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.cmb",
-        realignment = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.aln",
-        info = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info"
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.cmb"
+    shell:
+        'cat {input.reference} {input.consensus} > {output.combined}'
+
+rule muscle:
+    input:
+        "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.cmb"
+    output:
+        "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.aln"
     conda:
-        '../envs/muscle.yaml'
+        "../envs/muscle.yaml"
+    shell:
+        'muscle -in {input} -clwout {output}'
+
+
+rule createInfoFile:
+    input:
+        alignment = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.aln"
+    output:
+        info = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.info"
     script:
         '../scripts/consensusToTable.py'
 
@@ -121,6 +132,7 @@ def getAllComparisonFiles(wildcards):
                     'data/auxiliary/pileupAnalysis/medaka/' + run + '/' + barcode + '.pileupanalysis.txt'
                 ]
     return allFiles
+
 rule comparePancovToX:
     input:
         getAllComparisonFiles

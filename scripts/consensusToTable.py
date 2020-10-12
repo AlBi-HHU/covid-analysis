@@ -1,15 +1,5 @@
 import os
-
-# Concat
-
-os.system('cat '+ snakemake.input['reference'] + ' ' + snakemake.input['consensus'] + ' > ' + snakemake.output['combined'])
-
-# Muscle
-alignmentfile = snakemake.output['realignment']
-musclecmd = 'muscle -in ' + snakemake.output['combined'] + ' -clwout ' + alignmentfile
-#print(musclecmd)
-os.system(musclecmd)
-
+alignmentfile = snakemake.input['alignment']
 infofile = snakemake.output['info']
 with open(alignmentfile, 'r') as infile, open(infofile, 'w') as outfile:
 	# Fetch and skip first three lines
