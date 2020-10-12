@@ -83,6 +83,7 @@ with open(snakemake.output[0],'w') as outfile:
                     if pancPosition == compPosition: #already processed
                         break
                 else:
+                    '''
                     #strand bias check 20/80
                     if int(pancPosition) in pileup:
                         strandbias = pileup[int(pancPosition)][1]
@@ -93,7 +94,8 @@ with open(snakemake.output[0],'w') as outfile:
                                 break
                         if breakout:
                             break
-
+                    '''
+                    
                     totalNew += 1
                     outfile.write(
                         '{}\t{}\t{}\t{}\n'.format(
