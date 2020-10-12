@@ -16,7 +16,7 @@ rule generateTestSet:
             for t in test:
                 testSet.write('{}\t{}\n'.format(t[0],t[1]))
             for e in eval:
-                evalSet.write(e+'{}\t{}\n'.format(e[0],e[1]))
+                evalSet.write('{}\t{}\n'.format(e[0],e[1]))
 
 
 rule combineWithReference_pancov:
