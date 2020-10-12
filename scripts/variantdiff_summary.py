@@ -19,6 +19,8 @@ with open(snakemake.output[0],'w') as outfile:
 
         with open(pancovFilePath,'r') as pcf, open(comparisonFilePath,'r') as cof:
 
+            outfile.write('{}\t{}\n'.formt(pcf,cof))
+
             comparisonData = {x.split()[0] : (x.split()[1] , x.split()[2]) for x in cof.read().splitlines()}
             pancovData = {x.split()[0] : (x.split()[1] , x.split()[2]) for x in pcf.read().splitlines()}
 
@@ -45,8 +47,8 @@ with open(snakemake.output[0],'w') as outfile:
                                     pancPosition,
                                     '{}->{}'.format(pancRef,pancAlt),
                                     '{}->{}'.format(compRef,compAlt),
-                                    pileup[
-                                        pancPosition] if pancPosition in pileup else 'no pileup available for this position'
+                                    pileup[int(
+                                        pancPosition)] if int(pancPosition) in pileup else 'no pileup available for this position'
                                 )
                             )
                         break
@@ -57,7 +59,7 @@ with open(snakemake.output[0],'w') as outfile:
                             compPosition,
                             'Missing',
                             '{}->{}'.format(compRef,compAlt),
-                            pileup[compPosition] if compPosition in pileup else 'no pileup available for this position'
+                            pileup[int(compPosition)] if int(compPosition) in pileup else 'no pileup available for this position'
                         )
                     )
             # Check for new variants (exclusively detected by pancov)
@@ -75,7 +77,7 @@ with open(snakemake.output[0],'w') as outfile:
                             compPosition,
                             '{}->{}'.format(pancRef, pancAlt),
                             'Missing',
-                            pileup[pancPosition] if pancPosition in pileup else 'no pileup available for this position'
+                            pileup[int(pancPosition)] if int(pancPosition) in pileup else 'no pileup available for this position'
                         )
                     )
 
