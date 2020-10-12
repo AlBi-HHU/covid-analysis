@@ -79,5 +79,5 @@ with open(snakemake.output[0],'w') as outfile:
                         )
                     )
 
-        outfile.write(
+    outfile.write(
             'New Variants: {} Changed Variants: {} Missed Variants: {}'.format(totalNew, totalChanged, totalMissed))
