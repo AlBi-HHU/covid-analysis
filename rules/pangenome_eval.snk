@@ -12,7 +12,7 @@ rule generateTestSet:
                 samples.append((run,barcode))
         test = random.sample(samples,k=30)
         eval = set(samples)-set(test)
-        with open(snakemake.output['testSet'],'w') as testSet, open(snakemake.output['evalSet'],'w') as evalSet:
+        with open(output['testSet'],'w') as testSet, open(output['evalSet'],'w') as evalSet:
             for t in test:
                 testSet.write(t+'\n')
             for e in eval:
