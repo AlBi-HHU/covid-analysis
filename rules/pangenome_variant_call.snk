@@ -87,11 +87,11 @@ rule filter_same_pos_variant:
 rule createInfoFile_pancov:
     input:
         reference = "data/input/nCoV-2019.reference.fasta",
-        consensus = "data/output/consensus/{method}/{run}/{barcode}/consensus.fasta"
+        consensus = "data/output/consensus/medaka/{run}/{barcode}/consensus.fasta"
     output:
-        combined = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{method}_{run}_{barcode}.cmb",
-        realignment = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{method}_{run}_{barcode}.aln",
-        info = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{method}_{run}_{barcode}.info"
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.cmb",
+        realignment = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.aln",
+        info = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.info"
     conda:
         '../envs/muscle.yaml'
     script:
@@ -116,7 +116,7 @@ def getAllComparisonFiles(wildcards):
         for barcode in barcodes[run]:
             for method in methods:
                 allFiles += [
-                    "data/auxiliary/evaluation/consensusVariantExtraction/pancov/medaka_"+run+"_"+barcode+".info",
+                    "data/auxiliary/evaluation/consensusVariantExtraction/pancov/"+run+"_"+barcode+".info",
                     "data/auxiliary/evaluation/consensusVariantExtraction/{method}/"+run+"_"+barcode+".info",
                     'data/auxiliary/pileupAnalysis/medaka/' + run + '/' + barcode + '.pileupanalysis.txt'
                 ]
