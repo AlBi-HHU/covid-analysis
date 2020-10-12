@@ -19,22 +19,30 @@ with open(snakemake.output[0],'w') as outfile:
 
         with open(pancovFilePath,'r') as pcf, open(comparisonFilePath,'r') as cof:
 
-            outfile.write('{}\t{}\n'.formt(pcf,cof))
+            outfile.write('{}\t{}\n'.format(pcf,cof))
 
             comparisonData = {x.split()[0] : (x.split()[1] , x.split()[2]) for x in cof.read().splitlines()}
             pancovData = {x.split()[0] : (x.split()[1] , x.split()[2]) for x in pcf.read().splitlines()}
 
             for compPosition in comparisonData:
 
+                compRef = comparisonData[compPosition][0]  # Should be equal, add sanity check?
+                compAlt = comparisonData[compPosition][1]
+
+                if compAlt == 'N':
+                    continue
+
                 for pancPosition in pancovData:
 
+                    pancAlt = pancovData[pancPosition][1]
+
+                    pancRef = pancovData[pancPosition][0]
+
+
+                    if pancAlt == 'N': #N doesn't count
+                        continue
+
                     if compPosition == pancPosition:
-
-                        pancAlt = pancovData[pancPosition][1]
-                        compAlt = comparisonData[compPosition][1]
-
-                        pancRef = pancovData[pancPosition][0]
-                        compRef = comparisonData[compPosition][0] #Should be equal, add sanity check?
 
                         if pancAlt == compAlt:
                             # same in both vcfs
@@ -64,12 +72,18 @@ with open(snakemake.output[0],'w') as outfile:
                     )
             # Check for new variants (exclusively detected by pancov)
             for pancPosition in pancovData:
+
+                pancAlt = pancovData[pancPosition][1]
+                pancRef = pancovData[pancPosition][0]
+
+                if pancAlt == 'N':
+                    continue
+                    
                 for compPosition in comparisonData:
                     if pancPosition == compPosition: #already processed
                         break
                 else:
-                    pancAlt = pancovData[pancPosition][1]
-                    pancRef = pancovData[pancPosition][0]
+
 
                     totalNew += 1
                     outfile.write(
