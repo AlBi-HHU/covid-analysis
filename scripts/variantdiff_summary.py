@@ -15,7 +15,7 @@ with open(snakemake.output[0],'w') as outfile:
         comparisonFilePath = next(iterator)
         pileupFilePath = next(iterator)
 
-        pileup = parsePileup(pileupFilePath)
+        pileup = parsePileupStrandAware(pileupFilePath)
 
         with open(pancovFilePath,'r') as pcf, open(comparisonFilePath,'r') as cof:
 
@@ -83,7 +83,10 @@ with open(snakemake.output[0],'w') as outfile:
                     if pancPosition == compPosition: #already processed
                         break
                 else:
-
+                    #strand bias check 20/80
+                    if int(pancPosition) in pileup:
+                        if pileup[pancPosition][1] < 0.20 or pileup[pancPosition][1] > 0.80:
+                            continue
 
                     totalNew += 1
                     outfile.write(

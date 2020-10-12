@@ -31,6 +31,29 @@ def parsePileup(pileupfile):
             pileupAnalysis[pos] = spreadDict
     return pileupAnalysis
 
+#Parse pileup analysis file to a pythonesque structure
+def parsePileupStrandAware(pileupfile):
+    pileupAnalysis = {}
+    with open(pileupfile,'r') as infile:
+        for line in infile.read().splitlines():
+            columns = line.split()
+            pos = int(columns[0])
+            ref = columns[1]
+            spread = columns[2]
+            spreadDict = {}
+            for val in spread.split(';'):
+                entry = val.split('=')
+                spreadDict[entry[0]] = int(entry[1])
+            biasplus = 0
+            totalreads = sum(spreadDict.values())
+            for entry in spreadDict:
+                if entry.islower() or entry == ')':
+                    pass
+                else:
+                    biasplus += spreadDict[entry]
+            pileupAnalysis[pos] = (spreadDict,biasplus/totalreads)
+    return pileupAnalysis
+
 #returns the strand bias and the coverage for a given position and a pileup file
 def parsePileupPosition(f,pos):
     with open(f,'r') as infile:
