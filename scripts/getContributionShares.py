@@ -56,22 +56,22 @@ for position in calls:
                 1 if 'medaka' in calls[position][variant] else 0,
                 1 if 'nanopolish' in calls[position][variant] else 0
             )
-            if mask = (0,0,1):
+            if mask == (0,0,1):
                 pancovAddExclusiveShare['nanopolish'] += 1
-            elif mask = (0,1,0):
+            elif mask == (0,1,0):
                 pancovAddExclusiveShare['medaka'] += 1
-            elif mask = (1,0,0):
+            elif mask == (1,0,0):
                 pancovAddExclusiveShare['freebayes'] += 1
-            elif mask = (1, 1, 0):
+            elif mask == (1, 1, 0):
                 pancovAddShare['medaka'] += 1
                 pancovAddShare['freebayes'] += 1
-            elif mask = (0, 1, 1):
+            elif mask == (0, 1, 1):
                 pancovAddShare['medaka'] += 1
                 pancovAddShare['nanopolish'] += 1
-            elif mask = (1, 0, 1):
+            elif mask == (1, 0, 1):
                 pancovAddShare['nanopolish'] += 1
                 pancovAddShare['freebayes'] += 1
-            elif mask = (1,1,1):
+            elif mask == (1,1,1):
                 pancovAddShare['nanopolish'] += 1
                 pancovAddShare['freebayes'] += 1
                 pancovAddShare['medaka'] += 1
