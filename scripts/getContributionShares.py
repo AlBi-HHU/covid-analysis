@@ -27,7 +27,7 @@ def processMethod(method,file):
         if not record.POS in calls:
             calls[record.POS] = {}
         for allele in record.ALT:
-            if not allele in calls[record.POS][allele]:
+            if not allele in calls[record.POS]:
                 calls[record.POS][allele] = set()
             calls[record.POS][allele].add(method)
             #Add totalVars counter
