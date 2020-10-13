@@ -10,6 +10,9 @@ iterator = iter(snakemake.input)
 #We are interested in:
 totalVars = {} #total number of vars called by each method
 pancovAddShare = {} #vars that each method contributes to our method
+pancovAddShare['medaka'] = 0
+pancovAddShare['nanopolish'] = 0
+pancovAddShare['freebayes'] = 0
 pancovAddExclusiveShare = {}
 #init here for convenience
 pancovAddExclusiveShare['medaka'] = 0
