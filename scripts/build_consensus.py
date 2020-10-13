@@ -37,7 +37,7 @@ def main(ref, mapping, th_cov, th_het, th_sbiais, consensus,variant_index):
     out = list()
     
     for col in mapping.pileup():
-        counts_in_del = defaultdict(Counter())
+        counts_in_del = defaultdict(Counter)
         for nuc in col.pileups:
             if nuc.is_del:
                 counts_in_del[None]["D"] += 1
