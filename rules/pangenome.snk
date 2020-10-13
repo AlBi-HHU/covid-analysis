@@ -12,19 +12,14 @@ vcfs = [item for sublist in all_vcfs for item in sublist]
 rule concatenate_vcf:
     input:
         vcfs = lambda wlc: vcfs,
-
     output:
         out = "data/auxiliary/pangenome/merge.vcf"
-
     conda:
         '../envs/freebayes.yaml',
-
     threads:
         48
-
     log:
         'logs/pangenome_concatenate_vcf.log'
-
     script:
         '../scripts/pangenome/concate_vcf.py'
 

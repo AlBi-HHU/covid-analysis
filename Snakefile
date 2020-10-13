@@ -17,6 +17,7 @@ barcodes = {}
 
 if config['useSubsetOfBarcodes']:
     barcodes = config['barcodes']
+    print("Using the following subset of barcodes: {}".format(barcodes))
 else:
     for run in runs:
         barcodes[run] = glob_wildcards('data/input/'+run+'/barcode{barcode}.medaka.'+vcf_suffix).barcode
