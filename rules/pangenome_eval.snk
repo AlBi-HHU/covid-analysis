@@ -76,6 +76,28 @@ rule comparePancovToX:
     script:
         '../scripts/variantdiff_summary.py'
 
+def getAllVCFsForContributions(wildcards):
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            #Skip distinguishing between medaka and nanopolish as separate samples here
+            allFiles += [
+                "data/auxiliary/pangenome_vc/medaka/"+run+"/"+barcode+"/filter.vcf", #pancov
+                'data/auxiliary/discovery/freebayes/medaka/'+run+'/' + str(config["pangenomeCorrectionK"]) + '/'+barcode+'.vcf', #freebayes
+                'data/input/'+run+'/barcode'+barcode+'.medaka.'+vcf_suffix, #medaka
+                'data/input/'+run+'/barcode'+barcode+'.nanopolish.'+vcf_suffix #medaka
+            ]
+
+rule getContributions:
+    input:
+        getAllVCFsForContributions
+    output:
+        'data/output/evaluation/contributions.txt'
+    conda:
+        '../envs/vcfpy.yaml'
+    script:
+        '../scripts/getContributionShares.py'
+
 '''
 import json
 
