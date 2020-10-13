@@ -69,7 +69,7 @@ useSubsetOfRuns: False
 runs: [corona_03_11]
 
 #if True only use the given subset of barcodes
-useSubsetOfBarcodes: False
+useSubsetOfBarcodes: True
 
 #########TEST SET#############
 barcodes: 
