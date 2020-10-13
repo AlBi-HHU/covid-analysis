@@ -9,11 +9,14 @@ iterator = iter(snakemake.input)
 
 #We are interested in:
 totalVars = {} #total number of vars called by each method
+totalUnique = {} #total number of vars called by each method independent of sample
+
 pancovAddShare = {} #vars that each method contributes to our method
 pancovAddShare['medaka'] = 0
 pancovAddShare['nanopolish'] = 0
 pancovAddShare['freebayes'] = 0
 pancovAddExclusiveShare = {}
+
 #init here for convenience
 pancovAddExclusiveShare['medaka'] = 0
 pancovAddExclusiveShare['nanopolish'] = 0
@@ -37,6 +40,11 @@ def processMethod(method,file):
             if not method in totalVars:
                 totalVars[method] = 0
             totalVars[method] += 1
+            #Unique vars per position
+            if not method in totalUnique:
+                totalUnique[method] = {}
+            if not record.POS in totalUnique:
+                totalUnique[method][record.POS] = 1
 
 print('Reading files ...')
 
@@ -88,7 +96,9 @@ for position in calls:
 
 with open(snakemake.output[0],'w') as outfile:
     for method in totalVars:
-        outfile.write('{} detected {} variants \n'.format(method,totalVars[method]))
+        outfile.write('{} detected {} variants (across all samples) \n'.format(method,totalVars[method]))
+    for method in totalVars:
+        outfile.write('{} detected {} unique variants \n'.format(method,totalUnique[method]))
     for method in pancovAddShare:
         outfile.write('{} of the pancov variants originated from {} \n'.format(pancovAddShare[method],method))
     for method in pancovAddExclusiveShare:
