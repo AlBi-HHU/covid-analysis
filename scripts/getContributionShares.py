@@ -98,7 +98,7 @@ with open(snakemake.output[0],'w') as outfile:
     for method in totalVars:
         outfile.write('{} detected {} variants (across all samples) \n'.format(method,totalVars[method]))
     for method in totalVars:
-        outfile.write('{} detected {} unique variants \n'.format(method,totalUnique[method]))
+        outfile.write('{} detected {} unique variants \n'.format(method,sum(totalUnique[method].values())))
     for method in pancovAddShare:
         outfile.write('{} of the pancov variants originated from {} \n'.format(pancovAddShare[method],method))
     for method in pancovAddExclusiveShare:
