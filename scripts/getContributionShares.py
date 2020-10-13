@@ -59,8 +59,11 @@ for pc_path in iterator:
 
 print('Analyzing files ...')
 
+unionSize = 0
+
 for position in calls:
     for variant in calls[position]:
+        unionSize += 1
         if 'pancov' in calls[position][variant]: #we use this variant
             mask = (
                 1 if 'freebayes' in calls[position][variant] else 0,
@@ -94,11 +97,15 @@ for position in calls:
             if 'nanopolish' in calls[position][variant]:
                 pancovDiscardShare['nanopolish'] += 1
 
+
+
+
 with open(snakemake.output[0],'w') as outfile:
     for method in totalVars:
         outfile.write('{} detected {} variants (across all samples) \n'.format(method,totalVars[method]))
     for method in totalVars:
         outfile.write('{} detected {} unique variants \n'.format(method,sum(totalUnique[method].values())))
+    outfile.write('{} variants were used for the pangenome graph\n'.format(unionSize)
     for method in pancovAddShare:
         outfile.write('{} of the pancov variants originated from {} \n'.format(pancovAddShare[method],method))
     for method in pancovAddExclusiveShare:
