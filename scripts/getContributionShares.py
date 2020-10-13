@@ -1,5 +1,8 @@
-import vcfpy
 import os
+
+import vcfpy
+import pandas
+import upsetplot
 
 #DICT Structure [POSITION] -> [VARIANT] -> [LIST OF METHODS THAT CALLED]
 calls = {}
@@ -61,9 +64,14 @@ print('Analyzing files ...')
 
 unionSize = 0
 
+df_data = list()
 for position in calls:
     for variant in calls[position]:
         unionSize += 1
+        df_data.append(('pancov' in calls[position][variant], 'freebayes' in calls[position][variant],
+                        'medaka' in calls[position][variant], 'nanopolish' in calls[position][variant],
+                        position, variant))
+        
         if 'pancov' in calls[position][variant]: #we use this variant
             mask = (
                 1 if 'freebayes' in calls[position][variant] else 0,
@@ -97,6 +105,14 @@ for position in calls:
             if 'nanopolish' in calls[position][variant]:
                 pancovDiscardShare['nanopolish'] += 1
 
+df = pandas.DataFrame(df_data, columns=('pancov', 'freebayes', 'medaka', 'nanopolish', 'position', 'variant'))
+
+df = df.groupby(['pancov', 'freebayes', 'medaka', 'nanopolish']).count()["position"]
+
+upsetplot.plot(df)
+
+import matplotlib
+matplotlib.pyplot.savefig(snakemake.output[1])
 
 
 

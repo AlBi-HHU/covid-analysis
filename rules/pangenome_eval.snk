@@ -93,7 +93,8 @@ rule getContributions:
     input:
         getAllVCFsForContributions
     output:
-        'data/output/evaluation/contributions.txt'
+        'data/output/evaluation/contributions.txt',
+        'data/output/evaluation/contributions_upset.svg'
     conda:
         '../envs/vcfpy.yaml'
     script:
