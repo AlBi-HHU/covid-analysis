@@ -87,6 +87,7 @@ def getAllVCFsForContributions(wildcards):
                 'data/input/'+run+'/barcode'+barcode+'.medaka.'+vcf_suffix, #medaka
                 'data/input/'+run+'/barcode'+barcode+'.nanopolish.'+vcf_suffix #medaka
             ]
+    return allFiles
 
 rule getContributions:
     input:
