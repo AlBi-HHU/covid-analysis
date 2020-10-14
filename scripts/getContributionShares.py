@@ -107,6 +107,9 @@ for position in calls:
 
 df = pandas.DataFrame(df_data, columns=('pancov', 'freebayes', 'medaka', 'nanopolish', 'position', 'variant'))
 
+only_pancov = df[(df['pancov'] == True) & (df['freebayes'] == False) & (df['medaka'] == False) & (df['nanopolish'] == False)]
+only_pancov.to_csv("only_pancov.csv")
+
 df = df.groupby(['pancov', 'freebayes', 'medaka', 'nanopolish']).count()["position"]
 
 upsetplot.plot(df)

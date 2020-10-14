@@ -37,28 +37,17 @@ def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_pat
         if any(node in ref_nodes for node in path_no_strand): # Some node of path match with reference node
             if path_no_strand and not set(path_no_strand).issubset(ref_nodes): # Path isn't empty and some node isn't in reference path
                 diff_pos = pos_of_diff(list(path_no_strand), list(ref_path))
-                if diff_pos:
+                for diff_pos in pos_of_diff(list(path_no_strand), list(ref_path)):
+                    if diff_pos is None:
+                        continue
+                    
                     variants[tuple(path[diff_pos[0]:diff_pos[1]])] += len(paths[path])
 
     with open("node2cov.csv", "w") as fh:
         print("node,coverage", file=fh)
         for (node, cov) in node2cov.items():
             print("{},{}".format(node, cov), file=fh)
-
-    with open("clean_graph.gfa", "w") as ofh:
-        with open(pangenome_path) as ifh:
-            for line in ifh:
-                if line.startswith("S"):
-                    row = line.split("\t")
-                    if row[1] in node2cov:
-                        print(line, file=ofh, end="")
-                elif line.startswith("L"):
-                    row = line.split("\t")
-                    if row[1] in node2cov and row[3] in node2cov:
-                        print(line, file=ofh, end="")
-                else:
-                    print(line, file=ofh)
-            
+        
     # set data required by vcf format
     ref_name = "MN908947.3"
     ref_length = 29903
@@ -71,26 +60,27 @@ def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_pat
         vcf_header(fh, ref_name, ref_length)
 
         for (variant, count) in variants.items():
-            variant_oris = [node[0] for node in variant[1:-1]]
-            variant_nodes = [node[1:] for node in variant[1:-1]]
+            variant_oris = [node[0] for node in variant]
+            variant_nodes = [node[1:] for node in variant]
 
-            #print(variant)
-            reference = ref_path[ref_path.index(variant[0][1:])+1:ref_path.index(variant[-1][1:])]
-            #print("reference ", reference)
+            ref_index = (ref_path.index(variant[0][1:]), ref_path.index(variant[-1][1:]))
+            if ref_index[0] > ref_index[1]:
+                ref_index = (ref_index[1], ref_index[0])
+                
+                variant_oris = ['>' if ori == '<' else '<' for ori in variant_oris]
+                variant_nodes = list(reversed(variant_nodes))
+        
+            reference = ref_path[ref_index[0]:ref_index[1] + 1]
 
             reference_nodes = reference
             reference_oris = [node2ori[node] for node in reference_nodes]
 
-            
-            #print("variant ori", variant_oris)
-            #print("variant node", variant_nodes)
-
-            #print("reference ori", reference_oris)
-            #print("reference node",reference_nodes)
-
             variant_seq = sequence_from_node(variant_oris, variant_nodes, node2seq, variant[0][0])
             reference_seq = sequence_from_node(reference_oris, reference_nodes, node2seq, variant[0][0])
 
+            if variant_seq == reference_seq:
+                continue
+            
             pos = node2pos[reference_nodes[0]]
             ref_cov = min([node2cov[node] for node in reference_nodes])
 
@@ -99,10 +89,6 @@ def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_pat
             if rvt >= rvt_threshold:
                 print("{}\t{}\t.\t{}\t{}\t.\t.\tVCOV={};RCOV={};RVT={};VARIANT_PATH={}".format(ref_name, pos + 1, reference_seq, variant_seq, count, ref_cov, rvt, ",".join(variant_nodes)), file=fh)
             
-            #print(variant_seq)
-            #print(reference_seq)
-            #print(node2pos[reference_nodes[0]], len(reference_seq))
-
             
 def vcf_header(fh, ref_name, length):
     print("##fileformat=VCFv4.2", file=fh)
@@ -130,38 +116,29 @@ def pos_of_diff(path, reference):
     try:
         index_ref = reference.index(begin)
     except ValueError:
-        return None
+        index_ref = None
 
-    begin_break = None
-    for i in range(0, len(path)):
+    ref_set = set(reference)
+    for i_not_ref in (index for (index, node) in enumerate(path) if node not in set(reference)):
+        begin_break = None
+        # found reference node before variant
+        for i in range(i_not_ref, 0, -1):
+            if path[i] in ref_set:
+                begin_break = i
+                break
 
-        if index_ref + i >= len(reference):
-            continue
-        if path[i] != reference[index_ref + i]:
-            begin_break = i
-            break
+        # found reference node after variant
+        end_break = None
+        for i in range(i_not_ref, len(path)):
+            if path[i] in ref_set:
+                end_break = i
+                break
 
-            
-
-    end_break = None
-    for i in range(i, len(path)):
-        if index_ref + i >= len(reference):
-            end_break = None
-            break
-        
-        if path[i] == reference[index_ref + i]:
-            end_break = i
-            break
-
-        
-    if begin_break is None or end_break is None:
-        return None
-    else:
-        begin_break = begin_break - 1
-        end_break = end_break + 1
-
-        return (begin_break, end_break)
-
+        if index_ref is None or begin_break is None or end_break is None:
+            yield None
+        else:
+            yield (begin_break, end_break + 1)
+    
 if "snakemake" in locals():
     main(snakemake.input["pangenome"], snakemake.input["reads"], snakemake.input["node2pos"], float(snakemake.params["rvt"]), snakemake.output["variant"])
 else:
