@@ -109,25 +109,7 @@ rule evaluate_vs_method:
         '../scripts/vcfdiff_summary.py'
 
 # TODO: Make file dynamic in config, move this parsing elsewhere?
-gisaidMapping = {}
-with open('data/input/mappingRunsGisaid.csv', 'r') as infile:
-    lines = infile.read().splitlines()
-    for l in lines:
-        data = l.split()
-        run = data[0]
-        barcode = data[1]
-        file = ''
-        if len(data) != 2: #entry in the table
-            file = data[2]
-        if not run in gisaidMapping:
-            gisaidMapping[run] = {}
-        gisaidMapping[run][barcode] = file
 
-def getGisaidFile(run,barcode):
-    if run in gisaidMapping:
-        if barcode in gisaidMapping[run]:
-            return gisaidMapping[run][barcode]
-    return ''
 
 
 #Todo: Make this more elegant

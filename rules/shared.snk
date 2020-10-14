@@ -15,3 +15,5 @@ rule bwa_index:
 
     shell:
         'bwa index {input}'
+
+

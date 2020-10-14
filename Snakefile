@@ -1,3 +1,4 @@
+import sys
 import json
 
 configfile: "config.yaml"
@@ -22,6 +23,41 @@ else:
     for run in runs:
         barcodes[run] = glob_wildcards('data/input/'+run+'/barcode{barcode}.medaka.'+vcf_suffix).barcode
 
+
+
+### REMOVE LATER
+gisaidMapping = {}
+with open('data/input/mappingRunsGisaid.csv', 'r') as infile:
+    lines = infile.read().splitlines()
+    for l in lines:
+        data = l.split()
+        run = data[0]
+        barcode = int(data[1])
+        file = ''
+        if len(data) != 2: #entry in the table
+            file = data[2]
+        if not run in gisaidMapping:
+            gisaidMapping[run] = {}
+        gisaidMapping[run][barcode] = file
+
+def getGisaidFile(run,barcode):
+    if run in gisaidMapping:
+        if barcode in gisaidMapping[run]:
+            return gisaidMapping[run][barcode]
+    return None
+
+for run in runs:
+    for barcode in barcodes[run]:
+        gisaidpath = getGisaidFile(run,int(barcode))
+        if gisaidpath:
+            if os.path.isfile(os.path.join('data/input/gisaidseqs',gisaidpath)):
+                continue
+            else:
+                print('No sequence for gisaid id: {} (run: {} bc: {})'.format(gisaidpath,run,barcode))
+        else:
+            print('No mapping for run: {} bc: {}'.format(run,barcode))
+
+### REMOVE LATER END
 
 def getInput(wildcards):
     inputList = [
@@ -73,7 +109,7 @@ def getInput(wildcards):
         if config['VarAnnotSnpEff']:
             inputList += expand('data/auxiliary/pangenome_vc/{method}/'+run+'/{barcode}/filter.annoted.vcf', method=methods, barcode=barcodes[run])
 
-            
+        '''
         if config['performMethodEvaluation']:
             sampleSetsFile = checkpoints.createSubsets.get().output
             with open(str(sampleSetsFile),'r') as infile:
@@ -89,6 +125,8 @@ def getInput(wildcards):
                             method = split[-4]
                             fstring = 'data/auxiliary/pangenome_vc/'+cohortSize+'/'+str(idx)+'/'+method+'/'+run+'/'+barcode+'/variant.vcf'
                             inputList.append(fstring)
+        '''
+
         #Always create the igv sessions for our input
         inputList += expand('data/output/IgvSessions/{method}/'+run+'/{barcode}.igv.xml',method=methods,barcode=barcodes[run])
 		
