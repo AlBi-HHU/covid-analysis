@@ -5,7 +5,7 @@ import sys
 
 def main(out_path, vcfs):
 
-    #header = vcfpy.Header(samples=vcfpy.header.SamplesInfos(["all_var"]))
+    header = vcfpy.Header(samples=vcfpy.header.SamplesInfos(["all_var"]))
     header.add_line(vcfpy.HeaderLine('fileformat', 'VCFv4.2'))
     header.add_contig_line({"ID": "MN908947.3", "length": "29903"})
     header.add_filter_line({'Description': "All filters passed", 'ID': 'PASS'})
