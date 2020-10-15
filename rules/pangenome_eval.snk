@@ -100,7 +100,7 @@ rule hackfix_eval_fb:
     shell:
         "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
 
-rule sortVCF:
+rule sortVCF_eval:
     input:
         "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.vcf"
     output:
@@ -110,7 +110,7 @@ rule sortVCF:
     shell:
         'vt sort {input} -o {output}'
 
-rule decompose1:
+rule decompose1_eval:
     input:
         "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.sorted.vcf"
     output:
@@ -120,7 +120,7 @@ rule decompose1:
     shell:
         'vt decompose {input} -o {output}'
 
-rule decompose2:
+rule decompose2_eval:
     input:
         "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.dc1.vcf"
     output:
@@ -130,7 +130,7 @@ rule decompose2:
     shell:
         'vt decompose_blocksub -a {input} -o {output}'
 
-rule dropDuplicates:
+rule dropDuplicates_eval:
     input:
         "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.dc2.vcf"
     output:
