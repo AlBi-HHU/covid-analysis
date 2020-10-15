@@ -30,14 +30,14 @@ def main(out_path, vcfs):
                     continue
 
                 already_write.add(h)
-
+                ''''
                 ## vcfpy black magic I didn't understand what I do but it's work don't touch it  // :)
                 record.INFO = dict()
                 record.FORMAT = dict()
                 record.calls = [vcfpy.Call(sample="all_var", data=vcfpy.OrderedDict(), site=record)]
                 record.call_for_sample["all_var"] = record.calls[0]
                 ## end of black magic
-
+                '''
                 writer.write_record(record)
         except:
             raise Exception('Error parsing vcf: {}: {}'.format(vcf,sys.exc_info()[0]))
