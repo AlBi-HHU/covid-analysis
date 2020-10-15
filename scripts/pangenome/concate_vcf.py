@@ -5,12 +5,13 @@ import sys
 
 def main(out_path, vcfs):
 
-    header = vcfpy.Header(samples=vcfpy.header.SamplesInfos(["all_var"]))
+    #header = vcfpy.Header(samples=vcfpy.header.SamplesInfos(["all_var"]))
+    header = vcfpy.Header()
     header.add_line(vcfpy.HeaderLine('fileformat', 'VCFv4.2'))
     header.add_contig_line({"ID": "MN908947.3", "length": "29903"})
     header.add_filter_line({'Description': "All filters passed", 'ID': 'PASS'})
     header.add_filter_line({'Description': "dp", 'ID': 'dp'})
-    header.add_line(vcfpy.SampleHeaderLine.from_mapping({'ID':'all_var'}))
+    #header.add_line(vcfpy.SampleHeaderLine.from_mapping({'ID':'all_var'}))
     
     writer = vcfpy.Writer.from_path(out_path, header)
 
@@ -34,10 +35,11 @@ def main(out_path, vcfs):
                 record.INFO = dict()
                 record.FORMAT = dict()
 
-
+                '''
                 record.calls = [vcfpy.Call(sample="all_var", data=vcfpy.OrderedDict(), site=record)]
                 record.call_for_sample["all_var"] = record.calls[0]
-
+                '''
+                
                 ## end of black magic
 
                 writer.write_record(record)
