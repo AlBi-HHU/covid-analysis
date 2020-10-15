@@ -27,14 +27,13 @@ rule hackfix:
     input:
         "data/auxiliary/pangenome/merge.vcf"
     output:
-        "data/auxiliary/pangenome/hacked.hack"
+        "data/auxiliary/pangenome/merge_fixed.vcf"
     shell:
-        "sed -i 's/FORMAT\tall_var/FORMAT/' {input} && touch {output}"
+        "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
 
 rule sortVCF:
     input:
-        file = "data/auxiliary/pangenome/merge.vcf",
-        flag = "data/auxiliary/pangenome/hacked.hack"
+        file = "data/auxiliary/pangenome/merge_fixed.vcf"
     output:
         "data/auxiliary/pangenome/merge_sorted.vcf"
     conda:
