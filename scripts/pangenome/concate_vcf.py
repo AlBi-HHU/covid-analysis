@@ -6,8 +6,9 @@ import sys
 def main(out_path, vcfs):
 
     header = vcfpy.Header(samples=vcfpy.header.SamplesInfos(["all_var"]))
-    header.add_contig_line(vcfpy.OrderedDict({"ID": "MN908947.3", "length": "29903"}))
-
+    header.add_contig_line({"ID": "MN908947.3", "length": "29903"})
+    header.add_filter_line({'Description': "All filters passed", 'ID': 'PASS'})
+    
     writer = vcfpy.Writer.from_path(out_path, header)
 
     already_write = set()
