@@ -23,15 +23,24 @@ rule concatenate_vcf:
     script:
         '../scripts/pangenome/concate_vcf.py'
 
-rule sortVCF:
+rule hackfix:
     input:
         "data/auxiliary/pangenome/merge.vcf"
+    output:
+        "data/auxiliary/pangenome/hacked.hack"
+    shell:
+        "sed -i 's/FORMAT\tall_var/FORMAT/' {input} && touch {output}"
+
+rule sortVCF:
+    input:
+        file = "data/auxiliary/pangenome/merge.vcf",
+        flag = "data/auxiliary/pangenome/hacked.hack"
     output:
         "data/auxiliary/pangenome/merge_sorted.vcf"
     conda:
         '../envs/vt.yaml'
     shell:
-        'vt sort {input} -o {output}'
+        'vt sort {input.file} -o {output}'
 
 rule decompose1:
     input:

@@ -38,7 +38,7 @@ def main(out_path, vcfs):
 
                 record.calls = [vcfpy.Call(sample="all_var", data=vcfpy.OrderedDict(), site=record)]
                 record.call_for_sample["all_var"] = record.calls[0]
-                
+
 
                 ## end of black magic
 
