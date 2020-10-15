@@ -80,29 +80,32 @@ rule hackfix_eval_md:
     input:
         'data/input/{run}/barcode{barcode}.medaka.' + vcf_suffix
     output:
-        "data/auxiliary/evaluation/vcfs/medaka_{run}_{barcode}.vcf.e"
+        "data/auxiliary/evaluation/vcfs/medaka_{run}_{barcode}.vcf"
     shell:
         "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
+    priority: 50
 
 rule hackfix_eval_np:
     input:
         'data/input/{run}/barcode{barcode}.nanopolish.' + vcf_suffix
     output:
-        "data/auxiliary/evaluation/vcfs/nanopolish_{run}_{barcode}.vcf.e"
+        "data/auxiliary/evaluation/vcfs/nanopolish_{run}_{barcode}.vcf"
     shell:
         "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
+    priority: 50
 
 rule hackfix_eval_fb:
     input:
         'data/auxiliary/discovery/freebayes/medaka/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf',  # freebayes
     output:
-        "data/auxiliary/evaluation/vcfs/freebayes_{run}_{barcode}.vcf.e"
+        "data/auxiliary/evaluation/vcfs/freebayes_{run}_{barcode}.vcf"
     shell:
         "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
+    priority: 50
 
 rule sortVCF_eval:
     input:
-        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.vcf.e"
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.vcf"
     output:
         "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.sorted.vcf"
     conda:
