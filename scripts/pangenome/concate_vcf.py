@@ -10,7 +10,7 @@ def main(out_path, vcfs):
     header.add_contig_line({"ID": "MN908947.3", "length": "29903"})
     header.add_filter_line({'Description': "All filters passed", 'ID': 'PASS'})
     header.add_filter_line({'Description': "dp", 'ID': 'dp'})
-    #header.add_line(vcfpy.SampleHeaderLine.from_mapping({'ID':'all_var'}))
+    header.add_line(vcfpy.SampleHeaderLine.from_mapping({'ID':'all_var'}))
     
     writer = vcfpy.Writer.from_path(out_path, header)
 
