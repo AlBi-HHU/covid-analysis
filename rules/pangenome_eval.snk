@@ -76,6 +76,71 @@ rule comparePancovToX:
     script:
         '../scripts/variantdiff_summary.py'
 
+rule hackfix_eval_md:
+    input:
+        'data/input/{run}/barcode{barcode}.medaka.' + vcf_suffix
+    output:
+        "data/auxiliary/evaluation/vcfs/medaka_{run}_{barcode}.vcf"
+    shell:
+        "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
+
+rule hackfix_eval_np:
+    input:
+        'data/input/{run}/barcode{barcode}.nanopolish.' + vcf_suffix
+    output:
+        "data/auxiliary/evaluation/vcfs/nanopolish_{run}_{barcode}.vcf"
+    shell:
+        "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
+
+rule hackfix_eval_fb:
+    input:
+        'data/auxiliary/discovery/freebayes/medaka/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf',  # freebayes
+    output:
+        "data/auxiliary/evaluation/vcfs/freebayes_{run}_{barcode}.vcf"
+    shell:
+        "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
+
+rule sortVCF:
+    input:
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.vcf"
+    output:
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.sorted.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt sort {input} -o {output}'
+
+rule decompose1:
+    input:
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.sorted.vcf"
+    output:
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.dc1.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt decompose {input} -o {output}'
+
+rule decompose2:
+    input:
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.dc1.vcf"
+    output:
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.dc2.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt decompose_blocksub -a {input} -o {output}'
+
+rule dropDuplicates:
+    input:
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.dc2.vcf"
+    output:
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.unique.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt uniq {input} -o {output}'
+
+
 def getAllVCFsForContributions(wildcards):
     allFiles = []
     for run in runs:
@@ -83,9 +148,9 @@ def getAllVCFsForContributions(wildcards):
             #Skip distinguishing between medaka and nanopolish as separate samples here
             allFiles += [
                 "data/auxiliary/pangenome_vc/medaka/"+run+"/"+barcode+"/filter.vcf", #pancov
-                'data/auxiliary/discovery/freebayes/medaka/'+run+'/' + str(config["pangenomeCorrectionK"]) + '/'+barcode+'.vcf', #freebayes
-                'data/input/'+run+'/barcode'+barcode+'.medaka.'+vcf_suffix, #medaka
-                'data/input/'+run+'/barcode'+barcode+'.nanopolish.'+vcf_suffix #medaka
+                "data/auxiliary/evaluation/vcfs/freebayes_"+run+"_"+barcode+".unique.vcf", #freebayes
+                "data/auxiliary/evaluation/vcfs/medaka"+run+"_"+barcode+".unique.vcf", #medaka
+                "data/auxiliary/evaluation/vcfs/nanopolish"+run+"_"+barcode+".unique.vcf", #nanopolish
             ]
     return allFiles
 
