@@ -55,39 +55,49 @@ def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_pat
     # get the sequence associate to node
     node2seq = get_node2seq(pangenome_path)
 
+    final = dict()
     # write variant
+
+    for (variant, count) in variants.items():
+        variant_oris = [node[0] for node in variant]
+        variant_nodes = [node[1:] for node in variant]
+
+        ref_index = (ref_path.index(variant[0][1:]), ref_path.index(variant[-1][1:]))
+        if ref_index[0] > ref_index[1]:
+            ref_index = (ref_index[1], ref_index[0])
+                
+            variant_oris = ['>' if ori == '<' else '<' for ori in variant_oris]
+            variant_nodes = list(reversed(variant_nodes))
+                
+        reference = ref_path[ref_index[0]:ref_index[1] + 1]
+
+        reference_nodes = reference
+        reference_oris = [node2ori[node] for node in reference_nodes]
+
+        variant_seq = sequence_from_node(variant_oris, variant_nodes, node2seq, variant[0][0])
+        reference_seq = sequence_from_node(reference_oris, reference_nodes, node2seq, variant[0][0])
+
+        if variant_seq == reference_seq:
+            continue
+            
+        pos = node2pos[reference_nodes[0]]
+        ref_cov = min([node2cov[node] for node in reference_nodes])
+
+        key = (variant_seq, reference_seq, pos, tuple(variant_nodes))
+        if key in final:
+            new_value = (final[key][0] + count, max(ref_cov, final[key][1]))
+        else:
+            new_value = (count, ref_cov)
+        final[key] = new_value
+
     with open(output_path, "w") as fh:
         vcf_header(fh, ref_name, ref_length)
 
-        for (variant, count) in variants.items():
-            variant_oris = [node[0] for node in variant]
-            variant_nodes = [node[1:] for node in variant]
-
-            ref_index = (ref_path.index(variant[0][1:]), ref_path.index(variant[-1][1:]))
-            if ref_index[0] > ref_index[1]:
-                ref_index = (ref_index[1], ref_index[0])
-                
-                variant_oris = ['>' if ori == '<' else '<' for ori in variant_oris]
-                variant_nodes = list(reversed(variant_nodes))
-        
-            reference = ref_path[ref_index[0]:ref_index[1] + 1]
-
-            reference_nodes = reference
-            reference_oris = [node2ori[node] for node in reference_nodes]
-
-            variant_seq = sequence_from_node(variant_oris, variant_nodes, node2seq, variant[0][0])
-            reference_seq = sequence_from_node(reference_oris, reference_nodes, node2seq, variant[0][0])
-
-            if variant_seq == reference_seq:
-                continue
-            
-            pos = node2pos[reference_nodes[0]]
-            ref_cov = min([node2cov[node] for node in reference_nodes])
-
+        for ((v_seq, r_seq, pos, nodes), (count, ref_cov)) in final.items():
             rvt = count / (count + ref_cov)
 
             if rvt >= rvt_threshold:
-                print("{}\t{}\t.\t{}\t{}\t.\t.\tVCOV={};RCOV={};RVT={};VARIANT_PATH={}".format(ref_name, pos + 1, reference_seq, variant_seq, count, ref_cov, rvt, ",".join(variant_nodes)), file=fh)
+                print("{}\t{}\t.\t{}\t{}\t.\t.\tVCOV={};RCOV={};RVT={};VARIANT_PATH={}".format(ref_name, pos + 1, r_seq, v_seq, count, ref_cov, rvt, ",".join(nodes)), file=fh)
             
             
 def vcf_header(fh, ref_name, length):
