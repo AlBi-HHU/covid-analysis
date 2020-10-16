@@ -152,8 +152,8 @@ def getAllVCFsForContributions(wildcards):
             allFiles += [
                 "data/auxiliary/pangenome_vc/medaka/"+run+"/"+barcode+"/filter.vcf", #pancov
                 "data/auxiliary/evaluation/vcfs/freebayes_"+run+"_"+barcode+".unique.vcf", #freebayes
-                "data/auxiliary/evaluation/vcfs/medaka"+run+"_"+barcode+".unique.vcf", #medaka
-                "data/auxiliary/evaluation/vcfs/nanopolish"+run+"_"+barcode+".unique.vcf", #nanopolish
+                "data/auxiliary/evaluation/vcfs/medaka_"+run+"_"+barcode+".unique.vcf", #medaka
+                "data/auxiliary/evaluation/vcfs/nanopolish_"+run+"_"+barcode+".unique.vcf", #nanopolish
             ]
     return allFiles
 
