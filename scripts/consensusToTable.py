@@ -9,14 +9,15 @@ with open(alignmentfile, 'r') as infile, open(infofile, 'w') as outfile:
 
 	position = 1
 
+	mode = 'SNP'
+	svstring = ''
+	svpos = '?'
+
 	while (currentLine <= lastStart):
 
 		reference = lines[currentLine].split()[1]
 		variant = lines[currentLine + 1].split()[1]
-
-		mode = 'SNP'
-		svstring = ''
-		svpos = '?'
+		
 		for r, v in zip(reference, variant):
 
 			if r != v:
