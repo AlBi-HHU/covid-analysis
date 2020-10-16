@@ -83,7 +83,7 @@ rule hackfix_eval_md:
         "data/auxiliary/evaluation/vcfs/medaka_{run}_{barcode}.vcf"
     priority: 50
     shell:
-        "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
+        "sed 's/FORMAT\tall_var/FORMAT/' {input} | sed '3i ##contig=<ID=MN908947.3,length=29903' > {output}"
 
 rule hackfix_eval_np:
     input:
@@ -92,7 +92,7 @@ rule hackfix_eval_np:
         "data/auxiliary/evaluation/vcfs/nanopolish_{run}_{barcode}.vcf"
     priority: 50
     shell:
-        "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
+        "sed 's/FORMAT\tall_var/FORMAT/' {input} | sed '3i ##contig=<ID=MN908947.3,length=29903' > {output}"
 
 rule hackfix_eval_fb:
     input:
