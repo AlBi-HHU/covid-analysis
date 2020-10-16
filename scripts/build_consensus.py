@@ -33,8 +33,8 @@ def main(ref, mapping, th_cov, th_het, th_sbiais, consensus,variant_index):
     reference = record.seq
     
     mapping = pysam.AlignmentFile(mapping, "rb")
-    
-    out = list()
+
+    out = ['N'] * (mapping.lengths[0] + 1)
     
     for col in mapping.pileup():
         counts_in_del = defaultdict(Counter)
@@ -58,15 +58,21 @@ def main(ref, mapping, th_cov, th_het, th_sbiais, consensus,variant_index):
 
         if all_count < th_cov:
             #print(f"ref {ref_nuc} counts {counts} all_count {all_count}")
-            out.append('N')
+            out[col.pos] = 'N'
         elif counts[ref_nuc] / all_count > th_het:
-            out.append(ref_nuc)
+            out[col.pos] = ref_nuc
         else:
-            #print(f"ref {ref_nuc} counts {counts} all_count {all_count} {counts[ref_nuc] / all_count}")
             nucs = frozenset((k for k, v in counts.items() if v / all_count > 1 - th_het))
-            #print(f"degenerate {degenerate[nucs]}")
-            out.append(degenerate[nucs])
+
+            out[col.pos] = degenerate[nucs]
             vi[col.pos] = degenerate[nucs]
+
+            #print(col.pos, degenerate[nucs])
+            #print("ref_nuc", ref_nuc)
+            #print("consensus", degenerate[nucs])
+            #print("all_counts", counts_in_del)
+            #print("count", counts)
+            
 
     print(f">{record.id}\n{''.join(out)}", file=open(consensus, "w"))
 
