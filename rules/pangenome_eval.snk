@@ -103,9 +103,21 @@ rule hackfix_eval_fb:
     shell:
         "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
 
+rule indexVcf_eval:
+    input:
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.vcf",
+    output:
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.vcf.tbi"
+    conda:
+        '../envs/tabix.yaml',
+
+    shell:
+        "tabix -f -p vcf {input}"
+
 rule sortVCF_eval:
     input:
-        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.vcf"
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.vcf",
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.vcf.tbi",
     output:
         "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.sorted.vcf"
     conda:
