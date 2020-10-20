@@ -75,6 +75,9 @@ rule filter_same_pos_variant:
     output:
         "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf"
 
+    params:
+        min_cov = config["pangenomeVarMinCov"]
+
     conda:
         '../envs/freebayes.yaml',
 

@@ -3,7 +3,7 @@ import vcfpy
 
 from collections import defaultdict
 
-def main(in_vcf, out_vcf):
+def main(in_vcf, min_cov, out_vcf):
     reader = vcfpy.Reader.from_path(in_vcf)
 
     header = reader.header
@@ -18,16 +18,19 @@ def main(in_vcf, out_vcf):
     
     for key, values in pos2var.items():
         if len(values) == 1:
-            writer.write_record(values[0][1])
+            variant = values[0][1]
         else:
             values.sort(key=lambda x: x[0], reverse=True)
-            values[0][1].INFO["MULTIPLE"] = True
-            writer.write_record(values[0][1])
+            variant = values[0][1]
+            variant.INFO["MULTIPLE"] = True
+
+        if variant.INFO["VCOV"] + variant.INFO["RCOV"] > min_cov:
+            writer.write_record(variant)
 
 
 if "snakemake" in locals():
-    main(snakemake.input[0], snakemake.output[0])
+    main(snakemake.input[0], snakemake.params["min_cov"], snakemake.output[0])
 else:
     import sys
     
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
