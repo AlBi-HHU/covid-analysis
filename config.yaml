@@ -66,11 +66,11 @@ consensusStrandBiais: 0.1
 VarAnnotSnpEff: True
 
 #if True, only use the given subset of run folders
-useSubsetOfRuns: False
-runs: [corona_03_11]
+useSubsetOfRuns: True
+runs: ['20200708','20200715', '20200729','20200805','20200817','20200902','20200909','03_11', '26_37' ,'38_66' ]
 
 #if True only use the given subset of barcodes
-useSubsetOfBarcodes: False
+useSubsetOfBarcodes: True
 
 #########TEST SET#############
 barcodes: 
