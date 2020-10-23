@@ -49,6 +49,8 @@ def getGisaidFile(run,barcode):
 for run in runs:
     for barcode in barcodes[run]:
         gisaidpath = getGisaidFile(run,int(barcode))
+        print(gisaidpath)
+        '''
         if gisaidpath:
             if os.path.isfile(os.path.join('data/input/gisaidseqs',gisaidpath)):
                 continue
@@ -56,7 +58,7 @@ for run in runs:
                 print('No sequence for gisaid id: {} (run: {} bc: {})'.format(gisaidpath,run,barcode))
         else:
             print('No mapping for run: {} bc: {}'.format(run,barcode))
-
+        '''
 ### REMOVE LATER END
 
 def getInput(wildcards):
@@ -74,8 +76,8 @@ def getInput(wildcards):
         if config['performQualityControl']:
             inputList += expand('data/output/softClippedSeqs/{method}/'+run+'/{barcode}.html',method=methods,barcode=barcodes[run])
 
-        if config['generateKmerProfiles']:
-            inputList += expand('data/output/kmerHistograms/{method}/'+run+'/{barcode}_{k}.svg',method=methods,barcode=barcodes[run],k=ks)
+        #if config['generateKmerProfiles']:
+        #    inputList += expand('data/output/kmerHistograms/{method}/'+run+'/{barcode}_{k}.svg',method=methods,barcode=barcodes[run],k=ks)
 
         if config['performCorrections']:
             inputList += expand('data/output/corrections/{basecalling}/'+run+'/{k}/{barcode}.svg',
