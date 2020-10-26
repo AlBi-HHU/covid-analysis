@@ -135,7 +135,9 @@ def getInput(wildcards):
 
         #Debug/Eval Stuff
         #inputList += ['data/auxiliary/pangenome_vc/contrib.txt']
-        #inputList = ['data/output/evaluation/summary_nanopolish.info']
+        inputList += ['data/output/evaluation/summary_nanopolish.info']
+        inputList += ['data/output/evaluation/summary_medaka.info']
+
     return inputList
 
 
