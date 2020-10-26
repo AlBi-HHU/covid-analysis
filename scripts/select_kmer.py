@@ -61,26 +61,45 @@ def read_jellyfish(path):
 
     return data
 
+def isHomopolymer(kmer,length=4):
+    currentRepeatLength = 0
+    lastBase = 'N'
+    for base in kmer:
+        if base == lastBase:
+            currentRepeatLength += 1
+            if currentRepeatLength == length:
+                return True
+        else:
+            currentRepeatLength = 0
+        lastBase = base
+    return False
 
 def generate_untrust_kmer(reads_kmer, th_max, th_min, th_frmr):
-    """ generate kmer can't be trust based on abundance and forward reverse ratio """
+    """ generate kmer can't be trust based on abundance, homopolymer content and forward reverse ratio """
 
     for kmer in list(reads_kmer.keys()):
-        forward = reads_kmer[kmer]
-        reverse = reads_kmer[rev_comp(kmer)]
-        total = forward + reverse
 
-        if total > 0:
-            ratio = min(forward / total, reverse / total)
+        if isHomopolymer(kmer):
+            yield kmer
         else:
-            ratio = 0
 
-        if total < th_min:
-            yield kmer
-        elif ratio < th_frmr:
-            yield kmer
+            forward = reads_kmer[kmer]
+            reverse = reads_kmer[rev_comp(kmer)]
 
-        
+            total = forward + reverse
+
+            if total > 0:
+                ratio = min(forward / total, reverse / total)
+            else:
+                ratio = 0
+
+            if total < th_min:
+                yield kmer
+            elif ratio < th_frmr:
+                yield kmer
+
+
+
 def around_kmer(kmer, pos):
     if pos < 0:
         suffix = kmer[:pos]
