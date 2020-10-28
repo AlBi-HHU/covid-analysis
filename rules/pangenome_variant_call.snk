@@ -67,6 +67,21 @@ rule call_variant:
     script:
         "../scripts/pangenome/call_variant.py"
 
+rule normalize_variant_pg:
+    input:
+        ugly_variant = 'data/auxiliary/pangenome_vc/{prefix}.vcf.ugly',
+        reference = "data/input/nCoV-2019.reference.fasta"
+    output:
+        variant = 'data/auxiliary/pangenome_vc/{prefix}.vcf',
+    conda:
+        '../envs/vt.yaml',
+    log:
+        'logs/pangenome_vc_normalize_variant_{prefix}_variant.log'
+    shell:
+        'if [ -s {input.ugly_variant} ]; then vt normalize -r {input.reference} -o {output.variant} {input.ugly_variant}; else touch {output.variant}; fi 2> {log}'
+
+
+
         
 rule filter_same_pos_variant:
     input:
