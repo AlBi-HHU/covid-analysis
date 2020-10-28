@@ -6,12 +6,17 @@ from collections import defaultdict, Counter
 
 from shared import rev_comp
 
-def main(reference, reads, th_min, th_frmr, th_max, th_covr, output):
+def main(reference, reads, th_min, th_frmr, th_max, th_covr, output, delKmers):
+
+    #Parse deletion kmers from the input file into a set
+    invalidDeletionKmers = set()
+    for kmer in open(delKmers,'r').read().splitlines():
+        invalidDeletionKmers.add(kmer)
 
     kmer_counts = read_jellyfish(reads)
 
     # Remove kmer can't be trust based on abundance and forward reverse ratio
-    for kmer in generate_untrust_kmer(kmer_counts, th_max, th_min, th_frmr):
+    for kmer in generate_untrust_kmer(kmer_counts, th_max, th_min, th_frmr,invalidDeletionKmers):
         if kmer in kmer_counts:
             del kmer_counts[kmer]
         if rev_comp(kmer) in kmer_counts:
@@ -74,15 +79,13 @@ def isHomopolymer(kmer,length=4):
         lastBase = base
     return False
 
-def generate_untrust_kmer(reads_kmer, th_max, th_min, th_frmr):
+def generate_untrust_kmer(reads_kmer, th_max, th_min, th_frmr, invalidDeletions):
     """ generate kmer can't be trust based on abundance, homopolymer content and forward reverse ratio """
 
     for kmer in list(reads_kmer.keys()):
-
         if isHomopolymer(kmer):
             yield kmer
         else:
-
             forward = reads_kmer[kmer]
             reverse = reads_kmer[rev_comp(kmer)]
 
@@ -97,6 +100,10 @@ def generate_untrust_kmer(reads_kmer, th_max, th_min, th_frmr):
                 yield kmer
             elif ratio < th_frmr:
                 yield kmer
+            else:
+                for delKmer in invalidDeletions:
+                    if delKmer in kmer:
+                        yield kmer
 
 
 
@@ -125,8 +132,8 @@ def generate_all_seq(length):
 
 
 if "snakemake" in locals():
-    main(snakemake.input["reference"], snakemake.input["reads"], int(snakemake.params["th_min"]), float(snakemake.params["th_frmr"]), int(snakemake.params["th_max"]), float(snakemake.params["th_covr"]), snakemake.output["kmerset"]) 
+    main(snakemake.input["reference"], snakemake.input["reads"], int(snakemake.params["th_min"]), float(snakemake.params["th_frmr"]), int(snakemake.params["th_max"]), float(snakemake.params["th_covr"]), snakemake.output["kmerset"],snakemake.input['delKmers'])
 else:
     import sys
 
-    main(sys.argv[1], sys.argv[2], int(sys.argv[3]), float(sys.argv[4]), int(sys.argv[5]), float(sys.argv[6]), sys.argv[7]) 
+    main(sys.argv[1], sys.argv[2], int(sys.argv[3]), float(sys.argv[4]), int(sys.argv[5]), float(sys.argv[6]), sys.argv[7],sys.argv[8])

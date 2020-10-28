@@ -17,7 +17,7 @@ with open(alignmentfile, 'r') as infile, open(infofile, 'w') as outfile:
 
 		reference = lines[currentLine].split()[1]
 		variant = lines[currentLine + 1].split()[1]
-		
+
 		for r, v in zip(reference, variant):
 
 			if r != v:

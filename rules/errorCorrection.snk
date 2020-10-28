@@ -38,11 +38,20 @@ rule count_jellyfish:
     shell:
         "jellyfish count -s 100000 -t {threads} -m {params.k} -o {output.countfile} {input.reference} && jellyfish dump -c -o {output.csv} {output.countfile}"
 
-        
+rule generateDelKmers:
+    input:
+        "data/input/nCoV-2019.reference.k{k}.csv"
+    output:
+        "data/auxiliary/corrections/reference/delkmers_k{k}.txt"
+    script:
+        "../scripts/genIndelKmers.py"
+
+
 rule select_kmer:
     input:
         reads = lambda wcs: get_csv(wcs),
         reference = "data/input/nCoV-2019.reference.k{k}.csv",
+        delKmers = 'data/auxiliary/corrections/reference/delkmers_k{k}.txt'
 
     output:
         kmerset = "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.kmerset.fasta",
