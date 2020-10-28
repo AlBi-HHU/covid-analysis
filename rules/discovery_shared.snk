@@ -72,10 +72,10 @@ rule generate_igv_Sessions:
 
 rule normalize_variant:
     input:
-        ugly_variant = '{prefix}.vcf.ugly',
+        ugly_variant = 'data/auxiliary/discovery/{prefix}.vcf.ugly',
         reference = "data/input/nCoV-2019.reference.fasta"
     output:
-        variant = '{prefix}.vcf',
+        variant = 'data/auxiliary/discovery/{prefix}.vcf',
     conda:
         '../envs/vt.yaml',
     log:
