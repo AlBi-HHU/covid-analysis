@@ -49,7 +49,7 @@ feebayesMaxRefCovRatio: 0.8
 
 # Pangenome section
 generatePangenome: True
-pangenomeCorrectionK: 20
+pangenomeCorrectionK: 15
 
 # Pangenome variant calling
 pangenomeVariantCalling: True
