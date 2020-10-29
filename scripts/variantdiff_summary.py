@@ -86,6 +86,13 @@ with open(snakemake.output[0],'w') as outfile:
 
                 for compPosition in comparisonData:
                     if pancPosition == compPosition: #already processed
+
+                        compRef = comparisonData[compPosition][0]  # Should be equal, add sanity check?
+                        compAlt = comparisonData[compPosition][1]
+
+                        if compAlt == 'N':
+                            continue
+                            
                         break
                 else:
                     '''
