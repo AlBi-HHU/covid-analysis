@@ -27,12 +27,12 @@ with open(snakemake.output[0],'w') as outfile:
             pancovData = {x.split()[0] : (x.split()[1] , x.split()[2]) for x in pcf.read().splitlines()}
 
             for compPosition in comparisonData:
-                totalDetectedB += 1
                 compRef = comparisonData[compPosition][0]  # Should be equal, add sanity check?
                 compAlt = comparisonData[compPosition][1]
 
                 if compAlt == 'N':
                     continue
+                totalDetectedB += 1
 
                 for pancPosition in pancovData:
 
@@ -44,8 +44,6 @@ with open(snakemake.output[0],'w') as outfile:
 
                     if pancAlt == 'N': #N doesn't count
                         continue
-
-                    totalDetectedA += 1
 
                     if compPosition == pancPosition:
 
@@ -83,6 +81,7 @@ with open(snakemake.output[0],'w') as outfile:
 
                 if pancAlt == 'N':
                     continue
+                totalDetectedA += 1
 
                 for compPosition in comparisonData:
                     if pancPosition == compPosition: #already processed
