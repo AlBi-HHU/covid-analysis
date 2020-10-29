@@ -113,4 +113,4 @@ with open(snakemake.output[0],'w') as outfile:
     outfile.write(
             'Total Vars > Pancov: {} Compared Method: {}\n'.format(totalDetectedA,totalDetectedB))
     outfile.write(
-            'New Variants: {} Changed Variants: {} Missed Variants: {} Identical Variants: {}'.format(totalNew, totalChanged, totalMissed))
+            'New Variants: {} Changed Variants: {} Missed Variants: {} Identical Variants: {}'.format(totalNew, totalChanged, totalMissed, identicalVars))
