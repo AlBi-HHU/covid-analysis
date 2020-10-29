@@ -8,6 +8,8 @@ with open(snakemake.output[0],'w') as outfile:
     totalChanged = 0
     totalMissed = 0
     totalNew = 0
+    totalDetectedA = 0
+    totalDetectedB = 0
 
     outfile.write('{}\t{}\t{}\t{}\n'.format('POS','PANCOV','COMPARISON','PILEUP'))
 
@@ -25,7 +27,7 @@ with open(snakemake.output[0],'w') as outfile:
             pancovData = {x.split()[0] : (x.split()[1] , x.split()[2]) for x in pcf.read().splitlines()}
 
             for compPosition in comparisonData:
-
+                totalDetectedB += 1
                 compRef = comparisonData[compPosition][0]  # Should be equal, add sanity check?
                 compAlt = comparisonData[compPosition][1]
 
@@ -34,6 +36,7 @@ with open(snakemake.output[0],'w') as outfile:
 
                 for pancPosition in pancovData:
 
+
                     pancAlt = pancovData[pancPosition][1]
 
                     pancRef = pancovData[pancPosition][0]
@@ -41,6 +44,8 @@ with open(snakemake.output[0],'w') as outfile:
 
                     if pancAlt == 'N': #N doesn't count
                         continue
+
+                    totalDetectedA += 1
 
                     if compPosition == pancPosition:
 
@@ -105,6 +110,7 @@ with open(snakemake.output[0],'w') as outfile:
                             pileup[int(pancPosition)] if int(pancPosition) in pileup else 'no pileup available for this position'
                         )
                     )
-
+    outfile.write(
+            'Total Vars > Pancov: {} Compared Method: {}\n'.format(totalDetectedA,totalDetectedB))
     outfile.write(
             'New Variants: {} Changed Variants: {} Missed Variants: {}'.format(totalNew, totalChanged, totalMissed))
