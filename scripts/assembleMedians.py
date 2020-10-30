@@ -21,4 +21,4 @@ for p in meanPileups:
 	for k in meanPileups[p]:
 	        meanPileups[p][k] = statistics.median(meanPileups[p][k])
 
-json.dump(meanPileups,snakemake.output[0])
+json.dump(meanPileups,open(snakemake.output[0],'w'))
