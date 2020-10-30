@@ -142,7 +142,7 @@ with open(snakemake.output[0],'w') as outfile:
                     outfile.write(
                         '{}\t{}\t{}\t{}\t{}\n'.format(
                             pancPosition,
-                            '{} -> {} [{}]'.format(pancRef, pancAlt, ),
+                            '{} -> {}'.format(pancRef, pancAlt ),
                             'Missing',
                             pileup[int(pancPosition)] if int(pancPosition) in pileup else 'no pileup available for this position',
                             meanPileups[pancPosition]
