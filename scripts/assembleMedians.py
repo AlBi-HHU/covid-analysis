@@ -5,7 +5,7 @@ import json
 # check cohort frequencies on
 meanPileups = {}
 
-for f in snakemake.input['pileupOnly']:
+for f in snakemake.input[0]:
     print('processing pileups: {}'.format(f))
     fp = parsePileupStrandAware(f)
     for p in fp:
