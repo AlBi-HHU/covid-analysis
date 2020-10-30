@@ -72,7 +72,7 @@ def getAllComparisonFiles(wildcards):
 rule comparePancovToX:
     input:
         iteratorList = getAllComparisonFiles,
-        pileupOnly = fetchAllPileups
+        pileupOnly = fetchAllPileups()
     output:
         'data/output/evaluation/comparisonFastaBased/{method}.eval'
     script:
