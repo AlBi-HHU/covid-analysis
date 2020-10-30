@@ -3,6 +3,26 @@ import statistics
 
 iterator = iter(snakemake.input['iteratorList'])
 
+# check cohort frequencies on
+meanPileups = {}
+
+for f in snakemake.input['pileupOnly']:
+    print('processing pileups: {}'.format(f))
+    fp = parsePileupStrandAware(f)
+    for p in fp:
+        if not p in meanPileups:
+            meanPileups[p] = {}
+        for k, v in fp[p][0].items():
+            if not k in meanPileups[p]:
+                meanPileups[p][k] = []
+            meanPileups[p][k].append(v)
+
+print('calculating median values ...')
+for p in meanPileups:
+    for k in meanPileups[p]:
+        meanPileups[p][k] = statistics.median(meanPileups[p][k])
+
+
 
 with open(snakemake.output[0],'w') as outfile:
 
@@ -12,8 +32,6 @@ with open(snakemake.output[0],'w') as outfile:
     totalDetectedA = 0
     totalDetectedB = 0
     identicalVars = 0
-
-    meanPileups = {}
 
     outfile.write('{}\t{}\t{}\t{}\n'.format('POS','PANCOV','COMPARISON','PILEUP'))
 
@@ -113,31 +131,7 @@ with open(snakemake.output[0],'w') as outfile:
 
                     totalNew += 1
 
-                    #check cohort frequencies on demand
-                    if not pancPosition in meanPileups:
-                        print('fetching median allele frequencies for {} : {}'.format(pancPosition,pancAlt))
-                        median = {
-                        }
 
-                        #Samples that cover the position
-                        coveringSamples = 0
-
-                        for f in snakemake.input['pileupOnly']:
-
-                            fp = parsePileupStrandAware(f)
-
-                            if int(pancPosition) in fp:
-                                coveringSamples += 1
-                                for k,v in fp[int(pancPosition)][0].items():
-                                    if not k in median:
-                                        median[k] = []
-                                    median[k].append(v)
-
-                        median = {
-                            k : statistics.median(v) for k,v in median.items()
-                        }
-
-                        meanPileups[pancPosition] = median
 
                     outfile.write(
                         '{}\t{}\t{}\t{}\t{}\n'.format(
@@ -145,7 +139,7 @@ with open(snakemake.output[0],'w') as outfile:
                             '{} -> {}'.format(pancRef, pancAlt ),
                             'Missing',
                             pileup[int(pancPosition)] if int(pancPosition) in pileup else 'no pileup available for this position',
-                            meanPileups[pancPosition]
+                            meanPileups[int(pancPosition)]
                         )
                     )
     outfile.write(
