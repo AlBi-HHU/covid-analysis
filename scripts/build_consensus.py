@@ -1,5 +1,6 @@
 
 from collections import Counter,defaultdict
+from scipy.stats import binom
 
 import json
 
@@ -25,7 +26,7 @@ degenerate = {
     frozenset(('A', 'C', 'T', 'G')): 'N'
 }
 
-def main(ref, mapping, th_cov, th_het, th_sbiais, consensus,variant_index):
+def main(ref, mapping, th_cov, th_het, th_sbiais,th_sb_cov,th_sb_pval, consensus,variant_index):
 
     vi = {}
 
@@ -48,10 +49,10 @@ def main(ref, mapping, th_cov, th_het, th_sbiais, consensus,variant_index):
 
         ref_nuc = reference[col.pos]
         counts = {
-            'A': strand_biais_filter(counts_in_del, 'A', th_sbiais),
-            'C': strand_biais_filter(counts_in_del, 'C', th_sbiais),
-            'T': strand_biais_filter(counts_in_del, 'T', th_sbiais),
-            'G': strand_biais_filter(counts_in_del, 'G', th_sbiais),
+            'A': strand_biais_filter(counts_in_del, 'A', th_sbiais,th_sb_cov,th_sb_pval),
+            'C': strand_biais_filter(counts_in_del, 'C', th_sbiais,th_sb_cov,th_sb_pval),
+            'T': strand_biais_filter(counts_in_del, 'T', th_sbiais,th_sb_cov,th_sb_pval),
+            'G': strand_biais_filter(counts_in_del, 'G', th_sbiais,th_sb_cov,th_sb_pval),
         }
 
         all_count = sum(counts.values())
@@ -79,22 +80,30 @@ def main(ref, mapping, th_cov, th_het, th_sbiais, consensus,variant_index):
     json.dump(vi,open(variant_index,'w'))
 
 
-def strand_biais_filter(data, key, th_sbiais):
+def strand_biais_filter(data, key, th_sbiais,th_sb_cov,th_sb_pval):
     total = data[False][key] + data[True][key];
     if total == 0:
         return 0
 
-    ratio = min(data[False][key] / total, data[True][key])
-    if ratio > th_sbiais:
-        return total
+    #Decide whether to apply p-val or ratio filter
+    if total < th_sb_cov: #use p-Val
+        pval = binom.pmf(data[True][key],total,0.5)
+        if pval > th_sb_pval:
+            return total
+        else:
+            return 0
     else:
-        return 0
+        ratio = min(data[False][key] / total, data[True][key] / total)
+        if ratio > th_sbiais:
+            return total
+        else:
+            return 0
     
 
 if "snakemake" in locals():
-    main(snakemake.input["reference"], snakemake.input["mapping"], int(snakemake.params["th_cov"]), float(snakemake.params["th_het"]), float(snakemake.params["th_sbiais"]), snakemake.output["consensus"],snakemake.output['variant_index'])
+    main(snakemake.input["reference"], snakemake.input["mapping"], int(snakemake.params["th_cov"]), float(snakemake.params["th_het"]), float(snakemake.params["th_sbiais"]),float(snakemake.params["th_sb_cov"]),float(snakemake.params["th_sb_pval"]), snakemake.output["consensus"],snakemake.output['variant_index'])
 else:
     import sys
 
-    main(sys.argv[1], sys.argv[2], int(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), sys.argv[6], sys.argv[7])
+    main(sys.argv[1], sys.argv[2], int(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), int(sys.argv[6]), float(sys.argv[7]), sys.argv[8], sys.argv[9])
 

@@ -61,6 +61,8 @@ consensus: True
 consensusMinCov: 20
 consensusHet: 0.8
 consensusStrandBiais: 0.1
+consensusPValCoverage: 40 #Variants with less coverage than this value are evaluated for strand bias using a p-val instead of a ratio
+consensusPValCutoff: 0.005
 
 # VariantAnotation
 VarAnnotSnpEff: True
