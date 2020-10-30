@@ -68,11 +68,17 @@ def getAllComparisonFiles(wildcards):
                 ]
     return allFiles
 
+rule assembleMedians:
+    input:
+        fetchAllPileups()
+    output:
+        'data/auxiliary/pileupAnalysis/medians.json'
+    script:
+        '../scripts/assembleMedians.py'
 
 rule comparePancovToX:
     input:
-        iteratorList = getAllComparisonFiles,
-        pileupOnly = fetchAllPileups()
+        iteratorList = getAllComparisonFiles
     output:
         'data/output/evaluation/comparisonFastaBased/{method}.eval'
     script:

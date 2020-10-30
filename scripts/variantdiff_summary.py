@@ -1,27 +1,6 @@
 from shared import *
-import statistics
 
 iterator = iter(snakemake.input['iteratorList'])
-
-# check cohort frequencies on
-meanPileups = {}
-
-for f in snakemake.input['pileupOnly']:
-    print('processing pileups: {}'.format(f))
-    fp = parsePileupStrandAware(f)
-    for p in fp:
-        if not p in meanPileups:
-            meanPileups[p] = {}
-        for k, v in fp[p][0].items():
-            if not k in meanPileups[p]:
-                meanPileups[p][k] = []
-            meanPileups[p][k].append(v)
-
-print('calculating median values ...')
-for p in meanPileups:
-    for k in meanPileups[p]:
-        meanPileups[p][k] = statistics.median(meanPileups[p][k])
-
 
 
 with open(snakemake.output[0],'w') as outfile:
