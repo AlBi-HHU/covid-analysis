@@ -78,7 +78,8 @@ rule assembleMedians:
 
 rule comparePancovToX:
     input:
-        iteratorList = getAllComparisonFiles
+        iteratorList = getAllComparisonFiles,
+        medians = 'data/auxiliary/pileupAnalysis/medians.json'
     output:
         'data/output/evaluation/comparisonFastaBased/{method}.eval'
     script:

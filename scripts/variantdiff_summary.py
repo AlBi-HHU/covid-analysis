@@ -1,7 +1,9 @@
 from shared import *
+import json
 
 iterator = iter(snakemake.input['iteratorList'])
 
+medians = json.load(snakemake.input['medians'])
 
 with open(snakemake.output[0],'w') as outfile:
 
@@ -110,15 +112,19 @@ with open(snakemake.output[0],'w') as outfile:
 
                     totalNew += 1
 
-
+                    #Process pileup string
+                    pileupString = '?'
+                    if int(pancPosition) in pileup:
+                        pileupString = ''
+                        for k,v in pileup[int(pancPosition)]:
+                            pileupString += ' {}:{} ({}) '.format(k,v,medians[int(pancPosition)][k])
 
                     outfile.write(
-                        '{}\t{}\t{}\t{}\t{}\n'.format(
+                        '{}\t{}\t{}\t{}\n'.format(
                             pancPosition,
                             '{} -> {}'.format(pancRef, pancAlt ),
                             'Missing',
-                            pileup[int(pancPosition)] if int(pancPosition) in pileup else 'no pileup available for this position',
-                            meanPileups[int(pancPosition)]
+                            pileupString                 
                         )
                     )
     outfile.write(
