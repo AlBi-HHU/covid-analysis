@@ -3,7 +3,7 @@ import json
 
 iterator = iter(snakemake.input['iteratorList'])
 
-medians = json.load(snakemake.input['medians'])
+medians = json.load(open(snakemake.input['medians'],'r'))
 
 with open(snakemake.output[0],'w') as outfile:
 
@@ -124,7 +124,7 @@ with open(snakemake.output[0],'w') as outfile:
                             pancPosition,
                             '{} -> {}'.format(pancRef, pancAlt ),
                             'Missing',
-                            pileupString                 
+                            pileupString
                         )
                     )
     outfile.write(
