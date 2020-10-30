@@ -116,7 +116,7 @@ with open(snakemake.output[0],'w') as outfile:
                     pileupString = '?'
                     if int(pancPosition) in pileup:
                         pileupString = ''
-                        for k,v in pileup[int(pancPosition)]:
+                        for k,v in pileup[int(pancPosition)].items():
                             pileupString += ' {}:{} ({}) '.format(k,v,medians[int(pancPosition)][k])
 
                     outfile.write(
