@@ -23,6 +23,7 @@ else:
     for run in runs:
         barcodes[run] = glob_wildcards('data/input/'+run+'/barcode{barcode}.medaka.'+vcf_suffix).barcode
 
+NWids = glob_wildcards('data/input/gisaid/Germany_NW-HHU-{id}.fasta').id
 
 
 ### REMOVE LATER
@@ -137,6 +138,9 @@ def getInput(wildcards):
         #inputList += ['data/auxiliary/pangenome_vc/contrib.txt']
         inputList += ['data/output/evaluation/comparisonFastaBased/nanopolish.eval']
         inputList += ['data/output/evaluation/comparisonFastaBased/medaka.eval']
+
+        for id in NWids:
+            inputList += ['data/auxiliary/evaluation/consensusVariantExtraction/gisaid/'+id+'.info']
 
     return inputList
 
