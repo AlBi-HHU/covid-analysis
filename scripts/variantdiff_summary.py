@@ -128,14 +128,14 @@ with open(snakemake.output[0],'w') as outfile:
 
                         for f in snakemake.input['pileupOnly']:
 
-                            pileup = parsePileupStrandAware(f)[0]
+                            pileup = parsePileupStrandAware(f)
 
                             if pancPosition in pileup:
                                 coveringSamples += 1
-                                if pancAlt.lower() in pileup:
-                                    median[pancAlt.lower()] += pileup[pancAlt.lower()]
-                                if pancAlt.upper() in pileup:
-                                    median[pancAlt.upper()] += pileup[pancAlt.upper()]
+                                if pancAlt.lower() in pileup[pancPosition][0]:
+                                    median[pancAlt.lower()] += pileup[pancPosition][0][pancAlt.lower()]
+                                if pancAlt.upper() in pileup[pancPosition][0]:
+                                    median[pancAlt.upper()] += pileup[pancPosition][0][pancAlt.upper()]
 
                         median = {
                             k : statistics.median(v) for k,v in median.items()
