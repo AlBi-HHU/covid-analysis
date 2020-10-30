@@ -11,10 +11,11 @@ for f in snakemake.input:
     for p in fp:
         if not p in meanPileups:
             meanPileups[p] = {}
+	    total = sum(fp[p][0].values())
         for k, v in fp[p][0].items():
             if not k in meanPileups[p]:
                 meanPileups[p][k] = []
-            meanPileups[p][k].append(v)
+            meanPileups[p][k].append(v/total)
 
 for p in meanPileups:
 	print('calculating median values ... (pos {})'.format(p))
