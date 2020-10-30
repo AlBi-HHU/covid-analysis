@@ -23,7 +23,7 @@ else:
     for run in runs:
         barcodes[run] = glob_wildcards('data/input/'+run+'/barcode{barcode}.medaka.'+vcf_suffix).barcode
 
-NWids = glob_wildcards('data/input/gisaid/Germany_NW-HHU-{id}.fasta').id
+NWids = glob_wildcards('data/input/gisaidseqs/Germany_NW-HHU-{id}.fasta').id
 
 
 ### REMOVE LATER
