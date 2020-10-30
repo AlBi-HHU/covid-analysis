@@ -124,11 +124,11 @@ with open(snakemake.output[0],'w') as outfile:
 
                         for f in snakemake.input['pileupOnly']:
 
-                            pileup = parsePileupStrandAware(f)
+                            fp = parsePileupStrandAware(f)
 
-                            if int(pancPosition) in pileup:
+                            if int(pancPosition) in fp:
                                 coveringSamples += 1
-                                for k,v in pileup[int(pancPosition)][0]:
+                                for k,v in fp[int(pancPosition)][0].items():
                                     if not k in median:
                                         median[k] = []
                                     median[k].append(v)
