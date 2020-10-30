@@ -1,6 +1,7 @@
 from shared import *
+import statistics
 
-iterator = iter(snakemake.input)
+iterator = iter(snakemake.input['iteratorList'])
 
 
 with open(snakemake.output[0],'w') as outfile:
@@ -11,6 +12,8 @@ with open(snakemake.output[0],'w') as outfile:
     totalDetectedA = 0
     totalDetectedB = 0
     identicalVars = 0
+
+    meanPileups = {}
 
     outfile.write('{}\t{}\t{}\t{}\n'.format('POS','PANCOV','COMPARISON','PILEUP'))
 
@@ -109,10 +112,41 @@ with open(snakemake.output[0],'w') as outfile:
                     '''
 
                     totalNew += 1
+
+                    #check cohort frequencies on demand
+                    if not pancPosition in meanPileups:
+                        meanPileups[pancPosition] = {}
+                    if not pancAlt in meanPileups[pancPosition]:
+                        print('fetching median allele frequencies for {} : {}'.format(pancPosition,pancAlt))
+                        median = {
+                            pancAlt.lower() : [],
+                            pancAlt.upper() : []
+                        }
+
+                        #Samples that cover the position
+                        coveringSamples = 0
+
+                        for f in snakemake.input['pileupOnly']:
+
+                            pileup = parsePileupStrandAware(f)[0]
+
+                            if pancPosition in pileup:
+                                coveringSamples += 1
+                                if pancAlt.lower() in pileup:
+                                    median[pancAlt.lower()] += pileup[pancAlt.lower()]
+                                if pancAlt.upper() in pileup:
+                                    median[pancAlt.upper()] += pileup[pancAlt.upper()]
+
+                        median = {
+                            k : statistics.median(v) for k,v in median.items()
+                        }
+
+                        meanPileups[pancPosition][pancAlt] = median
+
                     outfile.write(
                         '{}\t{}\t{}\t{}\n'.format(
                             pancPosition,
-                            '{}->{}'.format(pancRef, pancAlt),
+                            '{} -> {} [{}]'.format(pancRef, pancAlt, meanPileups[pancPosition][pancAlt]),
                             'Missing',
                             pileup[int(pancPosition)] if int(pancPosition) in pileup else 'no pileup available for this position'
                         )

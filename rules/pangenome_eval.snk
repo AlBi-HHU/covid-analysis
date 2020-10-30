@@ -70,7 +70,8 @@ def getAllComparisonFiles(wildcards):
 
 rule comparePancovToX:
     input:
-        getAllComparisonFiles
+        iteratorList = getAllComparisonFiles,
+        pileupOnly = list(filter(lambda x: '.pileupanalysis.txt' in x,getAllComparisonFiles))
     output:
         'data/output/evaluation/comparisonFastaBased/{method}.eval'
     script:
