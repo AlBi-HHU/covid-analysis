@@ -71,7 +71,7 @@ def getAllComparisonFiles(wildcards):
     for run in runs:
         for barcode in barcodes[run]:
             #check for missing gisaid files
-            if method == 'gisaid':
+            if wildcards.method == 'gisaid':
                 if run in gisaidMapping and barcode in gisaidMapping[run]:
                     pass
                 else:
