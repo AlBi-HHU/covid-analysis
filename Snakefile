@@ -28,6 +28,8 @@ NWids = glob_wildcards('data/input/gisaidseqs/Germany_NW-HHU-{id}.fasta').id
 
 ### REMOVE LATER
 gisaidMapping = {}
+gisaidMappingInverse = {}
+
 with open('data/input/mappingRunsGisaid.csv', 'r') as infile:
     lines = infile.read().splitlines()
     for l in lines:
@@ -35,11 +37,14 @@ with open('data/input/mappingRunsGisaid.csv', 'r') as infile:
         run = data[0]
         barcode = int(data[1])
         file = ''
+        gisaidID = '-1'
         if len(data) != 2: #entry in the table
             file = data[2]
+            gisaidID = file.split('_')[1].split('-')[-1]
         if not run in gisaidMapping:
             gisaidMapping[run] = {}
         gisaidMapping[run][barcode] = file
+        gisaidMappingInverse[gisaidID] = run+'_'+barcode
 
 def getGisaidFile(run,barcode):
     if run in gisaidMapping:
@@ -138,6 +143,7 @@ def getInput(wildcards):
         #inputList += ['data/auxiliary/pangenome_vc/contrib.txt']
         inputList += ['data/output/evaluation/comparisonFastaBased/nanopolish.eval']
         inputList += ['data/output/evaluation/comparisonFastaBased/medaka.eval']
+        inputList += ['data/output/evaluation/comparisonFastaBased/manualCuration.eval']
 
         for id in NWids:
             inputList += ['data/auxiliary/evaluation/consensusVariantExtraction/gisaid/'+id+'.info']

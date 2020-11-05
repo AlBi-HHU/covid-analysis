@@ -37,12 +37,13 @@ rule combineWithReference_nanomeda:
     shell:
         'cat {input.reference} {input.consensus} > {output.combined}'
 
+
 rule combineWithReference_gisaid:
     input:
         reference = "data/input/nCoV-2019.reference.fasta",
         consensus = "data/input/gisaidseqs/Germany_NW-HHU-{id}.fasta"
     output:
-        combined = "data/auxiliary/evaluation/consensusVariantExtraction/gisaid/{id}.cmb"
+        combined = lambda wildcards : "data/auxiliary/evaluation/consensusVariantExtraction/gisaid/"+gisaidMappingInverse(wildcards.id)+".cmb"
     shell:
         'cat {input.reference} {input.consensus} > {output.combined}'
 
@@ -69,12 +70,18 @@ def getAllComparisonFiles(wildcards):
     allFiles = []
     for run in runs:
         for barcode in barcodes[run]:
-            for method in methods:
-                allFiles += [
-                    "data/auxiliary/evaluation/consensusVariantExtraction/pancov/"+run+"_"+barcode+".info",
-                    "data/auxiliary/evaluation/consensusVariantExtraction/{method}/"+run+"_"+barcode+".info",
-                    'data/auxiliary/pileupAnalysis/medaka/' + run + '/' + barcode + '.pileupanalysis.txt'
-                ]
+            #check for missing gisaid files
+            if method == 'gisaid':
+                if run in gisaidMapping and barcode in gisaidMapping[run]:
+                    pass
+                else:
+                    continue
+
+            allFiles += [
+                "data/auxiliary/evaluation/consensusVariantExtraction/pancov/"+run+"_"+barcode+".info",
+                "data/auxiliary/evaluation/consensusVariantExtraction/{method}/"+run+"_"+barcode+".info",
+                'data/auxiliary/pileupAnalysis/medaka/' + run + '/' + barcode + '.pileupanalysis.txt'
+            ]
     return allFiles
 
 rule assembleMedians:
