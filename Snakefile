@@ -53,7 +53,7 @@ def getGisaidFile(run,barcode):
 
 for run in runs:
     for barcode in barcodes[run]:
-        gisaidpath = getGisaidFile(run,barcode)
+        gisaidpath = "Germany_NW-HHU-"  + getGisaidFile(run,barcode) + ".fasta"
 
         if gisaidpath:
             print(gisaidpath)
