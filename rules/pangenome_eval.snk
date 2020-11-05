@@ -75,6 +75,7 @@ def getAllComparisonFiles(wildcards):
                 if run in gisaidMapping and int(barcode) in gisaidMapping[run]:
                     pass
                 else:
+                    print('skipping run {} barcode {} for gisaid comparison as we have no seq yet ...')
                     continue
 
             allFiles += [
