@@ -41,7 +41,7 @@ with open('data/input/mappingRunsGisaid.csv', 'r') as infile:
             gisaidID = file.split('_')[1].split('-')[-1]
             if not run in gisaidMapping:
                 gisaidMapping[run] = {}
-            gisaidMapping[run][barcode] = file
+            gisaidMapping[run][barcode] = gisaidID
             gisaidMappingInverse[gisaidID] = run+'_'+barcode
 
 def getGisaidFile(run,barcode):
