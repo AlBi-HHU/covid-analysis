@@ -53,7 +53,7 @@ def getGisaidFile(run,barcode):
 
 for run in runs:
     for barcode in barcodes[run]:
-        gisaidpath = getGisaidFile(run,int(barcode))
+        gisaidpath = getGisaidFile(run,barcode)
 
         if gisaidpath:
             print(gisaidpath)
@@ -61,6 +61,7 @@ for run in runs:
                 continue
             else:
                 print('No sequence for gisaid id: {} (run: {} bc: {})'.format(gisaidpath,run,barcode))
+                del gisaidMapping[run][barcode]
         else:
             print('No mapping for run: {} bc: {}'.format(run,barcode))
 
