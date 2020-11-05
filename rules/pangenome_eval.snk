@@ -29,6 +29,7 @@ rule combineWithReference_pancov:
         'cat {input.reference} {input.consensus} > {output.combined}'
 
 rule combineWithReference_nanomeda:
+    priority: 1
     input:
         reference = "data/input/nCoV-2019.reference.fasta",
         consensus = "data/input/{run}/barcode{barcode}.{method}.consensus.fasta"
@@ -39,6 +40,7 @@ rule combineWithReference_nanomeda:
 
 
 rule combineWithReference_gisaid:
+    priority: 2
     input:
         reference = "data/input/nCoV-2019.reference.fasta",
         consensus = lambda wildcards : "data/input/gisaidseqs/Germany_NW-HHU-"+getGisaidFile(wildcards.run,wildcards.barcode)+".fasta"
@@ -75,7 +77,7 @@ def getAllComparisonFiles(wildcards):
                 if run in gisaidMapping and int(barcode) in gisaidMapping[run]:
                     pass
                 else:
-                    print('skipping run {} barcode {} for gisaid comparison as we have no seq yet ...')
+                    print('skipping run {} barcode {} for gisaid comparison as we have no seq yet ...'.format(run,barcode))
                     continue
 
             allFiles += [
