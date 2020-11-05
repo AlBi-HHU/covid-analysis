@@ -1,5 +1,6 @@
 import sys
 import json
+import os
 
 configfile: "config.yaml"
 
@@ -53,16 +54,16 @@ def getGisaidFile(run,barcode):
 for run in runs:
     for barcode in barcodes[run]:
         gisaidpath = getGisaidFile(run,int(barcode))
-        print(gisaidpath)
-        '''
+
         if gisaidpath:
+            print(gisaidpath)
             if os.path.isfile(os.path.join('data/input/gisaidseqs',gisaidpath)):
                 continue
             else:
                 print('No sequence for gisaid id: {} (run: {} bc: {})'.format(gisaidpath,run,barcode))
         else:
             print('No mapping for run: {} bc: {}'.format(run,barcode))
-        '''
+
 ### REMOVE LATER END
 
 def getInput(wildcards):
