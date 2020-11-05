@@ -38,7 +38,7 @@ with open('data/input/mappingRunsGisaid.csv', 'r') as infile:
         barcode = data[1]
         if len(data) != 2: #entry in the table
             file = data[2]
-            gisaidID = file.split('_')[1].split('-')[-1]
+            gisaidID = file.split('-')[-1]
             if not run in gisaidMapping:
                 gisaidMapping[run] = {}
             gisaidMapping[run][barcode] = gisaidID
