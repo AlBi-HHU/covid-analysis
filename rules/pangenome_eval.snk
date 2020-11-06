@@ -129,6 +129,15 @@ rule hackfix_eval_fb:
     shell:
         "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
 
+rule copyPancovResults:
+    input:
+        "data/auxiliary/pangenome_vc/medaka/{run}/{barcode}/filter.vcf",
+    output:
+        "data/auxiliary/evaluation/vcfs/pancov_{run}_{barcode}.sorted.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt sort {input} -o {output}'
 
 rule sortVCF_eval:
     input:
@@ -177,7 +186,7 @@ def getAllVCFsForContributions(wildcards):
         for barcode in barcodes[run]:
             #Skip distinguishing between medaka and nanopolish as separate samples here
             allFiles += [
-                "data/auxiliary/pangenome_vc/medaka/"+run+"/"+barcode+"/filter.vcf", #pancov
+                "data/auxiliary/evaluation/vcfs/pancov_"+run+"_"+barcode+".unique.vcf", #freebayes
                 "data/auxiliary/evaluation/vcfs/freebayes_"+run+"_"+barcode+".unique.vcf", #freebayes
                 "data/auxiliary/evaluation/vcfs/medaka_"+run+"_"+barcode+".unique.vcf", #medaka
                 "data/auxiliary/evaluation/vcfs/nanopolish_"+run+"_"+barcode+".unique.vcf", #nanopolish
