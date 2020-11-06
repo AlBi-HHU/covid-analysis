@@ -118,25 +118,43 @@ if __name__ == '__main__':
     parser.add_argument("msafile") 
     parser.add_argument("refid") 
     parser.add_argument("vcfout") 
+    parser.add_argument("--blacklist") 
     args = parser.parse_args()
     ref = {}
     refseq = ""
     seqs = {}
+
+    blacklisted_ids = set()
+    if args.blacklist:
+        with open(args.blacklist) as f:
+            for line in f:
+                if line.startswith("#"):
+                    continue
+                blacklisted_ids.add(line.strip());
+
+    verbose = False
+
     # Read Fasta Data
     for record in SeqIO.parse(args.msafile, "fasta"):
         if args.refid in record.id:
             ref[record.id] = str(record.seq).upper()
             refseq = str(record.seq).upper()
+        elif record.id in blacklisted_ids:
+            if verbose:
+                print("filtered " + record.id)
+            continue
         else:
             seqs[record.id] = str(record.seq).upper()
 
-    verbose = False
+
 
     tsnps = defaultdict(int)
     tins = defaultdict(int)
     tdels = defaultdict(int)
+    number = 0
     for idx, seq in seqs.items():
-        #print(idx)
+        number += 1
+        print(number/len(seqs),end="\r")
         snps, ins, dels = compare_sequences(seq, refseq,idx)
         #print("\t".join([idx, str(len(ins)), str(len(dels))]))
         if verbose:
@@ -145,7 +163,7 @@ if __name__ == '__main__':
             print(dels)
             print("---")
         for snp in snps:
-            tsnps[snp] +=1
+            tsnps[snp] +=1 
         for in1 in ins:
             tins[in1] +=1
         for del1 in dels:
