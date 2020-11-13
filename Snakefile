@@ -87,12 +87,14 @@ def getInput(wildcards):
         #if config['generateKmerProfiles']:
         #    inputList += expand('data/output/kmerHistograms/{method}/'+run+'/{barcode}_{k}.svg',method=methods,barcode=barcodes[run],k=ks)
 
+        '''
         if config['performCorrections']:
             inputList += expand('data/output/corrections/{basecalling}/'+run+'/{k}/{barcode}.svg',
                                 basecalling=methods,
                                 barcode=barcodes[run],
                                 k=ks
                                 )
+        '''
 
         if config['generatePangenome']:
            inputList += ["data/auxiliary/pangenome/pangenome.gfa"]
