@@ -93,7 +93,7 @@ for position in calls:
                 pancovAddExclusiveShare['medaka'] += 1
             elif mask == (1,0,0,0):
                 pancovAddExclusiveShare['freebayes'] += 1
-            elif mask == (1, 0, 0,0):
+            elif mask == (0, 0, 0,1):
                 pancovAddExclusiveShare['gisaid'] += 1
             else:
                 for method in methods:
