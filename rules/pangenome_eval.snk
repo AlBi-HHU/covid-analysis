@@ -236,7 +236,7 @@ def getAllVCFsForContributions(wildcards):
                 "data/auxiliary/evaluation/vcfs/medaka_"+run+"_"+barcode+".unique.vcf", #medaka
                 "data/auxiliary/evaluation/vcfs/nanopolish_"+run+"_"+barcode+".unique.vcf", #nanopolish
             ]
-    allFiles += "data/auxiliary/evaluation/vcfs/th_vars_all.unique.vcf"
+    allFiles += ["data/auxiliary/evaluation/vcfs/th_vars_all.unique.vcf"]
     return allFiles
 
 rule getContributions:
