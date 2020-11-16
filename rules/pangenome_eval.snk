@@ -186,7 +186,7 @@ rule sortVCF_eval_gisaid:
     input:
         "data/input/th_vars_all.vcf",
     output:
-        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.sorted.vcf"
+        "data/auxiliary/evaluation/vcfs/th_vars_all.sorted.vcf"
     conda:
         '../envs/vt.yaml'
     shell:
