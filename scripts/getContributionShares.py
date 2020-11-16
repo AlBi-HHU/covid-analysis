@@ -4,6 +4,8 @@ import vcfpy
 import pandas
 import upsetplot
 
+methods = ['medaka','nanopolish','freebayes','gisaid']
+
 #DICT Structure [POSITION] -> [VARIANT] -> [LIST OF METHODS THAT CALLED]
 calls = {}
 
@@ -14,21 +16,19 @@ iterator = iter(snakemake.input)
 totalVars = {} #total number of vars called by each method
 totalUnique = {} #total number of vars called by each method independent of sample
 
-pancovAddShare = {} #vars that each method contributes to our method
-pancovAddShare['medaka'] = 0
-pancovAddShare['nanopolish'] = 0
-pancovAddShare['freebayes'] = 0
-pancovAddExclusiveShare = {}
+pancovAddShare = {
+    k : 0 for k in methods
+} #vars that each method contributes to our method
 
-#init here for convenience
-pancovAddExclusiveShare['medaka'] = 0
-pancovAddExclusiveShare['nanopolish'] = 0
-pancovAddExclusiveShare['freebayes'] = 0
+pancovAddExclusiveShare = {
+    k: 0 for k in methods
+}
 
-pancovDiscardShare = {}
-pancovDiscardShare['medaka'] = 0
-pancovDiscardShare['nanopolish'] = 0
-pancovDiscardShare['freebayes'] = 0
+
+pancovDiscardShare = {
+    k: 0 for k in methods
+}
+
 
 def processMethod(method,file):
     vcf_reader = vcfpy.Reader(open(file,'r'))
@@ -51,7 +51,7 @@ def processMethod(method,file):
 
 print('Reading files ...')
 
-for pc_path in iterator:
+for pc_path in iterator[:-1]:
     fb_path = next(iterator)
     md_path = next(iterator)
     np_path = next(iterator)
@@ -59,6 +59,8 @@ for pc_path in iterator:
     processMethod('freebayes',fb_path)
     processMethod('medaka',md_path)
     processMethod('nanopolish',np_path)
+
+processMethod('gisaid',next(iterator))
 
 print('Analyzing files ...')
 
@@ -70,33 +72,28 @@ for position in calls:
         unionSize += 1
         df_data.append(('pancov' in calls[position][variant], 'freebayes' in calls[position][variant],
                         'medaka' in calls[position][variant], 'nanopolish' in calls[position][variant],
+                        'gisaid' in calls[position][variant],
                         position, variant))
         
         if 'pancov' in calls[position][variant]: #we use this variant
             mask = (
                 1 if 'freebayes' in calls[position][variant] else 0,
                 1 if 'medaka' in calls[position][variant] else 0,
-                1 if 'nanopolish' in calls[position][variant] else 0
+                1 if 'nanopolish' in calls[position][variant] else 0,
+                1 if 'gisaid' in calls[position][variant] else 0
             )
-            if mask == (0,0,1):
+            if mask == (0,0,1,0):
                 pancovAddExclusiveShare['nanopolish'] += 1
-            elif mask == (0,1,0):
+            elif mask == (0,1,0,0):
                 pancovAddExclusiveShare['medaka'] += 1
-            elif mask == (1,0,0):
+            elif mask == (1,0,0,0):
                 pancovAddExclusiveShare['freebayes'] += 1
-            elif mask == (1, 1, 0):
-                pancovAddShare['medaka'] += 1
-                pancovAddShare['freebayes'] += 1
-            elif mask == (0, 1, 1):
-                pancovAddShare['medaka'] += 1
-                pancovAddShare['nanopolish'] += 1
-            elif mask == (1, 0, 1):
-                pancovAddShare['nanopolish'] += 1
-                pancovAddShare['freebayes'] += 1
-            elif mask == (1,1,1):
-                pancovAddShare['nanopolish'] += 1
-                pancovAddShare['freebayes'] += 1
-                pancovAddShare['medaka'] += 1
+            elif mask == (1, 0, 0,0):
+                pancovAddExclusiveShare['gisaid'] += 1
+            else:
+                for method in methods:
+                    if method in calls[position][variant]:
+                        pancovAddShare[method] += 1
         else:
             if 'freebayes' in calls[position][variant]:
                 pancovDiscardShare['freebayes'] += 1
@@ -104,13 +101,15 @@ for position in calls:
                 pancovDiscardShare['medaka'] += 1
             if 'nanopolish' in calls[position][variant]:
                 pancovDiscardShare['nanopolish'] += 1
+            if 'gisaid' in calls[position][variant]:
+                pancovDiscardShare['gisaid'] += 1
 
-df = pandas.DataFrame(df_data, columns=('pancov', 'freebayes', 'medaka', 'nanopolish', 'position', 'variant'))
+df = pandas.DataFrame(df_data, columns=('pancov', 'freebayes', 'medaka', 'nanopolish','gisaid', 'position', 'variant'))
 
-only_pancov = df[(df['pancov'] == True) & (df['freebayes'] == False) & (df['medaka'] == False) & (df['nanopolish'] == False)]
+only_pancov = df[(df['pancov'] == True) & (df['freebayes'] == False) & (df['medaka'] == False) & (df['nanopolish'] == False) & (df['gisaid'] == False)]
 only_pancov.to_csv("only_pancov.csv")
 
-df = df.groupby(['pancov', 'freebayes', 'medaka', 'nanopolish']).count()["position"]
+df = df.groupby(['pancov', 'freebayes', 'medaka', 'nanopolish','gisaid']).count()["position"]
 
 upsetplot.plot(df)
 

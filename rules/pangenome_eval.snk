@@ -180,6 +180,51 @@ rule dropDuplicates_eval:
         'vt uniq {input} -o {output}'
 
 
+############ GISAID NORMALIZATION
+
+rule sortVCF_eval_gisaid:
+    input:
+        "data/input/th_vars_all.vcf",
+    output:
+        "data/auxiliary/evaluation/vcfs/{method}_{run}_{barcode}.sorted.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt sort {input} -o {output}'
+
+rule decompose1_eval_gisaid:
+    input:
+        "data/auxiliary/evaluation/vcfs/th_vars_all.sorted.vcf"
+    output:
+        "data/auxiliary/evaluation/vcfs/th_vars_all.dc1.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt decompose {input} -o {output}'
+
+rule decompose2_eval_gisaid:
+    input:
+        "data/auxiliary/evaluation/vcfs/th_vars_all.dc1.vcf"
+    output:
+        "data/auxiliary/evaluation/vcfs/th_vars_all.dc2.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt decompose_blocksub -a {input} -o {output}'
+
+rule dropDuplicates_eval_gisaid:
+    input:
+        "data/auxiliary/evaluation/vcfs/th_vars_all.dc2.vcf"
+    output:
+        "data/auxiliary/evaluation/vcfs/th_vars_all.unique.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt uniq {input} -o {output}'
+
+#################################
+
+
 def getAllVCFsForContributions(wildcards):
     allFiles = []
     for run in runs:
@@ -191,6 +236,7 @@ def getAllVCFsForContributions(wildcards):
                 "data/auxiliary/evaluation/vcfs/medaka_"+run+"_"+barcode+".unique.vcf", #medaka
                 "data/auxiliary/evaluation/vcfs/nanopolish_"+run+"_"+barcode+".unique.vcf", #nanopolish
             ]
+    allFiles += "data/auxiliary/evaluation/vcfs/th_vars_all.unique.vcf"
     return allFiles
 
 rule getContributions:
