@@ -51,7 +51,13 @@ def processMethod(method,file):
 
 print('Reading files ...')
 
-for pc_path in iterator[:-1]:
+
+#get last file
+
+aslist = list(iterator)
+ga_path = aslist[-1]
+
+for pc_path in iter(aslist[:-1]):
     fb_path = next(iterator)
     md_path = next(iterator)
     np_path = next(iterator)
@@ -60,7 +66,7 @@ for pc_path in iterator[:-1]:
     processMethod('medaka',md_path)
     processMethod('nanopolish',np_path)
 
-processMethod('gisaid',next(iterator))
+processMethod('gisaid',ga_path)
 
 print('Analyzing files ...')
 
