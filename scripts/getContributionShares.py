@@ -56,6 +56,9 @@ print('Reading files ...')
 
 aslist = list(iterator)
 ga_path = aslist[-1]
+processMethod('gisaid',ga_path)
+
+print(ga_path,len(aslist))
 
 for pc_path in iter(aslist[:-1]):
     fb_path = next(iterator)
@@ -66,7 +69,6 @@ for pc_path in iter(aslist[:-1]):
     processMethod('medaka',md_path)
     processMethod('nanopolish',np_path)
 
-processMethod('gisaid',ga_path)
 
 print('Analyzing files ...')
 
