@@ -236,12 +236,12 @@ def getAllVCFsForContributions(wildcards):
                 "data/auxiliary/evaluation/vcfs/medaka_"+run+"_"+barcode+".unique.vcf", #medaka
                 "data/auxiliary/evaluation/vcfs/nanopolish_"+run+"_"+barcode+".unique.vcf", #nanopolish
             ]
-    allFiles += ["data/auxiliary/evaluation/vcfs/th_vars_all.unique.vcf"]
     return allFiles
 
 rule getContributions:
     input:
-        getAllVCFsForContributions
+        vcfs = getAllVCFsForContributions,
+        gisaid = "data/auxiliary/evaluation/vcfs/th_vars_all.unique.vcf"
     output:
         'data/output/evaluation/contributions.txt',
         'data/output/evaluation/contributions_upset.svg'

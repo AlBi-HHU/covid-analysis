@@ -10,7 +10,7 @@ methods = ['medaka','nanopolish','freebayes','gisaid']
 calls = {}
 
 #list is structured such that item #1 is pancov item #2 is freebayes item#3 is medaka and item#4 is nanopolish
-iterator = iter(snakemake.input)
+iterator = iter(snakemake.input['vcfs'])
 
 #We are interested in:
 totalVars = {} #total number of vars called by each method
@@ -54,13 +54,10 @@ print('Reading files ...')
 
 #get last file
 
-aslist = list(iterator)
-ga_path = aslist[-1]
-processMethod('gisaid',ga_path)
+processMethod('gisaid',snakemake.input['gisaid'])
 
-print(ga_path,len(aslist))
 
-for pc_path in iter(aslist[:-1]):
+for pc_path in iterator:
     fb_path = next(iterator)
     md_path = next(iterator)
     np_path = next(iterator)
