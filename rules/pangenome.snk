@@ -133,4 +133,4 @@ rule unchop:
     conda:
         "../envs/vg.yaml"
     shell:
-        "vg mod --unchop {input} > {output}"
+        "vg view -Fv {input} | vg mod -u - | vg view - > {output}"
