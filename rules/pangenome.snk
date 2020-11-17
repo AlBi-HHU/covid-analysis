@@ -123,7 +123,8 @@ rule pangenome:
         'logs/pangenome_build_pangenome.log'
 
     shell:
-        "vg construct -t {threads} -S -i -r {input.reference} -v {input.vcf} | vg view -g - > {output}"
+        #"vg construct -t {threads} -S -i -r {input.reference} -v {input.vcf} | vg view -g - > {output}"
+        "vg construct -t {threads} -S -i -r {input.reference} | vg view -g - > {output}"
 
 rule unchop:
     input:
