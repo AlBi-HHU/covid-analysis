@@ -1,6 +1,7 @@
 name: GraphAligner
 
 channels:
+  - defaults
   - bioconda
 
 dependencies:
