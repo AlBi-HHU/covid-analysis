@@ -108,7 +108,7 @@ def substituteAmbiguousBases(r_seq,v_seq):
     if len(r_seq) == len(v_seq):
         ret = ''
         for a,b in zip(r_seq,v_seq):
-            ambiguityChar = ambiguousBase(frozenset(a,b))
+            ambiguityChar = ambiguousBase(frozenset({a,b}))
             if ambiguityChar == None:
                 return v_seq
             else:
