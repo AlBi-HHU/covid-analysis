@@ -2,6 +2,30 @@
 import re
 import csv
 
+degenerate = {
+    frozenset(('A')): 'A',
+    frozenset(('C')): 'C',
+    frozenset(('G')): 'G',
+    frozenset(('T')): 'T',
+    frozenset(('A', 'G')): 'R',
+    frozenset(('C', 'T')): 'Y',
+    frozenset(('G', 'C')): 'S',
+    frozenset(('A', 'T')): 'W',
+    frozenset(('G', 'T')): 'K',
+    frozenset(('A', 'C')): 'M',
+    frozenset(('C', 'G', 'T')): 'B',
+    frozenset(('A', 'G', 'T')): 'D',
+    frozenset(('A', 'C', 'T')): 'H',
+    frozenset(('A', 'C', 'G')): 'V',
+    frozenset(('A', 'C', 'T', 'G')): 'N'
+}
+
+def ambiguousBase(frozenset):
+    if frozenset in degenerate:
+        return degenerate[frozenset]
+    else:
+        return None
+
 def get_node2seq(graph_path):
     node2seq = dict()
     

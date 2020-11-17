@@ -8,23 +8,7 @@ import pysam
 
 from Bio import SeqIO
 
-degenerate = {
-    frozenset(('A')): 'A',
-    frozenset(('C')): 'C',
-    frozenset(('G')): 'G',
-    frozenset(('T')): 'T',
-    frozenset(('A', 'G')): 'R',
-    frozenset(('C', 'T')): 'Y',
-    frozenset(('G', 'C')): 'S',
-    frozenset(('A', 'T')): 'W',
-    frozenset(('G', 'T')): 'K',
-    frozenset(('A', 'C')): 'M ',
-    frozenset(('C', 'G', 'T')): 'B',
-    frozenset(('A', 'G', 'T')): 'D',
-    frozenset(('A', 'C', 'T')): 'H',
-    frozenset(('A', 'C', 'G')): 'V',
-    frozenset(('A', 'C', 'T', 'G')): 'N'
-}
+
 
 def main(ref, mapping, th_cov, th_het, th_sbiais,th_sb_cov,th_sb_pval, consensus,variant_index):
 

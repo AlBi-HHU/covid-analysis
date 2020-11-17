@@ -74,7 +74,6 @@ rule final_consensus:
     params:
         th_sbiais = config["consensusStrandBiais"],
         th_cov = config["consensusMinCov"],
-        th_het = config["consensusHet"],
         th_sb_cov = config['consensusPValCoverage'],
         th_sb_pval = config['consensusPValCutoff']
 

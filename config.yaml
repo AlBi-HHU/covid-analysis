@@ -6,9 +6,8 @@ bam_suffix : primertrimmed.rg.sorted.bam
 #k's that are analyzed for k-mer based approaches
 ks : [11, 13, 15]
 
-#fraction (between 0 and 1) of reads that need to support a variant for it to be labeled homozygous
-thresholdHomCall : 0.85
-
+#fraction (between 0 and 0.5) of reads that need to support a variant for it to be labeled homozygous
+thresholdHomCall : 0.2
 thresholdHomCall_coverage : 50
 
 #Generate k-mer profiles (and histograms) based on ks and soft-clipped reads from alignments
@@ -59,7 +58,6 @@ pangenomeVarMinCov: 15
 # Consensus section
 consensus: True
 consensusMinCov: 20
-consensusHet: 0.8
 consensusStrandBiais: 0.1
 consensusPValCoverage: 40 #Variants with less coverage than this value are evaluated for strand bias using a p-val instead of a ratio
 consensusPValCutoff: 0.005

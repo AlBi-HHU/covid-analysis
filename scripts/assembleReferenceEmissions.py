@@ -65,7 +65,7 @@ for position in homVariantPositions:
             
             #check for hom criteria 1&2
             totalReads = sum(pileupAnalysis[idx].values())
-            if totalReads < snakemake.config['thresholdHomCall_coverage']:
+            if totalReads < 1-snakemake.config['thresholdHomCall_coverage']:
                 continue
 
             try:

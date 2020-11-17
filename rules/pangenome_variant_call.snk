@@ -59,8 +59,8 @@ rule call_variant:
         variant = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf.ugly",
 
     params:
-        rvt = config["pangenomeRVTThreshold"]
-        
+        rvt = config["pangenomeRVTThreshold"],
+        th_het = config["thresholdHomCall"]
     log:
         'logs/pangenome_vc_call_variant_{method}_{run}_{barcode}.log',
 

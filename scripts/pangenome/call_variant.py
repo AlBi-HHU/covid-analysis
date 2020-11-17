@@ -2,9 +2,9 @@ import csv
 
 from collections import defaultdict, Counter
 
-from shared import parse_gaf, get_node2seq, rev_comp
+from shared import *
 
-def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_path):
+def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, th_het, output_path):
 
     # Get ref information
     node2pos = dict()
@@ -96,9 +96,26 @@ def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_pat
         for ((v_seq, r_seq, pos, nodes), (count, ref_cov)) in final.items():
             rvt = count / (count + ref_cov)
 
+            if th_het <= rvt <= 1-th_het:
+                v_seq = substituteAmbiguousBases(r_seq,v_seq)
+
             if rvt >= rvt_threshold:
                 print("{}\t{}\t.\t{}\t{}\t.\t.\tVCOV={};RCOV={};RVT={};VARIANT_PATH={}".format(ref_name, pos + 1, r_seq, v_seq, count, ref_cov, rvt, ",".join(nodes)), file=fh)
-            
+
+
+#substitutes bases with their ambiguous counterparts if the threshold for heterozygosity is met for equal length non-SV vars
+def substituteAmbiguousBases(r_seq,v_seq):
+    if len(r_seq) == len(v_seq):
+        ret = ''
+        for a,b in zip(r_seq,v_seq):
+            ambiguityChar = ambiguousBase(frozenset(a,b))
+            if ambiguityChar == None:
+                return v_seq
+            else:
+                ret += ambiguityChar
+        return ret
+    else: #Do not substitute
+        return v_seq
             
 def vcf_header(fh, ref_name, length):
     print("##fileformat=VCFv4.2", file=fh)
@@ -150,8 +167,8 @@ def pos_of_diff(path, reference):
             yield (begin_break, end_break + 1)
     
 if "snakemake" in locals():
-    main(snakemake.input["pangenome"], snakemake.input["reads"], snakemake.input["node2pos"], float(snakemake.params["rvt"]), snakemake.output["variant"])
+    main(snakemake.input["pangenome"], snakemake.input["reads"], snakemake.input["node2pos"], float(snakemake.params["rvt"]),float(snakemake.params["th_het"]), snakemake.output["variant"])
 else:
     import sys
     
-    main(sys.argv[1], sys.argv[2], sys.argv[3], float(sys.argv[4]), sys.argv[5])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], float(sys.argv[4]),float(sys.argv[5]), sys.argv[5])
