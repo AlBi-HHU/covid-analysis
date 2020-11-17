@@ -111,7 +111,7 @@ rule pangenome:
         reference = "data/input/nCoV-2019.reference.fasta",
         idx ="data/auxiliary/pangenome/merge_unique.vcf.gz.tbi"
     output:
-        asm = "data/auxiliary/pangenome/pangenome.messy.gfa",
+        asm = "data/auxiliary/pangenome/pangenome_messy.gfa",
 
     conda:
         '../envs/vg.yaml',
@@ -127,7 +127,7 @@ rule pangenome:
 
 rule unchop:
     input:
-        "data/auxiliary/pangenome/pangenome.messy.gfa",
+        "data/auxiliary/pangenome/pangenome_messy.gfa",
     output:
         "data/auxiliary/pangenome/pangenome.gfa"
     conda:
