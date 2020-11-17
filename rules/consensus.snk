@@ -1,17 +1,34 @@
+rule decideFinalVCF:
+    input:
+        vcf = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf",
+        pileup = 'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.pileupanalysis.txt'
+    output:
+        vcf = "data/output/consensus/{method}/{run}/{barcode}/variant.vcf"
+    conda:
+        '../envs/biopythonworkbench.yaml'
+    params:
+        th_sbiais = config["consensusStrandBiais"],
+        th_cov = config["consensusMinCov"],
+        th_sb_cov = config['consensusPValCoverage'],
+        th_sb_pval = config['consensusPValCutoff'],
+        th_het = config["thresholdHomCall"]
+    script:
+            '../scripts/consensusVCF.py'
+
 
 rule sort_vcf_consensus:
     input:
-        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf"
+        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf"
     output:
-        "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf"
+        "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.sorted.vcf"
     conda:
         '../envs/vt.yaml'
     shell:
         'vt sort {input} -o {output}'
 
 rule compress_vcf:
-    input: 
-        vcf = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf"
+    input:
+        vcf = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.sorted.vcf"
 
     output:
         gvcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz"
@@ -22,10 +39,11 @@ rule compress_vcf:
     shell:
         'bgzip -c {input.vcf} > {output.gvcf}'
 
+
 rule index_vcf:
-    input: 
+    input:
         vcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz"
-        
+
     output:
         index = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz.csi"
 
@@ -35,22 +53,23 @@ rule index_vcf:
     shell:
         'bcftools index {input.vcf}'
 
-        
+
 rule apply_vcf:
     input:
         ref = "data/input/nCoV-2019.reference.fasta",
         vcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz",
         index = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz.csi"
-        
+
     output:
-        var_ref = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant_applied.fasta"
+        var_ref = "data/output/consensus/{method}/{run}/{barcode}/consensus.fasta"
 
     conda:
         '../envs/realign.yaml'
-        
+
     shell:
         'bcftools consensus -f {input.ref} {input.vcf} > {output.var_ref}'
 
+'''
 rule map_on_consensus:
     input:
         new_ref = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant_applied.fasta",
@@ -68,25 +87,6 @@ rule map_on_consensus:
 
     shell:
         'bwa mem -t {threads} {input.new_ref} {input.raw_reads} | samtools sort - > {output.mapping} && samtools index {output.mapping}'
+'''
 
 
-rule final_consensus:
-    input:
-        reference = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant_applied.fasta",
-        mapping = 'data/auxiliary/consensus/{method}/{run}/{barcode}/mapping.bam',
-
-    output:
-        consensus = "data/output/consensus/{method}/{run}/{barcode}/consensus.fasta",
-        variant_index = "data/auxiliary/consensus/{method}/{run}/{barcode}/vi.json"
-    conda:
-        '../envs/biopythonworkbench.yaml'
-        
-    params:
-        th_sbiais = config["consensusStrandBiais"],
-        th_cov = config["consensusMinCov"],
-        th_sb_cov = config['consensusPValCoverage'],
-        th_sb_pval = config['consensusPValCutoff']
-
-    script:
-        '../scripts/build_consensus.py'
-        

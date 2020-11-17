@@ -64,24 +64,7 @@ def main(ref, mapping, th_cov, th_het, th_sbiais,th_sb_cov,th_sb_pval, consensus
     json.dump(vi,open(variant_index,'w'))
 
 
-def strand_biais_filter(data, key, th_sbiais,th_sb_cov,th_sb_pval):
-    total = data[False][key] + data[True][key];
-    if total == 0:
-        return 0
 
-    #Decide whether to apply p-val or ratio filter
-    if total < th_sb_cov: #use p-Val
-        pval = binom.pmf(data[True][key],total,0.5)
-        if pval > th_sb_pval:
-            return total
-        else:
-            return 0
-    else:
-        ratio = min(data[False][key] / total, data[True][key] / total)
-        if ratio > th_sbiais:
-            return total
-        else:
-            return 0
     
 
 if "snakemake" in locals():

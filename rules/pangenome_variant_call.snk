@@ -60,7 +60,7 @@ rule call_variant:
 
     params:
         rvt = config["pangenomeRVTThreshold"],
-        th_het = config["thresholdHomCall"]
+        #th_het = config["thresholdHomCall"]
     log:
         'logs/pangenome_vc_call_variant_{method}_{run}_{barcode}.log',
 
