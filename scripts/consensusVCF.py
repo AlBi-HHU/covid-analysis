@@ -22,10 +22,10 @@ degenerate = {
 
 inv_ambiguous = {v: k for k, v in degenerate.items()}
 
-th_sbiais = float(snakemake.params["th_sbiais"]),
-th_cov = int(snakemake.params["th_cov"]),
-th_sb_cov = int(snakemake.params['th_sb_cov']),
-th_sb_pval = float(snakemake.params['th_sb_pval']),
+th_sbiais = float(snakemake.params["th_sbiais"])
+th_cov = int(snakemake.params["th_cov"])
+th_sb_cov = int(snakemake.params['th_sb_cov'])
+th_sb_pval = float(snakemake.params['th_sb_pval'])
 th_het = float(snakemake.params["th_het"])
 
 pileup = parsePileupStrandAwareLight(snakemake.input['pileup'])
