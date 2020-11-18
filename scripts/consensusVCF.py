@@ -22,11 +22,11 @@ degenerate = {
 
 inv_ambiguous = {v: k for k, v in degenerate.items()}
 
-th_sbiais = snakemake.params["th_sbiais"],
-th_cov = snakemake.params["th_cov"],
-th_sb_cov = snakemake.params['th_sb_cov'],
-th_sb_pval = snakemake.params['th_sb_pval'],
-th_het = snakemake.params["th_het"]
+th_sbiais = float(snakemake.params["th_sbiais"]),
+th_cov = int(snakemake.params["th_cov"]),
+th_sb_cov = int(snakemake.params['th_sb_cov']),
+th_sb_pval = float(snakemake.params['th_sb_pval']),
+th_het = float(snakemake.params["th_het"])
 
 pileup = parsePileupStrandAwareLight(snakemake.input['pileup'])
 
@@ -41,6 +41,7 @@ writer = vcfpy.Writer.from_path(snakemake.output['vcf'], header )
 
 for record in reader:
     logging.debug('Processing record: {}'.format(record))
+    logging.debug('Corresponding pileup record: {}'.format(pileup[pos]))
 
     #We only have single variants
     ref = record.REF
