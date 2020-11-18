@@ -88,7 +88,7 @@ rule decomposeBlockSubs:
     conda:
         '../envs/vt.yaml'
     shell:
-        'vt decompose_blocksub -a {input} -o {output}'
+        'vt decompose_blocksub -w 10000 -a {input} -o {output}'
         
 rule filter_same_pos_variant:
     input:
