@@ -83,7 +83,7 @@ for record in reader:
         if th_het <= varRatio <= 1-th_het:
             #SNPs get the ambiguous base chars
             if len(alt) == 1:
-                record.ALT[0].value = inv_ambiguous[frozenset({record.ALT[0].value,record.REF})]
+                record.ALT[0].value = degenerate[frozenset({record.ALT[0].value,record.REF})]
             else:
                 record.INFO['HSV'] = True
         else:
