@@ -5,7 +5,7 @@ rule decideFinalVCF:
     output:
         vcf = "data/output/consensus/{method}/{run}/{barcode}/variant.vcf"
     conda:
-        '../envs/biopythonworkbench.yaml'
+        '../envs/vcfpy.yaml'
     params:
         th_sbiais = config["consensusStrandBiais"],
         th_cov = config["consensusMinCov"],
