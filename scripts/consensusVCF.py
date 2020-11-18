@@ -78,8 +78,8 @@ for record in reader:
             else:
                 continue # discard the record
         #Substitute heterozygosity characters on demand and write the records
-        upperCount_ref = pileup[pos][upperAlt] if ref in pileup[pos] else 0
-        lowerCount_ref = pileup[pos][lowerAlt] if ref.lower() in pileup[pos] else 0
+        upperCount_ref = pileup[pos][ref] if ref in pileup[pos] else 0
+        lowerCount_ref = pileup[pos][ref.lower()] if ref.lower() in pileup[pos] else 0
         totalCount_ref = upperCount_ref + lowerCount_ref
         varRatio = totalCount/(totalCount_ref+totalCount)
 
