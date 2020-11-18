@@ -28,7 +28,7 @@ rule sort_vcf_consensus:
     conda:
         '../envs/vt.yaml'
     shell:
-        'vt sort {input} -o {output}'
+        'vt sort -w 10000 {input} -o {output}'
 
 rule compress_vcf:
     input:
