@@ -22,9 +22,9 @@ rule decideFinalVCF:
 
 rule sort_vcf_consensus:
     input:
-        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf"
+        "data/output/consensus/{method}/{run}/{barcode}/variant.vcf"
     output:
-        "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.sorted.vcf"
+        "data/output/consensus/{method}/{run}/{barcode}/variant.sorted.vcf"
     conda:
         '../envs/vt.yaml'
     shell:
