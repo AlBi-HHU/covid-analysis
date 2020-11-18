@@ -1,3 +1,13 @@
+rule decomposeBlockSubs:
+    input:
+        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf",
+    output:
+        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/decomposed.vcf",
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt decompose_blocksub -a {input} -o {output}'
+
 rule decideFinalVCF:
     input:
         vcf = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf",
