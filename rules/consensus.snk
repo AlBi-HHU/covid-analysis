@@ -24,7 +24,7 @@ rule sort_vcf_consensus:
     input:
         "data/output/consensus/{method}/{run}/{barcode}/variant.vcf"
     output:
-        "data/output/consensus/{method}/{run}/{barcode}/variant.sorted.vcf"
+        "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.sorted.vcf"
     conda:
         '../envs/vt.yaml'
     shell:
@@ -32,7 +32,7 @@ rule sort_vcf_consensus:
 
 rule compress_vcf:
     input:
-        vcf = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.sorted.vcf"
+        vcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.sorted.vcf"
 
     output:
         gvcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz"
