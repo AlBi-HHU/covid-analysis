@@ -80,12 +80,19 @@ rule normalize_variant_pg:
     shell:
         'if [ -s {input.ugly_variant} ]; then vt normalize -r {input.reference} -o {output.variant} {input.ugly_variant}; else touch {output.variant}; fi 2> {log}'
 
-
-
+rule decomposeBlockSubs:
+    input:
+        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf",
+    output:
+        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/decomposed.vcf",
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt decompose_blocksub -a {input} -o {output}'
         
 rule filter_same_pos_variant:
     input:
-        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf"
+        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/decomposed.vcf"
 
     output:
         "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf"
