@@ -41,12 +41,15 @@ writer = vcfpy.Writer.from_path(snakemake.output['vcf'], header )
 
 for record in reader:
     logging.debug('Processing record: {}'.format(record))
-    logging.debug('Corresponding pileup record: {}'.format(pileup[pos]))
 
     #We only have single variants
     ref = record.REF
     alt = record.ALT[0].value #therefore picking the first one picks the only existing variant
     pos = record.POS
+
+    logging.debug('Corresponding pileup record: {}'.format(pileup[pos]))
+
+
     #Check for SBIAS
     upperAlt = alt.replace('-','(')
     lowerAlt = alt.lower().replace('-',')')
