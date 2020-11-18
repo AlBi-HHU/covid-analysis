@@ -4,7 +4,7 @@ from shared import *
 import sys
 import logging
 
-logging.basicConfig(filename=snakemake.log, encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(filename=snakemake.log[0], encoding='utf-8', level=logging.DEBUG)
 
 degenerate = {
     frozenset(('A', 'G')): 'R',
