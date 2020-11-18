@@ -76,7 +76,7 @@ rule normalize_variant_pg:
     conda:
         '../envs/vt.yaml',
     log:
-        'logs/pangenome_vc_normalize_variant_{prefix}_variant.log'
+        'logs/pangenome_vc_normalize_variant_{method}_{run}_{barcode}_variant.log'
     shell:
         'if [ -s {input.ugly_variant} ]; then vt normalize -r {input.reference} -o {output.variant} {input.ugly_variant}; else touch {output.variant}; fi 2> {log}'
 
