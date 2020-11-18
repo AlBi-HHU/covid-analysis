@@ -131,7 +131,7 @@ rule hackfix_eval_fb:
 
 rule copyPancovResults:
     input:
-        "data/output/consensus/{method}/{run}/{barcode}/variant.vcf"
+        "data/output/consensus/medaka/{run}/{barcode}/variant.vcf"
     output:
         "data/auxiliary/evaluation/vcfs/pancov_{run}_{barcode}.sorted.vcf"
     conda:
