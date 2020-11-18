@@ -148,7 +148,7 @@ def getInput(wildcards):
         inputList += ['data/output/evaluation/comparisonFastaBased/nanopolish.eval']
         inputList += ['data/output/evaluation/comparisonFastaBased/medaka.eval']
         inputList += ['data/output/evaluation/comparisonFastaBased/gisaid.eval']
-
+        inputList += ['data/output/evaluation/contributions.txt']
         for id in NWids:
             inputList += ['data/auxiliary/evaluation/consensusVariantExtraction/gisaid/'+id+'.info']
 
