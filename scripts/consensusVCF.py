@@ -54,8 +54,8 @@ for record in reader:
     upperAlt = alt.replace('-','(')
     lowerAlt = alt.lower().replace('-',')')
     if (not lowerAlt in pileup[pos]) and (not upperAlt in pileup[pos]):
-        print('Can\'t find the alt allele in the pileup for either plus/minus strand: {} / {}'.format(lowerAlt,upperAlt))
-        sys.exit(-1)
+        logging.debug('Can\'t find the alt allele in the pileup for either plus/minus strand: {} / {}'.format(lowerAlt,upperAlt))
+        #sys.exit(-1)
     else:
         upperCount = pileup[pos][upperAlt] if upperAlt in pileup[pos] else 0
         lowerCount = pileup[pos][lowerAlt] if lowerAlt in pileup[pos] else 0

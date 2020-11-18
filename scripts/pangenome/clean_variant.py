@@ -1,4 +1,3 @@
-
 import vcfpy
 
 from collections import defaultdict
