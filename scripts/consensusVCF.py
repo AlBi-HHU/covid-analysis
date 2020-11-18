@@ -1,28 +1,8 @@
-
+from scipy.stats import binom
 import vcfpy
 from shared import *
 import sys
 from copy import *
-
-
-def strand_biais_filter(data, key, th_sbiais,th_sb_cov,th_sb_pval):
-    total = data[False][key] + data[True][key];
-    if total == 0:
-        return 0
-
-    #Decide whether to apply p-val or ratio filter
-    if total < th_sb_cov: #use p-Val
-        pval = binom.pmf(data[True][key],total,0.5)
-        if pval > th_sb_pval:
-            return total
-        else:
-            return 0
-    else:
-        ratio = min(data[False][key] / total, data[True][key] / total)
-        if ratio > th_sbiais:
-            return total
-        else:
-            return 0
 
 degenerate = {
     frozenset(('A', 'G')): 'R',
@@ -49,7 +29,13 @@ th_het = snakemake.params["th_het"]
 pileup = parsePileupStrandAwareLight(snakemake.input['pileup'])
 
 reader = vcfpy.Reader.from_path(snakemake.input['vcf'])
-writer = vcfpy.Writer.from_path(snakemake.output['vcf'], reader.header)
+
+#add additional header line to mark het vars
+header = reader.header
+header.add_info_line({"ID": "HSV", "Type": "Flag", "Number": "1",
+                      "Description": "Variant might be a heterozygous SV"})
+
+writer = vcfpy.Writer.from_path(snakemake.output['vcf'], header )
 
 for record in reader:
     #We only have single variants
@@ -62,3 +48,33 @@ for record in reader:
     if (not lowerAlt in pileup[pos]) and (not upperAlt in pileup[pos]):
         print('Can\'t find the alt allele in the pileup for either plus/minus strand: {} / {}'.format(lowerAlt,upperAlt))
         sys.exit(-1)
+    else:
+        upperCount = pileup[pos][upperAlt] if upperAlt in pileup[pos] else 0
+        lowerCount = pileup[pos][lowerAlt] if lowerAlt in pileup[pos] else 0
+        totalCount = upperCount + lowerCount
+
+        if totalCount < th_cov:
+            continue # discard the record
+        elif totalCount < th_sb_cov: #use pVal
+            pval = binom.pmf(upperCount,totalCount,0.5)
+            if pval > th_sb_pval:
+                pass
+            else:
+                continue # discard the record
+        else: #ratio test
+            ratio = min(lowerCount, upperCount) / totalCount
+            if ratio > th_sbiais:
+                pass
+            else:
+                continue # discard the record
+        #Substitute heterozygosity characters on demand and write the records
+        remainingCount = sum(pileup[pos][x] for x in pileup[pos] if (x != upperAlt) and (x != lowerAlt))
+        varRatio = totalCount/(remainingCount+totalCount)
+        if th_het <= varRatio <= 1-th_het:
+            #SNPs get the ambiguous base chars
+            if len(alt) == 1:
+                record.ALT[0].value = inv_ambiguous[frozenset({record.ALT[0].value,record.REF})]
+            else:
+                record.INFO['HSV'] = True
+        else:
+            writer.write_record(record)

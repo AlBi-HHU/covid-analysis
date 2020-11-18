@@ -1,6 +1,5 @@
 
 from collections import Counter,defaultdict
-from scipy.stats import binom
 
 import json
 
@@ -62,7 +61,6 @@ def main(ref, mapping, th_cov, th_het, th_sbiais,th_sb_cov,th_sb_pval, consensus
     print(f">{record.id}\n{''.join(out)}", file=open(consensus, "w"))
 
     json.dump(vi,open(variant_index,'w'))
-
 
 
     
