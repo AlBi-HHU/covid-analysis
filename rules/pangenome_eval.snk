@@ -137,7 +137,7 @@ rule copyPancovResults:
     conda:
         '../envs/vt.yaml'
     shell:
-        'vt sort {input} -o {output}'
+        'cp {input} {output}'
 
 rule sortVCF_eval:
     input:
