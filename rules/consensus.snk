@@ -10,7 +10,7 @@ rule decomposeBlockSubs:
 
 rule decideFinalVCF:
     input:
-        vcf = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf",
+        vcf = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/decomposed.vcf",
         pileup = 'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.pileupanalysis.txt'
     output:
         vcf = "data/output/consensus/{method}/{run}/{barcode}/variant.vcf"
