@@ -86,5 +86,5 @@ for record in reader:
                 record.ALT[0].value = degenerate[frozenset({record.ALT[0].value,record.REF})]
             else:
                 record.INFO['HSV'] = True
-        else:
-            writer.write_record(record)
+
+        writer.write_record(record)
