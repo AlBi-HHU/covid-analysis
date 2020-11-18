@@ -2,7 +2,9 @@ from scipy.stats import binom
 import vcfpy
 from shared import *
 import sys
-from copy import *
+import logging
+
+logging.basicConfig(filename=snakemake.log, encoding='utf-8', level=logging.DEBUG)
 
 degenerate = {
     frozenset(('A', 'G')): 'R',
@@ -38,6 +40,8 @@ header.add_info_line({"ID": "HSV", "Type": "Flag", "Number": "1",
 writer = vcfpy.Writer.from_path(snakemake.output['vcf'], header )
 
 for record in reader:
+    logging.debug('Processing record: {}'.format(record))
+
     #We only have single variants
     ref = record.REF
     alt = record.ALT[0].value #therefore picking the first one picks the only existing variant
@@ -52,6 +56,8 @@ for record in reader:
         upperCount = pileup[pos][upperAlt] if upperAlt in pileup[pos] else 0
         lowerCount = pileup[pos][lowerAlt] if lowerAlt in pileup[pos] else 0
         totalCount = upperCount + lowerCount
+
+        logging.debug('Calculated a total ALT count on both strands of: {}, comparing to threshold: {}'.format(totalCount,th_cov))
 
         if totalCount < th_cov:
             continue # discard the record

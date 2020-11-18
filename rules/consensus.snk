@@ -14,6 +14,8 @@ rule decideFinalVCF:
         pileup = 'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.pileupanalysis.txt'
     output:
         vcf = "data/output/consensus/{method}/{run}/{barcode}/variant.vcf"
+    log:
+        'logs/decideFinalVCF_{method}_{run}_{barcode}.txt'
     conda:
         '../envs/vcfpy.yaml'
     params:
