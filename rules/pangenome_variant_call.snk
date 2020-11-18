@@ -69,10 +69,10 @@ rule call_variant:
 
 rule normalize_variant_pg:
     input:
-        ugly_variant = 'data/auxiliary/pangenome_vc/{prefix}.vcf.ugly',
+        ugly_variant = 'data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf.ugly',
         reference = "data/input/nCoV-2019.reference.fasta"
     output:
-        variant = 'data/auxiliary/pangenome_vc/{prefix}.vcf',
+        variant = 'data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf'
     conda:
         '../envs/vt.yaml',
     log:
