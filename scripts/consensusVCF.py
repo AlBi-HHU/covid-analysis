@@ -78,8 +78,11 @@ for record in reader:
             else:
                 continue # discard the record
         #Substitute heterozygosity characters on demand and write the records
-        remainingCount = sum(pileup[pos][x] for x in pileup[pos] if (x != upperAlt) and (x != lowerAlt))
-        varRatio = totalCount/(remainingCount+totalCount)
+        upperCount_ref = pileup[pos][upperAlt] if ref in pileup[pos] else 0
+        lowerCount_ref = pileup[pos][lowerAlt] if ref.lower() in pileup[pos] else 0
+        totalCount_ref = upperCount_ref + lowerCount_ref
+        varRatio = totalCount/(totalCount_ref+totalCount)
+
         if th_het <= varRatio <= 1-th_het:
             #SNPs get the ambiguous base chars
             if len(alt) == 1 and len(ref) == 1:
