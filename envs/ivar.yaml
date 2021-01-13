@@ -1,0 +1,10 @@
+name: ivar
+channels:
+    - conda-forge
+    - bioconda
+
+dependencies:
+    - libdeflate = 1.6
+    - samtools=1.10
+    - ivar=1.3
+

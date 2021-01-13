@@ -148,6 +148,7 @@ def getInput(wildcards):
         inputList += ['data/output/evaluation/comparisonFastaBased/nanopolish.eval']
         inputList += ['data/output/evaluation/comparisonFastaBased/medaka.eval']
         inputList += ['data/output/evaluation/comparisonFastaBased/gisaid.eval']
+        inputList += ['data/output/evaluation/comparisonFastaBased/illumina.eval']
         inputList += ['data/output/evaluation/contributions.txt']
         for id in NWids:
             inputList += ['data/auxiliary/evaluation/consensusVariantExtraction/gisaid/'+id+'.info']
@@ -170,6 +171,7 @@ include: 'rules/discovery_shared.snk'
 include: 'rules/discovery_fb.snk'
 include: 'rules/pangenome_variant_call.snk'
 include: 'rules/pangenome_eval.snk'
+include: 'rules/illumina.snk'
 
 #include: 'rules/discovery_ctx.snk'
 

@@ -55,6 +55,9 @@ pangenomeVariantCalling: True
 pangenomeRVTThreshold: 0.2
 pangenomeVarMinCov: 15
 
+# Illumina variant calling
+illuminaAlleleFreqCutoff: 0.05
+
 # Consensus section
 consensus: True
 consensusMinCov: 20

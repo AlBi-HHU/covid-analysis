@@ -28,15 +28,32 @@ rule combineWithReference_pancov:
     shell:
         'cat {input.reference} {input.consensus} > {output.combined}'
 
-rule combineWithReference_nanomeda:
+rule combineWithReference_meda:
     input:
         reference = "data/input/nCoV-2019.reference.fasta",
-        consensus = "data/input/{run}/barcode{barcode}.{method}.consensus.fasta"
+        consensus = "data/input/{run}/barcode{barcode}.medaka.consensus.fasta"
     output:
-        combined = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.cmb"
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/medaka/{run}_{barcode}.cmb"
     shell:
         'cat {input.reference} {input.consensus} > {output.combined}'
-
+        
+rule combineWithReference_nano:
+    input:
+        reference = "data/input/nCoV-2019.reference.fasta",
+        consensus = "data/input/{run}/barcode{barcode}.nanopolish.consensus.fasta"
+    output:
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/nanopolish/{run}_{barcode}.cmb"
+    shell:
+        'cat {input.reference} {input.consensus} > {output.combined}'
+        
+rule combineWithReference_illumina:
+    input:
+        reference = "data/input/nCoV-2019.reference.fasta",
+        consensus = "data/output/consensus/illumina/{run}/{barcode}/consensus.fasta"
+    output:
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/illumina/{run}_{barcode}.cmb"
+    shell:
+        'cat {input.reference} {input.consensus} > {output.combined}'
 
 rule combineWithReference_gisaid:
     input:
