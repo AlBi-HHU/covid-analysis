@@ -19,9 +19,9 @@ rule ivar_consensus:
         alignment = 'data/input/illumina/{run}_{barcode}/downsampledAlignment.bam',
         reference = "data/input/nCoV-2019.reference.fasta"
     output:
-        "data/output/consensus/illumina/{run}/{barcode}/consensus.fa"
+        "data/auxiliary/consensus/illumina/{run}/{barcode}/consensus.fa"
     params:
-        prefix = "data/output/consensus/illumina/{run}/{barcode}/consensus",
+        prefix = "data/auxiliary/consensus/illumina/{run}/{barcode}/consensus",
         iac = config['illuminaAlleleFreqCutoff']
     conda:
         '../envs/ivar.yaml'
