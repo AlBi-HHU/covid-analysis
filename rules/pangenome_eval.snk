@@ -49,7 +49,7 @@ rule combineWithReference_nano:
 rule combineWithReference_illumina:
     input:
         reference = "data/input/nCoV-2019.reference.fasta",
-        consensus = "data/auxiliary/consensus/illumina/{run}/{barcode}/consensus.fasta"
+        consensus = "data/auxiliary/consensus/illumina/{run}/{barcode}/consensus.fa"
     output:
         combined = "data/auxiliary/evaluation/consensusVariantExtraction/illumina/{run}_{barcode}.cmb"
     shell:
