@@ -87,6 +87,7 @@ def getAllComparisonFiles(wildcards):
     allFiles = []
     for run in runs:
         for barcode in barcodes[run]:
+        
             #check for missing gisaid files
             if wildcards.method == 'gisaid':
                 if run in gisaidMapping and barcode in gisaidMapping[run]:
@@ -94,7 +95,15 @@ def getAllComparisonFiles(wildcards):
                 else:
                     print('skipping run {} barcode {} for gisaid comparison as we have no seq yet ...'.format(run,barcode))
                     continue
-
+                    
+            #check for missing illumina files
+            if wildcards.method == 'illumina':
+                if run in illuminaMapping and barcode in illuminaMapping[run]:
+                    pass
+                else:
+                    print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                    continue
+                    
             allFiles += [
                 "data/auxiliary/evaluation/consensusVariantExtraction/pancov/"+run+"_"+barcode+".info",
                 "data/auxiliary/evaluation/consensusVariantExtraction/{method}/"+run+"_"+barcode+".info",

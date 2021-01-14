@@ -67,6 +67,14 @@ for run in runs:
         else:
             print('No mapping for run: {} bc: {}'.format(run,barcode))
 
+
+illuminaMapping = {}
+for run in runs:
+    illuminaMapping[run] = set()
+    for barcode in barcodes[run]:
+        if os.path.isfile(os.path.join('data/input/illumina',(run+'_'+barcode))):
+            illuminaMapping[run].add(barcode)
+
 ### REMOVE LATER END
 
 def getInput(wildcards):
