@@ -122,9 +122,12 @@ rule assembleMedians:
 rule comparePancovToX:
     input:
         iteratorList = getAllComparisonFiles,
-        medians = 'data/auxiliary/pileupAnalysis/medians.json'
+        medians = 'data/auxiliary/pileupAnalysis/medians.json',
+        reference = "data/input/nCoV-2019.reference.fasta"
     output:
         'data/output/evaluation/comparisonFastaBased/{method}.eval'
+    conda:
+        "../envs/biopythonworkbench.yaml"
     script:
         '../scripts/variantdiff_summary.py'
 

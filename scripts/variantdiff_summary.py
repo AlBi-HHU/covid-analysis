@@ -1,9 +1,11 @@
 from shared import *
 import json
+from Bio import SeqIO
 
 iterator = iter(snakemake.input['iteratorList'])
 
 medians = json.load(open(snakemake.input['medians'],'r'))
+reference = SeqIO.read(snakemake.input['reference'],'fasta')
 
 with open(snakemake.output[0],'w') as outfile:
 
@@ -14,7 +16,7 @@ with open(snakemake.output[0],'w') as outfile:
     totalDetectedB = 0
     identicalVars = 0
 
-    outfile.write('{}\t{}\t{}\t{}\n'.format('POS','PANCOV','COMPARISON','PILEUP'))
+    outfile.write('{}\t{}\t{}\t{}\n'.format('POS','PANCOV','COMPARISON','CONTEXT','PILEUP'))
 
     for pancovFilePath in iterator:
         comparisonFilePath = next(iterator)
@@ -57,10 +59,11 @@ with open(snakemake.output[0],'w') as outfile:
                             # changed
                             totalChanged += 1
                             outfile.write(
-                                '{}\t{}\t{}\t{}\n'.format(
+                                '{}\t{}\t{}\t{}\t{}\n'.format(
                                     pancPosition,
                                     '{}->{}'.format(pancRef,pancAlt),
                                     '{}->{}'.format(compRef,compAlt),
+                                    reference[pancPosition-3:pancPosition+4],
                                     pileup[int(
                                         pancPosition)] if int(pancPosition) in pileup else 'no pileup available for this position'
                                 )
@@ -69,10 +72,11 @@ with open(snakemake.output[0],'w') as outfile:
                 else:
                     totalMissed += 1
                     outfile.write(
-                        '{}\t{}\t{}\t{}\n'.format(
+                        '{}\t{}\t{}\t{}\t{}\n'.format(
                             compPosition,
                             'Missing',
                             '{}->{}'.format(compRef,compAlt),
+                            reference[compPosition-3:compPosition+4],
                             pileup[int(compPosition)] if int(compPosition) in pileup else 'no pileup available for this position'
                         )
                     )
@@ -120,10 +124,11 @@ with open(snakemake.output[0],'w') as outfile:
                             pileupString += ' {}:{} ({}) '.format(k,v,medians[pancPosition][k])
 
                     outfile.write(
-                        '{}\t{}\t{}\t{}\n'.format(
+                        '{}\t{}\t{}\t{}\t{}\n'.format(
                             pancPosition,
                             '{} -> {}'.format(pancRef, pancAlt ),
                             'Missing',
+                            reference[compPosition-3:compPosition+4],                 
                             pileupString
                         )
                     )
