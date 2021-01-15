@@ -16,7 +16,7 @@ with open(snakemake.output[0],'w') as outfile:
     totalDetectedB = 0
     identicalVars = 0
 
-    outfile.write('{}\t{}\t{}\t{}\n'.format('POS','PANCOV','COMPARISON','CONTEXT','PILEUP'))
+    outfile.write('{}\t{}\t{}\t{}\t{}\n'.format('POS','PANCOV','COMPARISON','CONTEXT','PILEUP'))
 
     for pancovFilePath in iterator:
         comparisonFilePath = next(iterator)
@@ -128,7 +128,7 @@ with open(snakemake.output[0],'w') as outfile:
                             pancPosition,
                             '{} -> {}'.format(pancRef, pancAlt ),
                             'Missing',
-                            reference.seq[int(compPosition)-4:int(compPosition)+3],                 
+                            reference.seq[int(pancPosition)-4:int(pancPosition)+3],                 
                             pileupString
                         )
                     )
