@@ -63,7 +63,7 @@ with open(snakemake.output[0],'w') as outfile:
                                     pancPosition,
                                     '{}->{}'.format(pancRef,pancAlt),
                                     '{}->{}'.format(compRef,compAlt),
-                                    reference[int(pancPosition-4):int(pancPosition+3)],
+                                    reference[int(pancPosition)-4:int(pancPosition)+3],
                                     pileup[int(
                                         pancPosition)] if int(pancPosition) in pileup else 'no pileup available for this position'
                                 )
@@ -76,7 +76,7 @@ with open(snakemake.output[0],'w') as outfile:
                             compPosition,
                             'Missing',
                             '{}->{}'.format(compRef,compAlt),
-                            reference[int(compPosition-4):int(compPosition+3)],
+                            reference[int(compPosition)-4:int(compPosition)+3],
                             pileup[int(compPosition)] if int(compPosition) in pileup else 'no pileup available for this position'
                         )
                     )
@@ -128,7 +128,7 @@ with open(snakemake.output[0],'w') as outfile:
                             pancPosition,
                             '{} -> {}'.format(pancRef, pancAlt ),
                             'Missing',
-                            reference[int(compPosition-4):int(compPosition+3)],                 
+                            reference[int(compPosition)-4:int(compPosition)+3],                 
                             pileupString
                         )
                     )
