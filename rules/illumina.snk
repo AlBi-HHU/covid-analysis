@@ -1,4 +1,66 @@
-        
+rule illuminaPileup:
+    input:
+        alignment = 'data/input/illumina/{run}_{barcode}/alignment.bam',
+        alignment = 'data/input/illumina/{run}_{barcode}/alignment.bam.bai',
+        reference = 'data/input/nCoV-2019.reference.fasta'
+    output:
+        'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt'
+    params:
+        # Cluster Execution
+        cpus = '1',
+        mem = '8G',
+        gpus = '0',
+        walltime = '00:05:00'
+    conda:
+        '../envs/biopythonworkbench.yaml'
+    shell:
+        'perl scripts/getCompleteMycoFrequencies.pl --BAM {input.alignment} --output {output} --minMappingQuality 0 --minBaseQuality 0 --referenceGenome {input.reference}'
+
+rule illuminaVerify:
+    input:
+        pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.info",
+        illuminaPileup = 'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt'
+    output:
+        diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}.verification.txt'
+    script:
+        '../scripts/illuminadiff.py'
+
+rule illuminaRecover:
+    input:
+        pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.info",
+        iVarInfo = "data/auxiliary/evaluation/consensusVariantExtraction/illumina/{run}_{barcode}.info",
+        illuminaPileup = 'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt'
+    output:
+        diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}.recovery.txt'
+    script:
+        '../scripts/illuminadiff2.py'
+
+rule aggregateVerification:
+    input:
+        iteratorList = getAllIlluminaFiles('verification')
+    output:
+        'data/output/evaluation/illumina_verification.eval'
+    script:
+        '../scripts/aggregateVerifications.py'
+
+def getAllIlluminaFiles(type):
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+
+
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,
+                                                                                                            barcode))
+                continue
+
+            allFiles += [
+                'data/auxiliary/evaluation/illumina/'+run+'_'+barcode+'.'+type+'.txt'
+            ]
+    return allFiles
+
 rule ivar_var:
     input:
         alignment = 'data/input/illumina/{run}_{barcode}/downsampledAlignment.bam',

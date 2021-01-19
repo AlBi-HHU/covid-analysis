@@ -111,3 +111,31 @@ def parsePileupPosition(f,pos):
 complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'} 
 def rev_comp(seq):
     return "".join(reversed([complement[n] for n in seq]))
+
+def getStrandBias(pileupForPosition,altallele):
+    plus = 0
+    total = 0
+    for allele,count in pileupForPosition.items():
+        if allele.isupper() and allele == altallele:
+            plus += count
+        if squashStrandedness(allele) == altallele:
+            total += count
+    return plus/total
+
+def getCoverage(pileupForPosition,altallele):
+    total = 0
+    for allele,count in pileupForPosition.items():
+        if squashStrandedness(allele) == altallele:
+            total += count
+    return total
+
+def getMinorStrandAbs(pileupForPosition,altallele):
+    total = 0
+    for allele,count in pileupForPosition.items():
+        if squashStrandedness(allele) == altallele and allele.islower():
+            total += count
+    return total
+
+def getMinorStrandFrequency(pileupForPosition,altallele):
+    sb = getStrandBias(pileupForPosition,altallele)
+    return min(1-sb,sb)
