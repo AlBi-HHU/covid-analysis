@@ -1,7 +1,7 @@
 rule illuminaPileup:
     input:
         alignment = 'data/input/illumina/{run}_{barcode}/alignment.bam',
-        alignment = 'data/input/illumina/{run}_{barcode}/alignment.bam.bai',
+        index = 'data/input/illumina/{run}_{barcode}/alignment.bam.bai',
         reference = 'data/input/nCoV-2019.reference.fasta'
     output:
         'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt'
