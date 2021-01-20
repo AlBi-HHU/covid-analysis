@@ -7,8 +7,7 @@ def getAllIlluminaFiles(type,wildcards):
             if run in illuminaMapping and barcode in illuminaMapping[run]:
                 pass
             else:
-                print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,
-                                                                                                            barcode))
+                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
                 continue
 
             allFiles += [
