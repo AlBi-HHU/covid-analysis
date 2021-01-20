@@ -120,7 +120,7 @@ def getStrandBias(pileupForPosition,altallele):
             plus += count
         if squashStrandedness(allele) == altallele:
             total += count
-    return plus/total
+    return plus/total if total != 0 else 0
 
 def getCoverage(pileupForPosition,altallele):
     total = 0
