@@ -134,7 +134,7 @@ with open(snakemake.output[0],'w') as outfile:
                             pileupString
                         )
                     )
-        outfile.write('Sample above had {} vars that agreed \n'.format(identicalVarsPersample))
+        outfile.write('Sample above had {} vars that agreed \n'.format(identicalVarsPerSample))
         identicalVars += identicalVarsPerSample
     outfile.write(
             'Total Vars > Pancov: {} Compared Method: {}\n'.format(totalDetectedA,totalDetectedB))
