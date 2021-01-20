@@ -41,10 +41,10 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 			else:
 				recovered = False
 				for l2 in pancovInfoFile.read().splitlines():
-					lineData2 = l.split()
-					position2 = lineData[0]
-					reference2 = lineData[1]
-					altallele2 = lineData[2]
+					lineData2 = l2.split()
+					position2 = lineData2[0]
+					reference2 = lineData2[1]
+					altallele2 = lineData2[2]
 					if position2 == position and altallele2 == altallele:
 						recovered = True
 						break
