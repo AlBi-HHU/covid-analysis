@@ -1,8 +1,9 @@
 from shared import *
 import sys
 illuminapileup = parsePileupStrandAwareLight(snakemake.input['illuminaPileup'])
+pancovInfoFile= open(snakemake.input['pancovInfo'], 'r').read().splitlines()
 
-with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVarInfo'],'r') as ivarInfoFile,open(snakemake.input['pancovInfo'], 'r') as pancovInfoFile:
+with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVarInfo'],'r') as ivarInfoFile:
 	outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format('Position','Ref','Alt','Recovered','Comment','Pileup'))
 
 	for l in ivarInfoFile.read().splitlines():
@@ -40,7 +41,7 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 				outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele,-1,'Did not pass Alex Perl Filter, we ignore it',illuminapileup[position]))
 			else:
 				recovered = False
-				for l2 in pancovInfoFile.read().splitlines():
+				for l2 in pancovInfoFile:
 					print(l,l2)
 					lineData2 = l2.split()
 					position2 = int(lineData2[0])
