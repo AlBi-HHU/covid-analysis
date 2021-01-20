@@ -22,6 +22,8 @@ with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pa
 		altallele = lineData[2]
 		altallele_unmodified = altallele
 		#Inspect the non-reference part of two base ambiguities
+		if altallele == 'N':
+			continue
 		if altallele in ambiguityChars:
 			(altallele,) = ambiguityChars[altallele]-{reference}
 		comment = ''
