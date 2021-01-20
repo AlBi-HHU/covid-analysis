@@ -61,6 +61,14 @@ rule aggregateVerification:
     script:
         '../scripts/aggregateVerifications.py'
 
+rule aggregateRecoveries:
+    input:
+        iteratorList = lambda wildcards : getAllIlluminaFiles('recovery',wildcards)
+    output:
+        'data/output/evaluation/illumina_recovery_{method}.eval'
+    script:
+        '../scripts/aggregateRecoveries.py'
+
 rule ivar_var:
     input:
         alignment = 'data/input/illumina/{run}_{barcode}/downsampledAlignment.bam',
