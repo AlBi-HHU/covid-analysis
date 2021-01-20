@@ -20,6 +20,7 @@ with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pa
 		position = int(lineData[0])
 		reference = lineData[1]
 		altallele = lineData[2]
+		altallele_unmodified = altallele
 		#Inspect the non-reference part of two base ambiguities
 		if altallele in ambiguityChars:
 			(altallele,) = ambiguityChars[altallele]-{reference}
@@ -36,4 +37,4 @@ with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pa
 		else:
 			comment += 'position not covered by illumina reads (dropout?)'
 
-		outFile.write('{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele,reject,comment))
+		outFile.write('{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele_unmodified,reject,comment))
