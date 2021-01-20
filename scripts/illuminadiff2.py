@@ -11,6 +11,9 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 		reference = lineData[1]
 		altallele = lineData[2]
 
+		if altallele == 'N':
+			continue
+
 		if position in illuminapileup:
 			#Alex perl
 			sb = getStrandBias(illuminapileup[position],altallele)
