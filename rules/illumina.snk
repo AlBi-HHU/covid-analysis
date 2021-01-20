@@ -1,4 +1,4 @@
-def getAllIlluminaFiles(type):
+def getAllIlluminaFiles(type,wildcards):
     allFiles = []
     for run in runs:
         for barcode in barcodes[run]:
@@ -12,7 +12,7 @@ def getAllIlluminaFiles(type):
                 continue
 
             allFiles += [
-                'data/auxiliary/evaluation/illumina/'+run+'_'+barcode+'.'+type+'.txt'
+                'data/auxiliary/evaluation/illumina/'+run+'_'+barcode+'_'+wildcards.method+'.'+type+'.txt'
             ]
     return allFiles
 
@@ -36,28 +36,28 @@ rule illuminaPileup:
 
 rule illuminaVerify:
     input:
-        pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.info",
+        pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info",
         illuminaPileup = 'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt'
     output:
-        diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}.verification.txt'
+        diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}_{method}.verification.txt'
     script:
         '../scripts/illuminadiff.py'
 
 rule illuminaRecover:
     input:
-        pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.info",
+        pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info",
         iVarInfo = "data/auxiliary/evaluation/consensusVariantExtraction/illumina/{run}_{barcode}.info",
         illuminaPileup = 'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt'
     output:
-        diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}.recovery.txt'
+        diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}_{method}.recovery.txt'
     script:
         '../scripts/illuminadiff2.py'
 
 rule aggregateVerification:
     input:
-        iteratorList = getAllIlluminaFiles('verification')
+        iteratorList = lambda wildcards : getAllIlluminaFiles('verification',wildcards)
     output:
-        'data/output/evaluation/illumina_verification.eval'
+        'data/output/evaluation/illumina_verification_{method}.eval'
     script:
         '../scripts/aggregateVerifications.py'
 

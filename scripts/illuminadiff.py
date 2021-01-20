@@ -1,5 +1,14 @@
 from shared import *
 
+ambiguityChars = {
+	'R' : frozenset(('A', 'G')),
+	'Y' : frozenset(('C', 'T')),
+	'S' : frozenset(('G', 'C')),
+	'W' : frozenset(('A', 'T')),
+	'K' : frozenset(('T', 'G')),
+	'M' : frozenset(('A', 'C'))
+}
+
 illuminapileup = parsePileupStrandAwareLight(snakemake.input['illuminaPileup'])
 
 with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pancovInfo'],'r') as pancovInfoFile:
@@ -11,7 +20,9 @@ with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pa
 		position = int(lineData[0])
 		reference = lineData[1]
 		altallele = lineData[2]
-
+		#Inspect the non-reference part of two base ambiguities
+		if altallele in ambiguityChars:
+			(altallele,) = ambiguityChars[altallele]-{reference}
 		comment = ''
 		reject = False
 		if position in illuminapileup:
