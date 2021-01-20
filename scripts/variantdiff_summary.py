@@ -26,6 +26,8 @@ with open(snakemake.output[0],'w') as outfile:
 
         with open(pancovFilePath,'r') as pcf, open(comparisonFilePath,'r') as cof:
 
+            identicalVarsPerSample = 0
+
             outfile.write('{}\t{}\n'.format(pancovFilePath,comparisonFilePath))
 
             comparisonData = {x.split()[0] : (x.split()[1] , x.split()[2]) for x in cof.read().splitlines()}
@@ -53,7 +55,7 @@ with open(snakemake.output[0],'w') as outfile:
                     if compPosition == pancPosition:
 
                         if pancAlt == compAlt:
-                            identicalVars += 1
+                            identicalVarsPerSample += 1
                             break
                         else:
                             # changed
@@ -132,6 +134,8 @@ with open(snakemake.output[0],'w') as outfile:
                             pileupString
                         )
                     )
+        outfile.write('Sample above had {} vars that agreed \n'.format(identicalVarsPersample))
+        identicalVars += identicalVarsPerSample
     outfile.write(
             'Total Vars > Pancov: {} Compared Method: {}\n'.format(totalDetectedA,totalDetectedB))
     outfile.write(
