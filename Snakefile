@@ -159,6 +159,9 @@ def getInput(wildcards):
         inputList += ['data/output/evaluation/comparisonFastaBased/illumina.eval']
         inputList += ['data/output/evaluation/contributions.txt']
         inputList += ['data/output/evaluation/illumina_verification_pancov.eval']
+        inputList += ['data/output/evaluation/illumina_verification_medaka.eval']
+        inputList += ['data/output/evaluation/illumina_verification_nanopolish.eval']
+
         for id in NWids:
             inputList += ['data/auxiliary/evaluation/consensusVariantExtraction/gisaid/'+id+'.info']
 
