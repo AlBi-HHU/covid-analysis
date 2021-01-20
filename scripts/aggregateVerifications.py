@@ -9,7 +9,7 @@ with open(snakemake.output[0],'w') as outfile:
 			for l in ll:
 				outfile.write(l+'\n')
 				d = l.split()
-				reject = bool(d[3])
+				reject = eval(d[3])
 				if reject:
 					rejected += 1
 				total += 1
