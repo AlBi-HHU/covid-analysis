@@ -5,7 +5,7 @@ with open(snakemake.output[0],'w') as outfile:
 	for f in snakemake.input:
 		outfile.write(f+'\n')
 		with open(f,'r') as infile:
-			ll = infile.read().splitlines()
+			ll = infile.read().splitlines()[1:]
 			for l in ll:
 				outfile.write(l+'\n')
 				d = l.split()
