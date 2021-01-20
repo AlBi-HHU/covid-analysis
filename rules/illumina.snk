@@ -1,3 +1,21 @@
+def getAllIlluminaFiles(type):
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+
+
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,
+                                                                                                            barcode))
+                continue
+
+            allFiles += [
+                'data/auxiliary/evaluation/illumina/'+run+'_'+barcode+'.'+type+'.txt'
+            ]
+    return allFiles
+
 rule illuminaPileup:
     input:
         alignment = 'data/input/illumina/{run}_{barcode}/alignment.bam',
@@ -42,24 +60,6 @@ rule aggregateVerification:
         'data/output/evaluation/illumina_verification.eval'
     script:
         '../scripts/aggregateVerifications.py'
-
-def getAllIlluminaFiles(type):
-    allFiles = []
-    for run in runs:
-        for barcode in barcodes[run]:
-
-
-            if run in illuminaMapping and barcode in illuminaMapping[run]:
-                pass
-            else:
-                print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,
-                                                                                                            barcode))
-                continue
-
-            allFiles += [
-                'data/auxiliary/evaluation/illumina/'+run+'_'+barcode+'.'+type+'.txt'
-            ]
-    return allFiles
 
 rule ivar_var:
     input:
