@@ -3,7 +3,7 @@ import sys
 illuminapileup = parsePileupStrandAwareLight(snakemake.input['illuminaPileup'])
 
 with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVarInfo'],'r') as ivarInfoFile,open(snakemake.input['pancovInfo'], 'r') as pancovInfoFile:
-	outFile.write('{}\t{}\t{}\t{}\t{}\n'.format('Position','Ref','Alt','Recovered','Comment'))
+	outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format('Position','Ref','Alt','Recovered','Comment','Pileup'))
 
 	for l in ivarInfoFile.read().splitlines():
 		lineData = l.split()
@@ -34,7 +34,7 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 				if fq < 0.1:
 					reject = True
 			if reject:
-				outFile.write('{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele,-1,'Did not pass Alex Perl Filter, we ignore it'))
+				outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele,-1,'Did not pass Alex Perl Filter, we ignore it',illuminapileup[position]))
 			else:
 				recovered = False
 				for l2 in pancovInfoFile.read().splitlines():
@@ -45,7 +45,7 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 					if position2 == position and altallele2 == altallele:
 						recovered = True
 						break
-				outFile.write('{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele,recovered))
+				outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele,recovered,'',illuminapileup[position]))
 		else:
 			print('Position {} not covered by illumina pileup (but called in ivar, this is fishy)'.format(position))
 			sys.exit(-1)
