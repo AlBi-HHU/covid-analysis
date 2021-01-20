@@ -42,7 +42,7 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 				recovered = False
 				for l2 in pancovInfoFile.read().splitlines():
 					lineData2 = l2.split()
-					position2 = lineData2[0]
+					position2 = int(lineData2[0])
 					reference2 = lineData2[1]
 					altallele2 = lineData2[2]
 					if position2 == position and altallele2 == altallele:
