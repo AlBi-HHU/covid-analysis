@@ -7,7 +7,7 @@ with open(snakemake.output[0],'w') as outfile:
 		with open(f,'r') as infile:
 			ll = infile.read().splitlines()
 			for l in ll:
-				outfile.write(l)
+				outfile.write(l+'\n')
 				d = l.split()
 				reject = d[3]
 				if not reject:
