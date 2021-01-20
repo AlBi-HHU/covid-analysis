@@ -2,8 +2,7 @@ from shared import *
 
 illuminapileup = parsePileupStrandAwareLight(snakemake.input['illuminaPileup'])
 
-with open(snakemake.output['diffFile'],'w') as outFile,
-	open(snakemake.input['pancovInfo'],'r') as pancovInfoFile:
+with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pancovInfo'],'r') as pancovInfoFile:
 
 	outFile.write('{}\t{}\t{}\t{}\t{}\n'.format('Position','Ref','Alt','Verified','Illumina'))
 
