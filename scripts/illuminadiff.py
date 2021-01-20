@@ -8,7 +8,7 @@ with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pa
 
 	for l in pancovInfoFile.read().splitlines():
 		lineData = l.split()
-		position = lineData[0]
+		position = int(lineData[0])
 		reference = lineData[1]
 		altallele = lineData[2]
 
