@@ -19,7 +19,7 @@ with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pa
 			comment += 'strand bias for allele {}: {}'.format(altallele,sb)
 			cov = getCoverage(illuminapileup[position],altallele)
 			comment += ' coverage for allele {}: {}'.format(altallele,cov)
-			reject =  (cov < snakemake.config['consensusMinCov']) or (min(1-sb,sb) <snakemake.config['consensusStrandBias'])
+			reject =  (cov < snakemake.config['consensusMinCov']) or (min(1-sb,sb) <snakemake.config['consensusStrandBiais'])
 			if reject:
 				comment = 'REJECTED '+ comment
 		else:
