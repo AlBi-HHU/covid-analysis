@@ -7,7 +7,7 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 
 	for l in ivarInfoFile.read().splitlines():
 		lineData = l.split()
-		position = lineData[0]
+		position = int(lineData[0])
 		reference = lineData[1]
 		altallele = lineData[2]
 
@@ -47,5 +47,5 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 						break
 			outFile.write('{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele,recovered))
 		else:
-			sys.exit(-1)
 			print('Position {} not covered by illumina pileup (but called in ivar, this is fishy)'.format(position))
+			sys.exit(-1)
