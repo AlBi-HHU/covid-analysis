@@ -13,7 +13,7 @@ illuminapileup = parsePileupStrandAwareLight(snakemake.input['illuminaPileup'])
 
 with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pancovInfo'],'r') as pancovInfoFile:
 
-	outFile.write('{}\t{}\t{}\t{}\t{}\n'.format('Position','Ref','Alt','Verified','Illumina'))
+	outFile.write('{}\t{}\t{}\t{}\t{}\n'.format('Position','Ref','Alt','Rejected','Illumina'))
 
 	for l in pancovInfoFile.read().splitlines():
 		lineData = l.split()
