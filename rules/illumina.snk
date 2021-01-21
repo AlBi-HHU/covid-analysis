@@ -3,6 +3,13 @@ def getAllIlluminaFiles(type,wildcards):
     for run in runs:
         for barcode in barcodes[run]:
 
+            #Check for missing gisaid files
+            if wildcards.method == 'gisaid':
+                if run in gisaidMapping and barcode in gisaidMapping[run]:
+                    pass
+                else:
+                    #print('skipping run {} barcode {} for gisaid comparison as we have no seq yet ...'.format(run,barcode))
+                    continue
 
             if run in illuminaMapping and barcode in illuminaMapping[run]:
                 pass
