@@ -86,6 +86,20 @@ def getInput(wildcards):
                       ]
 
     for run in runs:
+
+        for barcode in barcodes[run]:
+
+
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+
+            inputList += [
+                'data/auxiliary/illuminaVarCalls/'+run+'_'+barcode+'/ivar.vcf.tsv'
+            ]
+
         if config['generateGFAs']:
             inputList += expand('data/auxiliary/graphs/{method}/'+run+'/{barcode}/{k}.gfa',method=methods,barcode=barcodes[run],k=ks)
 
