@@ -20,8 +20,8 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 		lineData = l.split()
 		position = int(lineData[0])
 		reference = lineData[1]
-		altalleles = [lineData[2]]
-		altallele_unmodified = altallele
+		altallele_unmodified = lineData[2]
+		altalleles = [altallele_unmodified]
 
 		if altallele_unmodified == 'N':
 			continue
