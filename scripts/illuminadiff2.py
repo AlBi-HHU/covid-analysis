@@ -1,5 +1,15 @@
 from shared import *
 import sys
+
+ambiguityChars = {
+	'R' : frozenset(('A', 'G')),
+	'Y' : frozenset(('C', 'T')),
+	'S' : frozenset(('G', 'C')),
+	'W' : frozenset(('A', 'T')),
+	'K' : frozenset(('T', 'G')),
+	'M' : frozenset(('A', 'C'))
+}
+
 illuminapileup = parsePileupStrandAwareLight(snakemake.input['illuminaPileup'])
 pancovInfoFile= open(snakemake.input['pancovInfo'], 'r').read().splitlines()
 
@@ -11,9 +21,12 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 		position = int(lineData[0])
 		reference = lineData[1]
 		altallele = lineData[2]
+		altallele_unmodified = altallele
 
 		if altallele == 'N':
 			continue
+		if altallele in ambiguityChars:
+			(altallele,) = ambiguityChars[altallele]-{reference}
 
 		if position in illuminapileup:
 			#Alex perl
@@ -38,7 +51,7 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 				if fq < 0.1:
 					reject = True
 			if reject:
-				outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele,-1,'Did not pass Alex Perl Filter, we ignore it',illuminapileup[position]))
+				outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele_unmodified,-1,'Did not pass Alex Perl Filter, we ignore it',illuminapileup[position]))
 			else:
 				recovered = False
 				for l2 in pancovInfoFile:
@@ -47,10 +60,10 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 					position2 = int(lineData2[0])
 					reference2 = lineData2[1]
 					altallele2 = lineData2[2]
-					if position2 == position and altallele2 == altallele:
+					if position2 == position and altallele2 == altallele_unmodified:
 						recovered = True
 						break
-				outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele,recovered,'',illuminapileup[position]))
+				outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele_unmodified,recovered,'',illuminapileup[position]))
 		else:
 			print('Position {} not covered by illumina pileup (but called in ivar, this is fishy)'.format(position))
 			sys.exit(-1)
