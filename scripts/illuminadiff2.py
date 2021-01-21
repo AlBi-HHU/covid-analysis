@@ -20,38 +20,40 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 		lineData = l.split()
 		position = int(lineData[0])
 		reference = lineData[1]
-		altallele = lineData[2]
+		altalleles = [lineData[2]]
 		altallele_unmodified = altallele
 
-		if altallele == 'N':
+		if altallele_unmodified == 'N':
 			continue
-		if altallele in ambiguityChars:
-			(altallele,) = ambiguityChars[altallele]-{reference}
+		if altallele_unmodified in ambiguityChars:
+			altalleles = list(ambiguityChars[altallele]-{reference})
 
 		if position in illuminapileup:
-			#Alex perl
-			sb = getStrandBias(illuminapileup[position],altallele)
-			cov = getCoverage(illuminapileup[position],altallele)
-			abs = getMinorStrandAbs(illuminapileup[position],altallele)
-			fq = getMinorStrandFrequency(illuminapileup[position],altallele)
+			for altallele in altalleles:
+				#Alex perl
+				sb = getStrandBias(illuminapileup[position],altallele)
+				cov = getCoverage(illuminapileup[position],altallele)
+				abs = getMinorStrandAbs(illuminapileup[position],altallele)
+				fq = getMinorStrandFrequency(illuminapileup[position],altallele)
 
-			reject = False
-			if cov <= 10:
-				reject = True
-			elif cov <= 20:
-				if abs < 5:
+				reject = False
+				if cov <= 10:
 					reject = True
-			elif cov <= 50:
-				if abs < 10 and fq < 0.25:
-					reject = True
-			elif cov <= 100:
-				if abs < 15 and fq < 0.15:
-					reject = True
-			else:
-				if fq < 0.1:
-					reject = True
-			if reject:
-				outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele_unmodified,-1,'Did not pass Alex Perl Filter, we ignore it',illuminapileup[position]))
+				elif cov <= 20:
+					if abs < 5:
+						reject = True
+				elif cov <= 50:
+					if abs < 10 and fq < 0.25:
+						reject = True
+				elif cov <= 100:
+					if abs < 15 and fq < 0.15:
+						reject = True
+				else:
+					if fq < 0.1:
+						reject = True
+				if reject:
+					outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele_unmodified,-1,'Allele Component: {} did not pass Alex Perl Filter, we ignore it'.format(altallele),illuminapileup[position]))
+					break
 			else:
 				recovered = False
 				for l2 in pancovInfoFile:
