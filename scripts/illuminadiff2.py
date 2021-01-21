@@ -26,7 +26,7 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 		if altallele_unmodified == 'N':
 			continue
 		if altallele_unmodified in ambiguityChars:
-			altalleles = list(ambiguityChars[altallele]-{reference})
+			altalleles = list(ambiguityChars[altallele_unmodified]-{reference})
 
 		if position in illuminapileup:
 			for altallele in altalleles:
