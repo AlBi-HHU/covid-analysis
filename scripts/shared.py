@@ -113,7 +113,7 @@ def rev_comp(seq):
     return "".join(reversed([complement[n] for n in seq]))
 
 def getStrandBias(pileupForPosition,altallele):
-
+    print('gsb',altallele)
     altallele = '(' if altallele == '-' else altallele
     plus = 0
     total = 0
