@@ -27,12 +27,12 @@ selection = alt.selection_multi(fields=['sample'])
 color = alt.condition(selection, alt.value('green'), alt.value('lightgray'))
 make_selector = alt.Chart(make).mark_rect().encode(x='sample',color=color).add_selection(selection)
 
-chart = alt.Chart(df,height=600).mark_rect().encode(
+chart = alt.Chart(df).mark_rect().encode(
     y = 'pos:O',
     x = 'sample:N',
     color= alt.Color('rejected',scale=alt.Scale(
         domain = ['True','False'],
-        range=['red','green']
+        range=['orange','blue']
     )),
     tooltip = ['ref','alt','comment','pileupillu','pileupnano']
 ).transform_filter(
