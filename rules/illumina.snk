@@ -50,6 +50,16 @@ rule illuminaVerify:
     script:
         '../scripts/illuminadiff.py'
 
+rule illuminaVerifyVisualize:
+    input:
+        'data/output/evaluation/illumina_verification_{method}.eval'
+    output:
+        'data/output/evaluation/illumina_verification_{method}.html'
+    conda:
+        '../envs/altair.yaml'
+    script:
+        '../scripts/verifyAltair.py'
+
 rule illuminaRecover:
     input:
         pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info",
