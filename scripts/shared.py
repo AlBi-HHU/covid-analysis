@@ -113,8 +113,8 @@ def rev_comp(seq):
     return "".join(reversed([complement[n] for n in seq]))
 
 def getStrandBias(pileupForPosition,altallele):
-    if altallele == '-':
-        altallele = '('
+
+    altallele = '(' if altallele == '-' else altallele
     plus = 0
     total = 0
     for allele,count in pileupForPosition.items():
@@ -125,8 +125,7 @@ def getStrandBias(pileupForPosition,altallele):
     return plus/total if total != 0 else 0
 
 def getCoverage(pileupForPosition,altallele):
-    if altallele == '-':
-        altallele = '('
+    altallele = '(' if altallele == '-' else altallele
     total = 0
     for allele,count in pileupForPosition.items():
         if squashStrandedness(allele) == altallele:
@@ -134,8 +133,7 @@ def getCoverage(pileupForPosition,altallele):
     return total
 
 def getMinorStrandAbs(pileupForPosition,altallele):
-    if altallele == '-':
-        altallele = '('
+    altallele = '(' if altallele == '-' else altallele
     total = 0
     for allele,count in pileupForPosition.items():
         if squashStrandedness(allele) == altallele and (allele == ')' or allele.islower()):
