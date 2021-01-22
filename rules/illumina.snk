@@ -61,6 +61,16 @@ rule illuminaRecover:
     script:
         '../scripts/illuminadiff2.py'
 
+rule illuminaRecoverVisualize:
+    input:
+        'data/output/evaluation/illumina_recovery_{method}.eval'
+    output:
+        'data/output/evaluation/illumina_recovery_{method}.html'
+    conda:
+        '../envs/altair.yaml'
+    script:
+        '../scripts/recoveryAltair.py'
+
 rule aggregateVerification:
     input:
         iteratorList = lambda wildcards : getAllIlluminaFiles('verification',wildcards)

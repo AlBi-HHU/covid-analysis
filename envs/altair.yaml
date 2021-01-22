@@ -1,0 +1,9 @@
+name: altair
+
+channels:
+  - conda-forge
+
+dependencies:
+  - pandas
+  - altair
+
