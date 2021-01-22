@@ -19,7 +19,7 @@ with open(snakemake.input[0],'r') as infile:
                 #print(sid)
                 sample =sid[0]+'/'+sid[1]
             
-df = pd.DataFrame(tuples,columns=['sample','pos','ref','alt','validated','comment','pileupillu','pileupnano'])
+df = pd.DataFrame(tuples,columns=['sample','pos','ref','alt','rejected','comment','pileupillu','pileupnano'])
 
 
 make = pd.DataFrame({'sample': list(df['sample'].unique())})
@@ -30,9 +30,9 @@ make_selector = alt.Chart(make).mark_rect().encode(x='sample',color=color).add_s
 chart = alt.Chart(df,height=600).mark_rect().encode(
     y = 'pos:O',
     x = 'sample:N',
-    color= alt.Color('validated',scale=alt.Scale(
+    color= alt.Color('rejected',scale=alt.Scale(
         domain = ['True','False'],
-        range=['green','red']
+        range=['red','green']
     )),
     tooltip = ['ref','alt','comment','pileupillu','pileupnano']
 ).transform_filter(
