@@ -10,10 +10,11 @@ ambiguityChars = {
 }
 
 illuminapileup = parsePileupStrandAwareLight(snakemake.input['illuminaPileup'])
+nanoporepileup = parsePileupStrandAwareLight(snakemake.input['nanoporePileup'])
 
 with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pancovInfo'],'r') as pancovInfoFile:
 
-	outFile.write('{}\t{}\t{}\t{}\t{}\n'.format('Position','Ref','Alt','Rejected','Illumina'))
+	outFile.write('{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format('Position','Ref','Alt','Rejected','Comment','Illumina','Nanopore'))
 
 	for l in pancovInfoFile.read().splitlines():
 		lineData = l.split()
@@ -39,4 +40,8 @@ with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pa
 		else:
 			comment += 'position not covered by illumina reads (dropout?)'
 
-		outFile.write('{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele_unmodified,reject,comment))
+		outFile.write('{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele_unmodified,reject,comment,
+		                                                    illuminapileup[position] if position in illuminapileup else 'no illu pileup for pos',
+															nanoporepileup[position] if position in nanoporepileup else 'no nano pileup for pos'
+
+		))

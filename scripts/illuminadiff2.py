@@ -11,10 +11,12 @@ ambiguityChars = {
 }
 
 illuminapileup = parsePileupStrandAwareLight(snakemake.input['illuminaPileup'])
+nanoporepileup = parsePileupStrandAwareLight(snakemake.input['nanoporePileup'])
+
 pancovInfoFile= open(snakemake.input['pancovInfo'], 'r').read().splitlines()
 
 with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVarInfo'],'r') as ivarInfoFile:
-	outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format('Position','Ref','Alt','Recovered','Comment','Pileup'))
+	outFile.write('{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format('Position','Ref','Alt','Recovered','Comment','Pileup Illu','Pileup Nano'))
 
 	for l in ivarInfoFile.read().splitlines():
 		lineData = l.split()
@@ -52,7 +54,9 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 					if fq < 0.1:
 						reject = True
 				if reject:
-					outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele_unmodified,-1,'Allele Component: {} did not pass Alex Perl Filter, we ignore it'.format(altallele),illuminapileup[position]))
+					outFile.write('{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele_unmodified,-1,'Allele Component: {} did not pass Alex Perl Filter, we ignore it'.format(altallele),illuminapileup[position],
+					                                                    nanoporepileup[position] if position in nanoporepileup else 'No nanopore pileup'
+					                                                    ))
 					break
 			else:
 				recovered = False
@@ -65,7 +69,9 @@ with open(snakemake.output['diffFile'],'w') as outFile,open(snakemake.input['iVa
 					if position2 == position and altallele2 == altallele_unmodified:
 						recovered = True
 						break
-				outFile.write('{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele_unmodified,recovered,'',illuminapileup[position]))
+				outFile.write('{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele_unmodified,recovered,'',illuminapileup[position],
+				                                                    nanoporepileup[position] if position in nanoporepileup else 'No nanopore pileup'
+				                                                    ))
 		else:
 			print('Position {} not covered by illumina pileup (but called in ivar, this is fishy)'.format(position))
 			sys.exit(-1)
