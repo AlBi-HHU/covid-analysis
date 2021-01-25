@@ -1,0 +1,6 @@
+name: bubblegun
+channels:
+  - defaults
+dependencies:
+  - pip:
+      -"git+https://github.molgen.mpg.de/fdabbagh/bubble_gun.git"
