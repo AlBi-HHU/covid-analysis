@@ -1,9 +1,0 @@
-name: Bcalm
-
-channels:
-  - bioconda
-  - defaults
-
-dependencies:
-  - bcalm = 2.2.2
-

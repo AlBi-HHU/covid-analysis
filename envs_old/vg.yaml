@@ -1,8 +1,0 @@
-name: vg
-
-channels:
-  - bioconda
-  - defaults
-
-dependencies:
-  - vg = 1.24

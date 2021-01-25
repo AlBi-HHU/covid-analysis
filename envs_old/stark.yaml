@@ -1,9 +1,0 @@
-name: Stark
-
-channels:
-  - bioconda
-  - defaults
-
-dependencies:
-  - stark = 0.1
-
