@@ -4,13 +4,14 @@ from collections import defaultdict, Counter
 
 from shared import *
 
+
 def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_path):
 
     # Get ref information
     node2pos = dict()
     node2ori = dict()
     ref_path = list()
-    
+
     with open(node2pos_path) as fh:
         reader = csv.reader(fh, delimiter=",")
         next(reader)
@@ -18,9 +19,9 @@ def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_pat
             node2pos[row[0]] = int(row[1])
             node2ori[row[0]] = row[2]
             ref_path.append(row[0])
-            
+
     ref_nodes = set(ref_path)
-            
+
     # Get reads mappings
     node2cov = Counter()
     paths = defaultdict(list)
@@ -33,21 +34,16 @@ def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_pat
 
         for node in path_no_strand:
             node2cov[node] += len(paths[path])
-        
+
         if any(node in ref_nodes for node in path_no_strand): # Some node of path match with reference node
             if path_no_strand and not set(path_no_strand).issubset(ref_nodes): # Path isn't empty and some node isn't in reference path
                 diff_pos = pos_of_diff(list(path_no_strand), list(ref_path))
                 for diff_pos in pos_of_diff(list(path_no_strand), list(ref_path)):
                     if diff_pos is None:
                         continue
-                    
+
                     variants[tuple(path[diff_pos[0]:diff_pos[1]])] += len(paths[path])
 
-    with open("node2cov.csv", "w") as fh:
-        print("node,coverage", file=fh)
-        for (node, cov) in node2cov.items():
-            print("{},{}".format(node, cov), file=fh)
-        
     # set data required by vcf format
     ref_name = "MN908947.3"
     ref_length = 29903
@@ -65,10 +61,10 @@ def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_pat
         ref_index = (ref_path.index(variant[0][1:]), ref_path.index(variant[-1][1:]))
         if ref_index[0] > ref_index[1]:
             ref_index = (ref_index[1], ref_index[0])
-                
+
             variant_oris = ['>' if ori == '<' else '<' for ori in variant_oris]
             variant_nodes = list(reversed(variant_nodes))
-                
+
         reference = ref_path[ref_index[0]:ref_index[1] + 1]
 
         reference_nodes = reference
@@ -79,7 +75,7 @@ def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_pat
 
         if variant_seq == reference_seq:
             continue
-            
+
         pos = node2pos[reference_nodes[0]]
         ref_cov = min([node2cov[node] for node in reference_nodes])
 
@@ -104,21 +100,6 @@ def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_pat
             if rvt >= rvt_threshold:
                 print("{}\t{}\t.\t{}\t{}\t.\t.\tVCOV={};RCOV={};RVT={};VARIANT_PATH={}".format(ref_name, pos + 1, r_seq, v_seq, count, ref_cov, rvt, ",".join(nodes)), file=fh)
 
-'''
-#substitutes bases with their ambiguous counterparts if the threshold for heterozygosity is met for equal length non-SV vars
-def substituteAmbiguousBases(r_seq,v_seq):
-    if len(r_seq) == len(v_seq):
-        ret = ''
-        for a,b in zip(r_seq,v_seq):
-            ambiguityChar = ambiguousBase(frozenset({a,b}))
-            if ambiguityChar == None:
-                return v_seq
-            else:
-                ret += ambiguityChar
-        return ret
-    else: #Do not substitute
-        return v_seq
-'''
 
 def vcf_header(fh, ref_name, length):
     print("##fileformat=VCFv4.2", file=fh)
@@ -129,7 +110,7 @@ def vcf_header(fh, ref_name, length):
     print("##contig=<ID={},length={}>".format(ref_name, length), file=fh)
     print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT", file=fh)
 
-        
+
 def sequence_from_node(oris, nodes, node2seq, previous_ori):
     seq = ""
     for ori, node in zip(oris, nodes):
@@ -137,12 +118,13 @@ def sequence_from_node(oris, nodes, node2seq, previous_ori):
             seq += node2seq[node]
         else:
             seq += rev_comp(node2seq[node])
-            
+
     return seq
-                             
+
+
 def pos_of_diff(path, reference):
     begin = path[0]
-    
+
     try:
         index_ref = reference.index(begin)
     except ValueError:
@@ -168,10 +150,11 @@ def pos_of_diff(path, reference):
             yield None
         else:
             yield (begin_break, end_break + 1)
-    
+
+
 if "snakemake" in locals():
     main(snakemake.input["pangenome"], snakemake.input["reads"], snakemake.input["node2pos"], float(snakemake.params["rvt"]), snakemake.output["variant"])
 else:
     import sys
-    
+
     main(sys.argv[1], sys.argv[2], sys.argv[3], float(sys.argv[4]), sys.argv[5])
