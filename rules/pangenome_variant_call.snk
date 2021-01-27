@@ -2,6 +2,7 @@ rule map_read_pangenome:
     input:
         graph = "data/auxiliary/pangenome/pangenome.gfa",
         reads = "data/auxiliary/softClippedSeqs/{method}/{run}/{barcode}.fasta",
+
     output:
         mappings = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/reads.gaf",
 
@@ -15,7 +16,7 @@ rule map_read_pangenome:
         'logs/pangenome_vc_read_mapping_{method}_{run}_{barcode}.log',
 
     shell:
-        "GraphAligner -t {threads} -g {input.graph} -f {input.reads}  -a {output.mappings} -x vg 2> {log}"
+        "GraphAligner -t {threads} -g {input.graph} -f {input.reads}  -a {output.mappings} -x vg 2>&1 > {log}"
 
 
 rule map_ref_pangenome:
@@ -36,7 +37,7 @@ rule map_ref_pangenome:
         'logs/pangenome_vc_reference_mapping.log',
 
     shell:
-        "GraphAligner -t {threads} -g {input.graph} -f {input.ref}  -a {output.mappings} -x vg 2> {log}"
+        "GraphAligner -t {threads} -g {input.graph} -f {input.ref}  -a {output.mappings} -x vg 2>&1 > {log}"
 
 rule node_pos_on_ref:
     input:
