@@ -1,17 +1,20 @@
 import csv
+import json
+import networkx
 
 from collections import defaultdict, Counter
 
 from shared import *
 
 
-def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_path):
+def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshold, min_cov_factor, min_ends_cov, output_path):
 
     # Get ref information
     node2pos = dict()
     node2ori = dict()
     ref_path = list()
 
+    # Read node position on reference
     with open(node2pos_path) as fh:
         reader = csv.reader(fh, delimiter=",")
         next(reader)
@@ -21,92 +24,158 @@ def main(pangenome_path, reads_mapping, node2pos_path, rvt_threshold, output_pat
             ref_path.append(row[0])
 
     ref_nodes = set(ref_path)
+    ref_edge = {(ref_path[i], ref_path[i+1]) for i in range(len(ref_path)-1)}
 
-    # Get reads mappings
-    node2cov = Counter()
+    # Get node coverage
+    node2hit = Counter()
+    edge2cov = Counter()
     paths = defaultdict(list)
-    parse_gaf(reads_mapping, paths, node2cov)
 
-    # Found path didn't follow reference path
-    variants = Counter() # [begin, variant path, end] -> list(reads)
-    for path in paths:
-        path_no_strand = [node[1:] for node in path]
+    parse_gaf(reads_mapping, paths, node2hit, edge2cov)
 
-        for node in path_no_strand:
-            node2cov[node] += len(paths[path])
+    # get the sequence associate to node
+    node2seq = get_node2seq(pangenome_path)
+    graph = gfa2networkx(pangenome_path)
 
-        if any(node in ref_nodes for node in path_no_strand): # Some node of path match with reference node
-            if path_no_strand and not set(path_no_strand).issubset(ref_nodes): # Path isn't empty and some node isn't in reference path
-                diff_pos = pos_of_diff(list(path_no_strand), list(ref_path))
-                for diff_pos in pos_of_diff(list(path_no_strand), list(ref_path)):
-                    if diff_pos is None:
-                        continue
+    node2cov = defaultdict(int)
+    for (node, hit) in node2hit.items():
+        node2cov[node] = hit# / len(node2seq[node])
 
-                    variants[tuple(path[diff_pos[0]:diff_pos[1]])] += len(paths[path])
+    # Read bubble
+    simple_bubble = set()
+    bubbles = dict()
+    with open(bubble_path) as fh:
+        for line in fh:
+            result = json.loads(line)
+
+            if "parent_sb" in result:
+                super_bubble = result["parent_sb"]
+            else:
+                super_bubble = None
+
+            for bubble in result["bubbles"]:
+                id = bubble["id"]
+                del bubble["id"]
+
+                if super_bubble is not None:
+                    bubble["parent"] = super_bubble
+
+                if bubble["type"] == "simple" or bubble["type"] == "insertion":
+                    simple_bubble.add(id)
+                bubbles[id] = bubble
+
+    variants = list()
+    for b_id in bubbles:
+
+        # Get bubble with ends in ref
+        skip_bubble = False
+        bubble = bubbles[b_id]
+        while not all((end in ref_nodes for end in bubble["ends"])):
+            if "parent" in bubble:
+                bubble = bubbles[bubble["parent"]]
+            else:
+                skip_bubble = True
+                break
+
+        if skip_bubble:
+            continue
+
+        # Compute coverage around bubble
+        ends_cov = min((node2cov[node] for node in bubble["ends"]))
+
+        # If bubble have ref node with low coverage it's a variant bubble
+        if ends_cov < min_ends_cov:
+            continue
+
+        subgraph = graph.subgraph(bubble["ends"] + bubble["inside"]).copy()
+
+        # Annotate node
+        not_cov_nodes = set()
+        not_cov_edges = set()
+        for (node, data) in subgraph.nodes.items():
+            if node2cov[node] < ends_cov * min_cov_factor:
+                not_cov_nodes.add(node)
+
+        # Annotate edge
+        for (edge, data) in subgraph.edges.items():
+            if edge2cov[frozenset(edge)] < ends_cov * min_cov_factor:
+                not_cov_edges.add(edge)
+
+        # Found reference path in bubble
+        ref_path = get_paths(subgraph.subgraph((n for n in subgraph.nodes() if n in ref_nodes)), bubble["ends"])
+        if len(ref_path) == 0:
+            continue
+        elif len(ref_path) == 1:
+            ref_path = ref_path[0]
+        else:
+            ref_path = sorted(ref_path, key=lambda x: len(x), reverse=True)[0]
+        ref_seq = "".join(node2seq[node] for node in ref_path)
+        ref_cov = path_coverage(ref_path, edge2cov, node2cov)
+
+        # Clean not covered node and edge
+        subgraph.remove_nodes_from(not_cov_nodes)
+        subgraph.remove_edges_from(not_cov_edges)
+
+        # Found variant paths
+        var_paths = list()
+        for path in get_paths(subgraph, bubble["ends"]):
+            prev = None
+            for node in path:
+                if node not in ref_nodes:
+                    var_paths.append(path)
+                    break
+
+                if prev is not None and (prev, node) not in ref_edge:
+                    var_paths.append(path)
+                    break
+
+                prev = node
+
+        for var_path in var_paths:
+            var_cov = path_coverage(var_path, edge2cov, node2cov)
+            var_seq = "".join(node2seq[node] for node in var_path)
+
+            variants.append((ref_seq, var_seq, node2pos[ref_path[0]], ref_cov, var_cov, b_id))
 
     # set data required by vcf format
     ref_name = "MN908947.3"
     ref_length = 29903
 
-    # get the sequence associate to node
-    node2seq = get_node2seq(pangenome_path)
-
-    final = dict()
-    # write variant
-
-    for (variant, count) in variants.items():
-        variant_oris = [node[0] for node in variant]
-        variant_nodes = [node[1:] for node in variant]
-
-        ref_index = (ref_path.index(variant[0][1:]), ref_path.index(variant[-1][1:]))
-        if ref_index[0] > ref_index[1]:
-            ref_index = (ref_index[1], ref_index[0])
-
-            variant_oris = ['>' if ori == '<' else '<' for ori in variant_oris]
-            variant_nodes = list(reversed(variant_nodes))
-
-        reference = ref_path[ref_index[0]:ref_index[1] + 1]
-
-        reference_nodes = reference
-        reference_oris = [node2ori[node] for node in reference_nodes]
-
-        variant_seq = sequence_from_node(variant_oris, variant_nodes, node2seq, variant[0][0])
-        reference_seq = sequence_from_node(reference_oris, reference_nodes, node2seq, variant[0][0])
-
-        if variant_seq == reference_seq:
-            continue
-
-        pos = node2pos[reference_nodes[0]]
-        ref_cov = min([node2cov[node] for node in reference_nodes])
-
-        key = (variant_seq, reference_seq, pos, tuple(variant_nodes))
-        if key in final:
-            new_value = (final[key][0] + count, max(ref_cov, final[key][1]))
-        else:
-            new_value = (count, ref_cov)
-        final[key] = new_value
-
+    # Write variant
     with open(output_path, "w") as fh:
         vcf_header(fh, ref_name, ref_length)
 
-        for ((v_seq, r_seq, pos, nodes), (count, ref_cov)) in final.items():
-            rvt = count / (count + ref_cov)
-
-            '''
-            if th_het <= rvt <= 1-th_het:
-                v_seq = substituteAmbiguousBases(r_seq,v_seq)
-            '''
-
+        for (r_seq, v_seq, pos, ref_cov, var_cov, bubble_id) in variants:
+            rvt = var_cov / (ref_cov + var_cov)
             if rvt >= rvt_threshold:
-                print("{}\t{}\t.\t{}\t{}\t.\t.\tVCOV={};RCOV={};RVT={};VARIANT_PATH={}".format(ref_name, pos + 1, r_seq, v_seq, count, ref_cov, rvt, ",".join(nodes)), file=fh)
+                print("{}\t{}\t.\t{}\t{}\t.\t.\tRCOV={};VCOV={};BUBBLEID={}".format(ref_name, pos + 1, r_seq, v_seq, ref_cov, var_cov, bubble_id), file=fh)
+
+
+def path_coverage(path, edge2cov, node2cov):
+    if len(path) < 2:
+        return 0
+    elif len(path) == 2:
+        if frozenset(path) in edge2cov:
+            return edge2cov[frozenset(path)]
+        else:
+            return 0
+
+    return sum(node2cov[node] for node in path[1:-1]) / len(path)  # Don't take ends whne compute var_cov 
+
+
+def get_paths(graph, ends):
+    paths = list(networkx.all_simple_paths(graph, ends[0], ends[1]))
+    if len(paths) == 0:
+        paths = list(networkx.all_simple_paths(graph, ends[1], ends[0]))
+
+    return paths
 
 
 def vcf_header(fh, ref_name, length):
     print("##fileformat=VCFv4.2", file=fh)
-    print("##INFO=<ID=VCOV,Number=1,Type=Integer,Description=\"Coverage of variant path\">", file=fh)
-    print("##INFO=<ID=RCOV,Number=1,Type=Integer,Description=\"Coverage of reference path\">", file=fh)
-    print("##INFO=<ID=RVT,Number=1,Type=Float,Description=\"Ratio between coverage of variant and total coverage\">", file=fh)
-    print("##INFO=<ID=VARIANT_PATH,Number=1,Type=String,Description=\"Id of variant node in pangenome graph\">", file=fh)
+    print("##INFO=<ID=RCOV,Number=1,Type=Float,Description=\"Coverage of reference path\">", file=fh)
+    print("##INFO=<ID=VCOV,Number=1,Type=Float,Description=\"Coverage of variant path\">", file=fh)
+    print("##INFO=<ID=BUBBLEID,Number=1,Type=Float,Description=\"Id of bubble in pangenome\">", file=fh)
     print("##contig=<ID={},length={}>".format(ref_name, length), file=fh)
     print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT", file=fh)
 
@@ -152,9 +221,22 @@ def pos_of_diff(path, reference):
             yield (begin_break, end_break + 1)
 
 
+def gfa2networkx(gfa_path):
+    graph = networkx.DiGraph()
+
+    with open(gfa_path) as fh:
+        for line in fh:
+            if line.startswith("L"):
+                line = line.split("\t")
+                graph.add_edge(line[1], line[3])
+
+    return graph
+
+
 if "snakemake" in locals():
-    main(snakemake.input["pangenome"], snakemake.input["reads"], snakemake.input["node2pos"], float(snakemake.params["rvt"]), snakemake.output["variant"])
+    main(snakemake.input["pangenome"], snakemake.input["bubble"], snakemake.input["reads"], snakemake.input["node2pos"], float(snakemake.params["rvt"]), float(snakemake.params["min_cov_factor"]), int(snakemake.params["min_ends_cov"]), snakemake.output["variant"])
 else:
     import sys
 
-    main(sys.argv[1], sys.argv[2], sys.argv[3], float(sys.argv[4]), sys.argv[5])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], float(sys.argv[4]), float(sys.argv[5]), sys.argv[6])
+(())
