@@ -1,7 +1,7 @@
 name: ivar
 channels:
-    - conda-forge
-    - bioconda
+  - conda-forge
+  - bioconda
 
 dependencies:
     - libdeflate = 1.6

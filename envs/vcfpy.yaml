@@ -1,9 +1,8 @@
 name: vcfpy
 
 channels:
-  - nodefaults
-  - http://conda.repo.test.hhu.de/bioconda
-  - http://conda.repo.test.hhu.de/main
+  - conda-forge
+  - bioconda
 
 dependencies:
   - vcfpy = 0.13
