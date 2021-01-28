@@ -28,7 +28,7 @@ def ambiguousBase(frozenset):
 
 def get_node2seq(graph_path):
     node2seq = dict()
-    
+
     with open(graph_path) as graph_fh:
         reader = csv.reader(graph_fh, delimiter='\t')
         for row in reader:
@@ -37,17 +37,24 @@ def get_node2seq(graph_path):
 
     return node2seq
 
-def parse_gaf(path, storage, node2cov=None):
+def parse_gaf(path, storage, node2hit=None, edge2cov=None):
     with open(path) as fh:
         reader = csv.reader(fh, delimiter='\t')
         for row in reader:
-            tigs = re.findall(r"([<|>][^<>]+)", row[5])
-                    
-            if node2cov:
-                for tig in tigs:
-                    node2cov[tig] += 1
-            
-            storage[tuple(tigs)].append(row[0])
+            nodes = re.findall(r"([<|>][^<>]+)", row[5])
+
+            if node2hit is not None:
+                for node in nodes:
+                    node2hit[node[1:]] += 1
+
+            if edge2cov is not None:
+                for i in range(0, len(nodes) - 1):
+                    edge2cov[frozenset((
+                        nodes[i][1:],
+                        nodes[i+1][1:]
+                    ))] += 1
+
+            storage[tuple(nodes)].append(row[0])
 
 
 complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'} 

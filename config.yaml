@@ -53,6 +53,8 @@ pangenomeCorrectionK: 15
 # Pangenome variant calling
 pangenomeVariantCalling: True
 pangenomeRVTThreshold: 0.2
+pangenomeMinCovFactor: 0.8
+pangenomeMinEndsCovBubble: 10
 pangenomeVarMinCov: 15
 
 # Illumina variant calling
