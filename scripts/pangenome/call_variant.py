@@ -145,7 +145,7 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
         for (r_seq, v_seq, pos, ref_cov, var_cov, bubble_id) in variants:
             rvt = var_cov / (ref_cov + var_cov)
             if rvt >= rvt_threshold:
-                print("{}\t{}\t.\t{}\t{}\t.\t.\tRCOV={};VCOV={};BUBBLEID={}".format(ref_name, pos + 1, r_seq, v_seq, ref_cov, var_cov, bubble_id), file=fh)
+                print("{}\t{}\t.\t{}\t{}\t.\t.\tRCOV={:.4f};VCOV={:.4f};BUBBLEID={}".format(ref_name, pos + 1, r_seq, v_seq, ref_cov, var_cov, bubble_id), file=fh)
 
 
 def path_coverage(path, edge2cov, node2cov):
@@ -172,7 +172,7 @@ def vcf_header(fh, ref_name, length):
     print("##fileformat=VCFv4.2", file=fh)
     print("##INFO=<ID=RCOV,Number=1,Type=Float,Description=\"Coverage of reference path\">", file=fh)
     print("##INFO=<ID=VCOV,Number=1,Type=Float,Description=\"Coverage of variant path\">", file=fh)
-    print("##INFO=<ID=BUBBLEID,Number=1,Type=String,Description=\"Id of bubble in pangenome\">", file=fh)
+    print("##INFO=<ID=BUBBLEID,Number=1,Type=Integer,Description=\"Id of bubble in pangenome\">", file=fh)
     print("##contig=<ID={},length={}>".format(ref_name, length), file=fh)
     print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT", file=fh)
 
