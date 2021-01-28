@@ -57,7 +57,7 @@ for run in runs:
         if gisaidid:
             gisaidpath =  gisaidid  + ".fasta"
 
-            print(gisaidpath)
+            #print(gisaidpath)
             if os.path.isfile(os.path.join('data/input/gisaidseqs',gisaidpath)):
                 continue
             else:
