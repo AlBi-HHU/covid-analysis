@@ -172,7 +172,7 @@ def vcf_header(fh, ref_name, length):
     print("##fileformat=VCFv4.2", file=fh)
     print("##INFO=<ID=RCOV,Number=1,Type=Float,Description=\"Coverage of reference path\">", file=fh)
     print("##INFO=<ID=VCOV,Number=1,Type=Float,Description=\"Coverage of variant path\">", file=fh)
-    print("##INFO=<ID=BUBBLEID,Number=1,Type=Float,Description=\"Id of bubble in pangenome\">", file=fh)
+    print("##INFO=<ID=BUBBLEID,Number=1,Type=String,Description=\"Id of bubble in pangenome\">", file=fh)
     print("##contig=<ID={},length={}>".format(ref_name, length), file=fh)
     print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT", file=fh)
 
