@@ -1,6 +1,7 @@
 import os
 from shared import *
 import pandas as pd
+import altair as alt
 
 print('Identifying var positions ...')
 
