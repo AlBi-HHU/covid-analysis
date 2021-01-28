@@ -25,12 +25,13 @@ for f in snakemake.input['iteratorList']:
 		if pos in positions:
 			tuples.append((pos,f,sum(pileup[pos].values())))
 
+
+print(tuples)
 df = pd.DataFrame(tuples,columns=['pos','file','cov'])
 print('plotting')
 os.makedirs(snakemake.output[0], exist_ok=True)
 
 for pos in positions:
-	print(df[df.pos == pos])
 	base = alt.Chart(df[df.pos == pos])
 
 	bar = base.mark_bar().encode(
