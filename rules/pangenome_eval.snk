@@ -93,7 +93,7 @@ def getAllComparisonFiles(wildcards):
                 if run in gisaidMapping and barcode in gisaidMapping[run]:
                     pass
                 else:
-                    print('skipping run {} barcode {} for gisaid comparison as we have no seq yet ...'.format(run,barcode))
+                    #print('skipping run {} barcode {} for gisaid comparison as we have no seq yet ...'.format(run,barcode))
                     continue
                     
             #check for missing illumina files
