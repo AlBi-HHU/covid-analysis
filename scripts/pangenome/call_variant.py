@@ -44,25 +44,22 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
     # Read bubble
     simple_bubble = set()
     bubbles = dict()
-    with open(bubble_path) as fh:
-        for line in fh:
-            result = json.loads(line)
+    for chain in json.load(open(bubble_path)):
+        if "parent_sb" in chain:
+            super_bubble = chain["parent_sb"]
+        else:
+            super_bubble = None
 
-            if "parent_sb" in result:
-                super_bubble = result["parent_sb"]
-            else:
-                super_bubble = None
+        for bubble in chain["bubbles"]:
+            id = bubble["id"]
+            del bubble["id"]
 
-            for bubble in result["bubbles"]:
-                id = bubble["id"]
-                del bubble["id"]
+            if super_bubble is not None:
+                bubble["parent"] = super_bubble
 
-                if super_bubble is not None:
-                    bubble["parent"] = super_bubble
-
-                if bubble["type"] == "simple" or bubble["type"] == "insertion":
-                    simple_bubble.add(id)
-                bubbles[id] = bubble
+            if bubble["type"] == "simple" or bubble["type"] == "insertion":
+                simple_bubble.add(id)
+            bubbles[id] = bubble
 
     variants = list()
     for b_id in bubbles:
