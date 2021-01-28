@@ -89,6 +89,17 @@ rule aggregateVerification:
     script:
         '../scripts/aggregateVerifications.py'
 
+rule plotCoveragePerVariant:
+    input:
+        verification = 'data/output/evaluation/illumina_verification_{method}.eval',
+        iteratorList = lambda wildcards: getAllIlluminaFiles('verification', wildcards)
+    output:
+        'data/output/evaluation/coveragePlots'
+    conda:
+        '../envs/altair.yaml'
+    script:
+        '../scripts/plotCoveragePerVariant.py'
+
 rule aggregateRecoveries:
     input:
         iteratorList = lambda wildcards : getAllIlluminaFiles('recovery',wildcards)
