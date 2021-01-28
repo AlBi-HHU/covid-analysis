@@ -94,7 +94,7 @@ rule plotCoveragePerVariant:
         verification = 'data/output/evaluation/illumina_verification_{method}.eval',
         iteratorList = lambda wildcards: getAllIlluminaFiles('verification', wildcards)
     output:
-        'data/output/evaluation/coveragePlots'
+        'data/output/evaluation/coveragePlots_{method}'
     conda:
         '../envs/altair.yaml'
     script:
