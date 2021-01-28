@@ -2,7 +2,7 @@
 with open(snakemake.output[0],'w') as outfile:
 	total = 0
 	rejected = 0
-	filtered += 1
+	filtered = 0
 	for f in snakemake.input:
 		outfile.write(f+'\n')
 		with open(f,'r') as infile:
