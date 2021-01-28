@@ -56,7 +56,7 @@ for run in runs:
         gisaidid = getGisaidFile(run,barcode)
 
         if gisaidid:
-            gisaidpath = "Germany_NW-HHU-"  + gisaidid  + ".fasta"
+            gisaidpath =  gisaidid  + ".fasta"
 
             print(gisaidpath)
             if os.path.isfile(os.path.join('data/input/gisaidseqs',gisaidpath)):
