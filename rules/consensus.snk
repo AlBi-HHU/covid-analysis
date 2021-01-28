@@ -5,7 +5,8 @@ rule decideFinalVCF:
         vcf = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf",
         pileup = 'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.pileupanalysis.txt'
     output:
-        vcf = "data/output/consensus/{method}/{run}/{barcode}/variant.vcf"
+        vcf = "data/output/consensus/{method}/{run}/{barcode}/variant.vcf",
+        nMask = "data/auxiliary/consensus/{method}/{run}/{barcode}/mask.tsv"
     log:
         'logs/decideFinalVCF_{method}_{run}_{barcode}.txt'
     conda:
@@ -62,8 +63,8 @@ rule apply_vcf:
     input:
         ref = "data/input/nCoV-2019.reference.fasta",
         vcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz",
-        index = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz.csi"
-
+        index = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz.csi",
+        nMask = "data/auxiliary/consensus/{method}/{run}/{barcode}/mask.tsv"
     output:
         var_ref = "data/output/consensus/{method}/{run}/{barcode}/consensus.fasta"
 
@@ -71,7 +72,7 @@ rule apply_vcf:
         '../envs/realign.yaml'
 
     shell:
-        'bcftools consensus -f {input.ref} {input.vcf} > {output.var_ref}'
+        'bcftools consensus -f {input.ref} -m {input.nMask} {input.vcf} > {output.var_ref}'
 
 '''
 rule map_on_consensus:

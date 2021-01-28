@@ -37,6 +37,12 @@ header = reader.header
 header.add_info_line({"ID": "HSV", "Type": "Flag", "Number": "1",
                       "Description": "Variant might be a heterozygous SV"})
 
+with open(snakemake.output['nMask'],'w') as outfile:
+    #First of all we identify drop-out regions where our coverage is too low to make any calls, we will mask them with N letters
+    for pos in range(1,snakemake.config['ref_genome_length']+1):
+        if (not (pos in pileup)) or (sum(pileup[pos].values()) < th_cov):
+            outfile.write('{}\t{}\n'.format(snakemake.config['ref_genome_chr'],pos))
+
 writer = vcfpy.Writer.from_path(snakemake.output['vcf'], header )
 
 for record in reader:

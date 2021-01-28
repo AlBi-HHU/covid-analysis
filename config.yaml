@@ -1,4 +1,6 @@
-
+#reference-genome
+ref_genome_length : 29903
+ref_genome_chr : MN908947.3
 #suffix definitions for input files
 vcf_suffix : pass.vcf
 bam_suffix : primertrimmed.rg.sorted.bam
