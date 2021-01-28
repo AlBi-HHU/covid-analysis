@@ -27,8 +27,10 @@ for f in snakemake.input['iteratorList']:
 
 df = pd.DataFrame(tuples,columns=['pos','file','cov'])
 print('plotting')
+os.makedirs(snakemake.output[0], exist_ok=True)
 
 for pos in positions:
+	print(df[df.pos == pos])
 	base = alt.Chart(df[df.pos == pos])
 
 	bar = base.mark_bar().encode(
@@ -40,5 +42,4 @@ for pos in positions:
 		x='mean(cov):Q',
 		size=alt.value(5)
 	)
-	os.makedirs(snakemake.output[0],exist_ok=True)
 	(bar + rule).save(os.path.join(snakemake.output[0],'{}.cov.html'.format(pos)))
