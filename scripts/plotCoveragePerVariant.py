@@ -10,7 +10,7 @@ with open(snakemake.input['verification'],'r') as varfile:
 	for l in varfile.read().splitlines():
 		d = l.split('\t')
 		if len(d) > 1:
-			positions.add(d[0])
+			positions.add(int(d[0]))
 		else:
 			continue
 
@@ -26,7 +26,7 @@ for f in snakemake.input['iteratorList']:
 			tuples.append((pos,f,sum(pileup[pos].values())))
 
 
-print(tuples)
+#print(tuples)
 df = pd.DataFrame(tuples,columns=['pos','file','cov'])
 print('plotting')
 os.makedirs(snakemake.output[0], exist_ok=True)
