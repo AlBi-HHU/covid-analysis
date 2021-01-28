@@ -40,5 +40,5 @@ for pos in positions:
 		x='mean(cov):Q',
 		size=alt.value(5)
 	)
-	os.makedirs(snakemake.output[0])
+	os.makedirs(snakemake.output[0],exist_ok=True)
 	(bar + rule).save(os.path.join(snakemake.output[0],'{}.cov.html'.format(pos)))
