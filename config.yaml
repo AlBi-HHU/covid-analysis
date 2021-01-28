@@ -60,6 +60,9 @@ pangenomeVarMinCov: 15
 # Illumina variant calling
 illuminaAlleleFreqCutoff: 0.05
 
+# Illumina cutoff for evaluation
+illuminaCoverageCutoff: 50
+
 # Consensus section
 consensus: True
 consensusMinCov: 20

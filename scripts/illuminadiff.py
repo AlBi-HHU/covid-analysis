@@ -29,7 +29,7 @@ with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pa
 			(altallele,) = ambiguityChars[altallele]-{reference}
 		comment = ''
 		reject = False
-		if position in illuminapileup:
+		if position in illuminapileup and sum(illuminapileup[position].values()) > snakemake.config['illuminaCoverageCutoff']:
 			sb = getStrandBias(illuminapileup[position],altallele)
 			comment += 'strand bias for allele {}: {}'.format(altallele,sb)
 			cov = getCoverage(illuminapileup[position],altallele)
@@ -38,6 +38,7 @@ with open(snakemake.output['diffFile'],'w') as outFile, open(snakemake.input['pa
 			if reject:
 				comment = 'REJECTED '+ comment
 		else:
+			reject = -1
 			comment += 'position not covered by illumina reads (dropout?)'
 
 		outFile.write('{}\t{}\t{}\t{}\t{}\t{}\t{}\n'.format(position,reference,altallele_unmodified,reject,comment,

@@ -31,8 +31,8 @@ chart = alt.Chart(df).mark_rect().encode(
     y = 'pos:O',
     x = 'sample:N',
     color= alt.Color('rejected',scale=alt.Scale(
-        domain = ['True','False'],
-        range=['orange','blue']
+        domain = ['True','False','-1'],
+        range=['orange','blue','grey']
     )),
     tooltip = ['ref','alt','comment','pileupillu','pileupnano']
 ).transform_filter(
