@@ -7,7 +7,7 @@ with open(snakemake.input['verification'],'r') as verFile,open(snakemake.input['
 	truePositive = positive-falsePositive
 	precision =truePositive/positive
 
-	rd = verFile.read().splitlines()[-1].split()
+	rd = recFile.read().splitlines()[-1].split()
 
 	realPositives = int(rd[1])
 	recovered = int(rd[3])
