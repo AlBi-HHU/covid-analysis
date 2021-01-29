@@ -1,8 +1,3 @@
-verification = 'data/output/evaluation/illumina_verification_{method}.eval',
-recovery = 'data/output/evaluation/illumina_recovery_{method}.eval',
-output:
-'data/output/evaluation/illumina_recovery_{method}_' + config['pangenomeMinCovFactor'] + '.eval'
-
 with open(snakemake.input['verification'],'r') as verFile,
 	open(snakemake.input['recovery'],'r') as recFile,
 	open(snakemake.output[0],'w') as ouftile:
