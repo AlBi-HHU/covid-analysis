@@ -9,8 +9,8 @@ with open(snakemake.input['verification'],'r') as verFile,open(snakemake.input['
 
 	rd = recFile.read().splitlines()[-1].split()
 
-	realPositives = int(rd[1])
-	recovered = int(rd[3])
+	realPositives = int(rd[3])
+	recovered = int(rd[1])
 	recall = recovered/realPositives
 
 	f1 = 2*(precision*recall)/(precision+recall)

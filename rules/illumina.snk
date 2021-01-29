@@ -170,6 +170,6 @@ rule topLevelStats:
         verification = 'data/output/evaluation/illumina_verification_{method}.eval',
         recovery = 'data/output/evaluation/illumina_recovery_{method}.eval',
     output:
-        'data/output/evaluation/illumina_recovery_{method}_'+str(config['pangenomeMinCovFactor'])+'.eval'
+        'data/output/evaluation/toplevelStats_{method}_'+str(config['pangenomeMinCovFactor'])+'.eval'
     script:
         '../scripts/topLevelStats.py'
