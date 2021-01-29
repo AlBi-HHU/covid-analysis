@@ -1,4 +1,4 @@
-with open(snakemake.input['verification'],'r') as verFile,open(snakemake.input['recovery'],'r') as recFile,open(snakemake.output[0],'w') as ouftile:
+with open(snakemake.input['verification'],'r') as verFile,open(snakemake.input['recovery'],'r') as recFile,open(snakemake.output[0],'w') as outfile:
 
 	vd = verFile.read().splitlines()[-1].split()
 
