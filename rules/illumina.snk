@@ -164,3 +164,12 @@ rule plotCoveragePerVariant:
         '../envs/altair.yaml'
     script:
         '../scripts/plotCoveragePerVariant.py'
+
+rule topLevelStats:
+    input:
+        verification = 'data/output/evaluation/illumina_verification_{method}.eval',
+        recovery = 'data/output/evaluation/illumina_recovery_{method}.eval',
+    output:
+        'data/output/evaluation/illumina_recovery_{method}_'+config['pangenomeMinCovFactor']+'.eval'
+    script:
+        '../scripts/topLevelStats.py'

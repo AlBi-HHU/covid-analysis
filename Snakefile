@@ -179,6 +179,7 @@ def getInput(wildcards):
         inputList += ['data/output/evaluation/illumina_recovery_medaka.html']
         inputList += ['data/output/evaluation/illumina_recovery_nanopolish.html']
         inputList += ['data/output/evaluation/illumina_recovery_gisaid.html']
+        inputList += ['data/output/evaluation/illumina_recovery_{method}_'+config['pangenomeMinCovFactor']+'.eval']
         for id in NWids:
             inputList += ['data/auxiliary/evaluation/consensusVariantExtraction/gisaid/'+id+'.info']
 
