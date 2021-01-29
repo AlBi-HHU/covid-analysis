@@ -141,7 +141,7 @@ rule correct_read:
         'logs/corrections/corrections_{basecalling}_{run}_{k}_{barcode}.log'
         
     shell:
-        "GraphAligner -t {threads} -g {input.graph} -f {input.reads} {params.correction_param} {output.corrected} --alignments-out {output.alignment}  --seeds-minimizer-count 5 --seeds-minimizer-length {params.k} --seeds-minimizer-windowsize 30 --seeds-minimizer-chunksize 100 2> {log}"
+        "GraphAligner -t {threads} -g {input.graph} -f {input.reads} {params.correction_param} {output.corrected} --alignments-out {output.alignment} -x dbg --seeds-minimizer-length {params.k} 2> {log}"
 
 
 rule correct_kmer_profiles:
