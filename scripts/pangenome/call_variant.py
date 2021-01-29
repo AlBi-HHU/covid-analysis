@@ -44,7 +44,8 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
     # Read bubble
     simple_bubble = set()
     bubbles = dict()
-    for chain in json.load(open(bubble_path)):
+    chains = json.load(open(bubble_path))
+    for (chain_id, chain) in chains.items():
         if "parent_sb" in chain:
             super_bubble = chain["parent_sb"]
         else:

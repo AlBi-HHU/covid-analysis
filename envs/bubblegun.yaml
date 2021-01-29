@@ -3,4 +3,4 @@ channels:
   - defaults
 dependencies:
   - pip:
-      - git+https://github.com/fawaz-dabbaghieh/bubble_gun.git
+      - git+https://github.com/fawaz-dabbaghieh/bubble_gun.git@v1.0.0
