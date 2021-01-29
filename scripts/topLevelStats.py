@@ -15,5 +15,5 @@ with open(snakemake.input['verification'],'r') as verFile,open(snakemake.input['
 
 	f1 = 2*(precision*recall)/(precision+recall)
 
-	snakemake.output('step:{},precision:{},recall:{},f1:{}'.format(snakemake.config['pangenomeMinCovFactor'],precision,recall,f1))
+	outfile.write('step:{},precision:{},recall:{},f1:{}'.format(snakemake.config['pangenomeMinCovFactor'],precision,recall,f1))
 
