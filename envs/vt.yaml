@@ -5,4 +5,5 @@ channels:
   - bioconda
 
 dependencies:
-  - vt = 2015.11.10
+  - vt=2015.11.10=he941832_3
+
