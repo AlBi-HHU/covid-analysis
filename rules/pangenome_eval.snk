@@ -101,7 +101,7 @@ def getAllComparisonFiles(wildcards):
                 if run in illuminaMapping and barcode in illuminaMapping[run]:
                     pass
                 else:
-                    print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                    #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
                     continue
                     
             allFiles += [
@@ -136,14 +136,36 @@ def getAllPancovVCFs():
     allFiles = []
     for run in runs:
         for barcode in barcodes[run]:
+            #check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
             allFiles += [
                 "data/output/consensus/medaka/" + run + "/" + barcode + "/variant.vcf"
+            ]
+    return allFiles
+    
+def getAllIVarTables():
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            #check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+            allFiles += [
+                'data/auxiliary/illuminaVarCalls/'+run+'_'+barcode+'/ivar.vcf.tsv'
             ]
     return allFiles
 
 rule evaluateHeterozygosityVisual:
     input:
-        vcfs = getAllPancovVCFs()
+        pancov = getAllPancovVCFs(),
+        ivar = getAllIVarTables()
     output:
         'data/output/evaluation/heterozygosity/plot1.html'
     conda:
