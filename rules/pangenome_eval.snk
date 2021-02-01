@@ -137,7 +137,7 @@ def getAllPancovVCFs():
     for run in runs:
         for barcode in barcodes[run]:
             allFiles += [
-                "data/output/consensus/medaka/" + run + "/" + barcode + "variant.vcf"
+                "data/output/consensus/medaka/" + run + "/" + barcode + "/variant.vcf"
             ]
     return allFiles
 
