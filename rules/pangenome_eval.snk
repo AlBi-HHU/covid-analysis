@@ -148,5 +148,5 @@ rule evaluateHeterozygosityVisual:
         'data/output/evaluation/heterozygosity/plot1.html'
     conda:
         '../envs/altair.yaml'
-    scripts:
+    script:
         '../scripts/hetPlot1.py'
