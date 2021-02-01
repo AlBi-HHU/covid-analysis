@@ -132,7 +132,7 @@ rule comparePancovToX:
         '../scripts/variantdiff_summary.py'
 
 
-def getAllPancovVCFs(wildcards):
+def getAllPancovVCFs():
     allFiles = []
     for run in runs:
         for barcode in barcodes[run]:
