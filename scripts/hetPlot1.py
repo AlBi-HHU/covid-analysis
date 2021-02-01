@@ -24,6 +24,4 @@ chart = alt.Chart(df).mark_rect().encode(
     y = 'pos:O',
     x = 'file:N',
     color= 'rvt:Q'
-).transform_filter(
-    selection
 ).interactive().save(snakemake.output[0])
