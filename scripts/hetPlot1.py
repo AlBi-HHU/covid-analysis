@@ -83,15 +83,19 @@ for f in df["file"].unique():
         y=alt.X("alleleFreq:Q", scale=alt.Scale(domain=[0, 1])),
         color="method:N",
         column="pos:O",
-        tooltip=["alleleFreq","call"],
+        tooltip=["alleleFreq","call"]
     )
     )
 
     for m in ['pancov','ivar','nanopolish']:
-        base = alt.Chart(diff_df[diff_df.file == f],title=m).interactive()
+        base = alt.Chart(diff_df[diff_df.file == f],title=m)
 
         bar = base.mark_bar().encode(
-            x=alt.X('diff:Q', bin=True,  scale=alt.Scale(domain=[0, 1])),
+            x=alt.X(
+                'diff:Q',
+                bin=True,
+                scale=alt.Scale(domain=[0, 1])
+            ),
             y='count()'
         )
 
