@@ -38,7 +38,7 @@ for pancovF, ivarF in zip(snakemake.input["pancov"], snakemake.input["ivar"]):
 
 df = pd.DataFrame(tuples, columns=["file", "pos", "method", "rvt"])
 
-#charts = []
+charts = []
 
 for f in df["file"].unique():
 
