@@ -96,8 +96,7 @@ for m in ['pancov','ivar','nanopolish']:
     bar = base.mark_bar().encode(
         x=alt.X(
             'diff:Q',
-            bin=True,
-            scale=alt.Scale(domain=[0, 1])
+            bin=True
         ),
         y='count()'
     )
