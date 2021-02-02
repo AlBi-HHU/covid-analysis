@@ -54,6 +54,7 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
             af = getAlleleFrequency(pileup[pos],pileupPositions[pos])
             tuples.append((pancovF, record.POS, "illumina", af))
 
+    print('added {} potential het sites for file: {}'.format(len(pileupPositions),pancovF))
 
 df = pd.DataFrame(tuples, columns=["file", "pos", "method", "rvt"])
 
