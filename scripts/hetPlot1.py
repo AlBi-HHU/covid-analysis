@@ -103,5 +103,5 @@ for f in df["file"].unique():
         plots.append(bar + rule)
 
 
-    reduce(alt.vconcat,plots).interactive().save(os.path.join(snakemake.output[0], outfile + '.html'))
+    reduce(alt.vconcat,plots).save(os.path.join(snakemake.output[0], outfile + '.html'))
     break
