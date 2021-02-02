@@ -50,6 +50,7 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
     #Add Pileups
     pileup = parsePileupStrandAwareLight(pileupF)
     for pos in pileupPositions:
+        pos = int(pos)
         if pos in pileup:
             af = getAlleleFrequency(pileup[pos],pileupPositions[pos])
             tuples.append((pancovF, record.POS, "illumina", af))
