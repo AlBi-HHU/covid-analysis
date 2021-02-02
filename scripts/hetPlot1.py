@@ -2,8 +2,8 @@ import sys
 import altair as alt
 import pandas as pd
 import vcfpy
-from functools import reduce
 from shared import *
+import os
 
 tuples = []
 
@@ -70,9 +70,6 @@ for f in df["file"].unique():
             color="method:N",
             column="pos:O",
             tooltip=["rvt"],
-        ).interactive()
+        ).interactive().save(os.path.join(snakemake.output[0],f))
 
     )
-
-concat = reduce(alt.vconcat, charts)
-concat.save(snakemake.output[0])

@@ -179,7 +179,7 @@ def getInput(wildcards):
         inputList += ['data/output/evaluation/illumina_recovery_medaka.html']
         inputList += ['data/output/evaluation/illumina_recovery_nanopolish.html']
         inputList += ['data/output/evaluation/illumina_recovery_gisaid.html']
-        inputList += ['data/output/evaluation/heterozygosity/plot1.html']
+        inputList += ['data/output/evaluation/heterozygosity']
         inputList += ['data/output/evaluation/toplevelStats_pancov_'+str(config['pangenomeMinCovFactor'])+'_'+str(config['pangenomeRVTThreshold'])+'.eval']
         for id in NWids:
             inputList += ['data/auxiliary/evaluation/consensusVariantExtraction/gisaid/'+id+'.info']
