@@ -199,7 +199,8 @@ rule evaluateHeterozygosityVisual:
         nanopore = getAllNanoporeVCFs(),
         ivar = getAllIVarTables()
     output:
-        directory('data/output/evaluation/heterozygosity')
+        hetfolder = directory('data/output/evaluation/heterozygosity'),
+        overview = 'data/output/evaluation/heterozygosity.html'
     conda:
         '../envs/altair.yaml'
     script:

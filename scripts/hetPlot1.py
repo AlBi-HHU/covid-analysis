@@ -78,36 +78,37 @@ for f in df["file"].unique():
     outfile = f.split('.')[-2].split('/')
     outfile = outfile[-3]+'_'+outfile[-2]
 
-    plots = []
 
-    plots.append( alt.Chart(df[df.file == f],title=f).mark_bar().encode(
+
+    alt.Chart(df[df.file == f],title=f).mark_bar().encode(
         x="method:N",
         y=alt.X("alleleFreq:Q", scale=alt.Scale(domain=[0, 1])),
         color="method:N",
         column="pos:O",
         tooltip=["alleleFreq","call"]
+
+    ).save(os.path.join(snakemake.output['hetfolder'], outfile + '.html'))
+
+plots = []
+for m in ['pancov','ivar','nanopolish']:
+    base = alt.Chart(diff_df[diff_df.method == m],title=m)
+
+    bar = base.mark_bar().encode(
+        x=alt.X(
+            'diff:Q',
+            bin=True,
+            scale=alt.Scale(domain=[0, 1])
+        ),
+        y='count()'
     )
+
+    rule = base.mark_rule(color='red').encode(
+        x='mean(diff):Q',
+        size=alt.value(5)
     )
 
-    for m in ['pancov','ivar','nanopolish']:
-        base = alt.Chart(diff_df[diff_df.file == f][diff_df.method == m],title=m)
-
-        bar = base.mark_bar().encode(
-            x=alt.X(
-                'diff:Q',
-                bin=True,
-                scale=alt.Scale(domain=[0, 1])
-            ),
-            y='count()'
-        )
-
-        rule = base.mark_rule(color='red').encode(
-            x='mean(diff):Q',
-            size=alt.value(5)
-        )
-
-        plots.append(bar + rule)
+    plots.append(bar + rule)
 
 
-    reduce(alt.vconcat,plots).save(os.path.join(snakemake.output[0], outfile + '.html'))
+reduce(alt.vconcat,plots).save(snakemake.output['overview'])
     #break
