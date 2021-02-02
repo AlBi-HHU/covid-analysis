@@ -60,7 +60,7 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
                     (pancovF, pos, "illumina", af,'none')
                 )
                 for tuple in filter(lambda x: x[1] == pos and x[2] != 'illumina',localtuples):
-                    difftuples.append((tuple[0],tuple[2],tuple[3]-af))
+                    difftuples.append((tuple[0],tuple[2],abs(tuple[3]-af)))
             else:
                 localtuples = list(filter(lambda x : x[1] != pos,localtuples))
         else:
@@ -96,7 +96,8 @@ for m in ['pancov','ivar','nanopolish']:
     bar = base.mark_bar().encode(
         x=alt.X(
             'diff:Q',
-            bin=True
+            bin=True,
+            scale=alt.Scale(domain=[0, 1])
         ),
         y='count()'
     )
