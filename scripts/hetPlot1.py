@@ -44,7 +44,7 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
         altallele = d[3]
         illuminafreq = float(d[10])
         tuples.append((pancovF, pos, "ivar", illuminafreq,altallele))
-        pileupPositions[pos] = alt
+        pileupPositions[pos] = altallele
 
     #Add Pileups
     pileup = parsePileupStrandAwareLight(pileupF)
