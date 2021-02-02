@@ -24,38 +24,36 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
         alleleFrequency = record.INFO["VCOV"] / (
             record.INFO["VCOV"] + record.INFO["RCOV"]
         )
-        if cutoffHeterozigosity < alleleFrequency < 1 - cutoffHeterozigosity:
-            tuples.append((pancovF, record.POS, "pancov", alleleFrequency))
-            pileupPositions[record.POS] = record.ALT
+        tuples.append((pancovF, record.POS, "pancov", alleleFrequency))
+        pileupPositions[record.POS] = record.ALT
 
     #Nanopolish
     reader = vcfpy.Reader.from_path(nanoporeF)
     for record in reader:
 
         alleleFrequency = record.INFO["SupportFraction"]
-        if cutoffHeterozigosity < alleleFrequency < 1-cutoffHeterozigosity:
-            tuples.append((pancovF, record.POS, "nanopolish", alleleFrequency))
-            pileupPositions[record.POS] = record.ALT
+        tuples.append((pancovF, record.POS, "nanopolish", alleleFrequency))
+        pileupPositions[record.POS] = record.ALT
 
     #Ajvar
     ivartable = open(ivarF, "r").read().splitlines()[1:]
     illuminafreq = -1
     for il in ivartable:
         d = il.split()
+        pos = d[1]
         illuminafreq = float(d[10])
-        if cutoffHeterozigosity < alleleFrequency < 1 - cutoffHeterozigosity:
-            tuples.append((pancovF, record.POS, "ivar", illuminafreq))
-            pileupPositions[record.POS] = record.ALT
+        tuples.append((pancovF, pos, "ivar", illuminafreq))
+        pileupPositions[record.POS] = record.ALT
 
     #Add Pileups
     pileup = parsePileupStrandAwareLight(pileupF)
     for pos in pileupPositions:
-        pos = int(pos)
-        if pos in pileup:
-            af = getAlleleFrequency(pileup[pos],pileupPositions[pos])
-            tuples.append((pancovF, record.POS, "illumina", af))
+        ipos = int(pos)
+        if ipos in pileup:
+            af = getAlleleFrequency(pileup[ipos],pileupPositions[ipos])
+            tuples.append((pancovF, pos, "illumina", af))
 
-    print('added {} potential het sites for file: {}'.format(len(pileupPositions),pancovF))
+    #print('added {} potential het sites for file: {}'.format(len(pileupPositions),pancovF))
 
 df = pd.DataFrame(tuples, columns=["file", "pos", "method", "rvt"])
 
