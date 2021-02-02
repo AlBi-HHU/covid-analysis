@@ -91,7 +91,7 @@ for f in df["file"].unique():
         base = alt.Chart(diff_df[diff_df.file == f],title=m).interactive()
 
         bar = base.mark_bar().encode(
-            x=alt.X('diff:Q', bin=True, axis=None, scale=alt.Scale(domain=[0, 1]),ticks=True),
+            x=alt.X('diff:Q', bin=True,  scale=alt.Scale(domain=[0, 1])),
             y='count()'
         )
 
