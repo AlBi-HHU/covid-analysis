@@ -70,6 +70,6 @@ for f in df["file"].unique():
             color="method:N",
             column="pos:O",
             tooltip=["rvt"],
-        ).interactive().save(os.path.join(snakemake.output[0],f.split('.')[:-1]+'.html'))
+        ).interactive().save(os.path.join(snakemake.output[0],f.split('.')[-2]+'.html'))
 
     )
