@@ -59,11 +59,11 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
 df = pd.DataFrame(tuples, columns=["file", "pos", "method", "rvt"])
 
 charts = []
-
+os.makedirs(snakemake.output[0],exist_ok=True)
 for f in df["file"].unique():
 
     outfile = f.split('.')[-2].split('/')
-    outfile = outfile[-3]+outfile[-2]
+    outfile = outfile[-3]+'_'+outfile[-2]
     charts.append(
 
         alt.Chart(df[df.file == f],title=f).mark_bar().encode(
