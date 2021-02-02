@@ -62,6 +62,8 @@ charts = []
 
 for f in df["file"].unique():
 
+    outfile = f.split('.')[-2].split('/')
+    outfile = outfile[-3]+outfile[-2]
     charts.append(
 
         alt.Chart(df[df.file == f],title=f).mark_bar().encode(
@@ -70,6 +72,6 @@ for f in df["file"].unique():
             color="method:N",
             column="pos:O",
             tooltip=["rvt"],
-        ).interactive().save(os.path.join(snakemake.output[0],f.split('.')[-2]+'.html'))
+        ).interactive().save(os.path.join(snakemake.output[0],outfile+'.html'))
 
     )
