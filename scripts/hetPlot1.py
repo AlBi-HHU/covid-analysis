@@ -56,7 +56,9 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
         if ipos in pileup:
             af = getAlleleFrequency(pileup[ipos],pileupPositions[pos])
             if snakemake.config['thresholdHomCall'] < af < 1-snakemake.config['thresholdHomCall']:
-                localtuples.append((pancovF, pos, "illumina", af,'none'))
+                localtuples.append(
+                    (pancovF, pos, "illumina", af,'none')
+                )
                 for tuple in filter(lambda x: x[1] == pos and x[2] != 'illumina',localtuples):
                     difftuples.append((tuple[0],tuple[2],tuple[3]-af))
             else:
@@ -88,7 +90,7 @@ for f in df["file"].unique():
     )
 
     for m in ['pancov','ivar','nanopolish']:
-        base = alt.Chart(diff_df[diff_df.file == f],title=m)
+        base = alt.Chart(diff_df[diff_df.file == f][diff_df.method == m],title=m)
 
         bar = base.mark_bar().encode(
             x=alt.X(
@@ -108,4 +110,4 @@ for f in df["file"].unique():
 
 
     reduce(alt.vconcat,plots).save(os.path.join(snakemake.output[0], outfile + '.html'))
-    break
+    #break
