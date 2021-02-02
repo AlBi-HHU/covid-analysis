@@ -60,7 +60,7 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
                     (pancovF, pos, "illumina", af,'none')
                 )
                 for tuple in filter(lambda x: x[1] == pos and x[2] != 'illumina',localtuples):
-                    difftuples.append((tuple[0],tuple[2],abs(tuple[3]-af)))
+                    difftuples.append((tuple[0],tuple[2],abs(tuple[3]-af),af-tuple[3]))
             else:
                 localtuples = list(filter(lambda x : x[1] != pos,localtuples))
         else:
@@ -70,7 +70,7 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
     tuples += localtuples
 
 df = pd.DataFrame(tuples, columns=["file", "pos", "method", "alleleFreq","call"])
-diff_df = pd.DataFrame(difftuples,columns=["file","method","diff"])
+diff_df = pd.DataFrame(difftuples,columns=["file","method","diff","diff_abs"])
 
 os.makedirs(snakemake.output[0],exist_ok=True)
 for f in df["file"].unique():
@@ -109,6 +109,23 @@ for m in ['pancov','ivar','nanopolish']:
 
     plots.append(bar + rule)
 
+    base = alt.Chart(diff_df[diff_df.method == m],title=m+'_abs')
+
+    bar = base.mark_bar().encode(
+        x=alt.X(
+            'diff_abs:Q',
+            bin=True,
+            scale=alt.Scale(domain=[0, 1])
+        ),
+        y='count()'
+    )
+
+    rule = base.mark_rule(color='red').encode(
+        x='mean(diff_abs):Q',
+        size=alt.value(5)
+    )
+
+    plots.append(bar + rule)
 
 reduce(alt.vconcat,plots).save(snakemake.output['overview'])
     #break
