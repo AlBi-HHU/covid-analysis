@@ -144,7 +144,7 @@ def getMinorStrandFrequency(pileupForPosition,altallele):
     return min(1-sb,sb)
 
 def getAlleleFrequency(pileupForPosition,altallele):
-    altallele = '(' if altalelle == '-' else altallele
+    altallele = '(' if altallele == '-' else altallele
     alleleCount = 0
     for allele,count in pileupForPosition.items():
         if squashStrandedness(allele) == altallele:
