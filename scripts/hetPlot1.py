@@ -24,16 +24,16 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
         alleleFrequency = record.INFO["VCOV"] / (
             record.INFO["VCOV"] + record.INFO["RCOV"]
         )
-        tuples.append((pancovF, record.POS, "pancov", alleleFrequency,record.ALT))
-        pileupPositions[record.POS] = record.ALT
+        tuples.append((pancovF, record.POS, "pancov", alleleFrequency,record.ALT[0].value()))
+        pileupPositions[record.POS] = record.ALT[0].value()
 
     #Nanopolish
     reader = vcfpy.Reader.from_path(nanoporeF)
     for record in reader:
 
         alleleFrequency = record.INFO["SupportFraction"]
-        tuples.append((pancovF, record.POS, "nanopolish", alleleFrequency,record.ALT))
-        pileupPositions[record.POS] = record.ALT
+        tuples.append((pancovF, record.POS, "nanopolish", alleleFrequency,record.ALT[0].value()))
+        pileupPositions[record.POS] = record.ALT[0].value()
 
     #Ajvar
     ivartable = open(ivarF, "r").read().splitlines()[1:]
