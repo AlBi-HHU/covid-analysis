@@ -115,7 +115,7 @@ for m in ['pancov','ivar','nanopolish']:
         x=alt.X(
             'diff_abs:Q',
             bin=True,
-            scale=alt.Scale(domain=[0, 1])
+            scale=alt.Scale(domain=[-1, 1])
         ),
         y='count()'
     )
