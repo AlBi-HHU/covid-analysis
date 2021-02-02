@@ -48,7 +48,7 @@ for f in df["file"].unique():
             x="method:N",
             y=alt.X("rvt:Q", scale=alt.Scale(domain=[0, 1])),
             color="method:N",
-            column="pos:O"
+            column="pos:O",
             tooltip=["rvt"],
         ).interactive()
 
