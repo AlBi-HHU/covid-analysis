@@ -41,9 +41,9 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
     for il in ivartable:
         d = il.split()
         pos = d[1]
-        alt = d[3]
+        altallele = d[3]
         illuminafreq = float(d[10])
-        tuples.append((pancovF, pos, "ivar", illuminafreq,alt))
+        tuples.append((pancovF, pos, "ivar", illuminafreq,altallele))
         pileupPositions[pos] = alt
 
     #Add Pileups
@@ -54,7 +54,8 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
             af = getAlleleFrequency(pileup[ipos],pileupPositions[pos])
             tuples.append((pancovF, pos, "illumina", af,'none'))
         else:
-            print(ipos)
+            pass
+            #print(ipos)
     #print('added {} potential het sites for file: {}'.format(len(pileupPositions),pancovF))
 
 df = pd.DataFrame(tuples, columns=["file", "pos", "method", "alleleFreq","call"])
