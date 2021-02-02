@@ -44,11 +44,10 @@ for f in df["file"].unique():
 
     charts.append(
 
-        alt.Chart(df[df.file == f],title=f).mark_rect().encode(
-            y="pos:O",
-            x=alt.X("rvt:Q", scale=alt.Scale(domain=[0, 1])),
+        alt.Chart(df[df.file == f],title=f).mark_bar().encode(
+            x="pos:O",
+            y=alt.X("rvt:Q", scale=alt.Scale(domain=[0, 1])),
             color="method:N",
-            column="method:N",
             tooltip=["rvt"],
         ).interactive()
 
