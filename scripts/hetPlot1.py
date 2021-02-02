@@ -24,7 +24,7 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
         alleleFrequency = record.INFO["VCOV"] / (
             record.INFO["VCOV"] + record.INFO["RCOV"]
         )
-        tuples.append((pancovF, record.POS, "pancov", alleleFrequency))
+        tuples.append((pancovF, record.POS, "pancov", alleleFrequency,record.ALT))
         pileupPositions[record.POS] = record.ALT
 
     #Nanopolish
@@ -32,7 +32,7 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
     for record in reader:
 
         alleleFrequency = record.INFO["SupportFraction"]
-        tuples.append((pancovF, record.POS, "nanopolish", alleleFrequency))
+        tuples.append((pancovF, record.POS, "nanopolish", alleleFrequency,record.ALT))
         pileupPositions[record.POS] = record.ALT
 
     #Ajvar
@@ -41,9 +41,10 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
     for il in ivartable:
         d = il.split()
         pos = d[1]
+        alt = d[3]
         illuminafreq = float(d[10])
-        tuples.append((pancovF, pos, "ivar", illuminafreq))
-        pileupPositions[record.POS] = record.ALT
+        tuples.append((pancovF, pos, "ivar", illuminafreq,alt))
+        pileupPositions[pos] = alt
 
     #Add Pileups
     pileup = parsePileupStrandAwareLight(pileupF)
@@ -51,11 +52,12 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
         ipos = int(pos)
         if ipos in pileup:
             af = getAlleleFrequency(pileup[ipos],pileupPositions[ipos])
-            tuples.append((pancovF, pos, "illumina", af))
-
+            tuples.append((pancovF, pos, "illumina", af,'none'))
+        else:
+            print(ipos)
     #print('added {} potential het sites for file: {}'.format(len(pileupPositions),pancovF))
 
-df = pd.DataFrame(tuples, columns=["file", "pos", "method", "rvt"])
+df = pd.DataFrame(tuples, columns=["file", "pos", "method", "alleleFreq","call"])
 
 charts = []
 os.makedirs(snakemake.output[0],exist_ok=True)
@@ -67,10 +69,10 @@ for f in df["file"].unique():
 
         alt.Chart(df[df.file == f],title=f).mark_bar().encode(
             x="method:N",
-            y=alt.X("rvt:Q", scale=alt.Scale(domain=[0, 1])),
+            y=alt.X("alleleFreq:Q", scale=alt.Scale(domain=[0, 1])),
             color="method:N",
             column="pos:O",
-            tooltip=["rvt"],
+            tooltip=["alleleFreq","call"],
         ).interactive().save(os.path.join(snakemake.output[0],outfile+'.html'))
 
     )
