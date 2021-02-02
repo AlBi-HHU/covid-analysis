@@ -60,7 +60,7 @@ for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake
                 for tuple in filter(lambda x: x[1] == pos and x[2] != 'illumina',localtuples):
                     difftuples.append((tuple[0],tuple[2],tuple[3]-af))
             else:
-                localtuples = filter(lambda x : x[1] != pos,localtuples)
+                localtuples = list(filter(lambda x : x[1] != pos,localtuples))
         else:
             pass
             #print(ipos)
