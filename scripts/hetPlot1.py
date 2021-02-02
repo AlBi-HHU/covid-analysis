@@ -38,21 +38,21 @@ for pancovF, ivarF in zip(snakemake.input["pancov"], snakemake.input["ivar"]):
 
 df = pd.DataFrame(tuples, columns=["file", "pos", "method", "rvt"])
 
-charts = []
+#charts = []
 '''
 for f in df["file"].unique():
 
     charts.append(
 '''
-        alt.Chart(df[df.file == f], title=f)
-        .mark_rect()
-        .encode(
-            y="pos:O",
-            x=alt.X("rvt:Q", scale=alt.Scale(domain=[0, 1])),
-            color="method:N",
-            column="file:N",
-            tooltip=["rvt"],
-        ).interactive().save(snakemake.output[0])
+alt.Chart(df[df.file == f], title=f)
+.mark_rect()
+.encode(
+    y="pos:O",
+    x=alt.X("rvt:Q", scale=alt.Scale(domain=[0, 1])),
+    color="method:N",
+    column="file:N",
+    tooltip=["rvt"],
+).interactive().save(snakemake.output[0])
 ''''
     )
 
