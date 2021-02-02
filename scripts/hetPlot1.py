@@ -3,38 +3,52 @@ import altair as alt
 import pandas as pd
 import vcfpy
 from functools import reduce
+from shared import *
 
 tuples = []
 
-ambiguousLetters = ["R", "Y", "S", "W", "K", "M"]
 iterator = iter(snakemake.input)
 
-for pancovF, ivarF in zip(snakemake.input["pancov"], snakemake.input["ivar"]):
+for pancovF, ivarF,nanoporeF,pileupF in zip(snakemake.input["pancov"], snakemake.input["ivar"],snakemake.input['nanopore'],snakemake.input['illuminaPileups']):
+
+
+    #We will store all positions that are in any of the vcfs/tables here and later add the illumina pileups
+    pileupPositions = {}
+
+    #Pankoff
     reader = vcfpy.Reader.from_path(pancovF)
     for record in reader:
-        isHet = False
 
-        for l in ambiguousLetters:
-            if l in record.ALT[0].value:
-                isHet = True
-                break
-        if isHet:
-            alleleFrequency = record.INFO["VCOV"] / (
-                record.INFO["VCOV"] + record.INFO["RCOV"]
-            )
-            tuples.append((pancovF, record.POS, "pancov", alleleFrequency))
+        alleleFrequency = record.INFO["VCOV"] / (
+            record.INFO["VCOV"] + record.INFO["RCOV"]
+        )
+        tuples.append((pancovF, record.POS, "pancov", alleleFrequency))
+        pileupPositions[record.POS] = record.ALT
 
-            ivartable = open(ivarF, "r").read().splitlines()[1:]
-            illuminafreq = -1
-            for il in ivartable:
-                d = il.split()
-                print(d)
-                if int(d[1]) == int(record.POS):
-                    illuminafreq = float(d[10])
-                    tuples.append((pancovF, record.POS, "illumina", illuminafreq))
-                    break
+    #Nanopolish
+    reader = vcfpy.Reader.from_path(nanoporeF)
+    for record in reader:
 
-    # break #remove
+        alleleFrequency = record.INFO["SupportFraction"]
+        tuples.append((pancovF, record.POS, "nanopolish", alleleFrequency))
+        pileupPositions[record.POS] = record.ALT
+
+    #Ajvar
+    ivartable = open(ivarF, "r").read().splitlines()[1:]
+    illuminafreq = -1
+    for il in ivartable:
+        d = il.split()
+        illuminafreq = float(d[10])
+        tuples.append((pancovF, record.POS, "ivar", illuminafreq))
+        pileupPositions[record.POS] = record.ALT
+
+    #Add Pileups
+    pileup = parsePileupStrandAwareLight(pileupF)
+    for pos in pileupPositions:
+        if pos in pileup:
+            af = getAlleleFrequency(pileup[pos],pileupPositions[pos])
+            tuples.append((pancovF, record.POS, "illumina", af))
+
 
 df = pd.DataFrame(tuples, columns=["file", "pos", "method", "rvt"])
 

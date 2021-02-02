@@ -162,9 +162,41 @@ def getAllIVarTables():
             ]
     return allFiles
 
+def getAllNanoporeVCFs():
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            #check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+            allFiles += [
+                'data/input/'+run+'/'+'barcode'+barcode+'.nanopolish.pass.vcf'
+            ]
+    return allFiles
+
+def getAllIlluminaPileups():
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            #check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+            allFiles += [
+                'data/auxiliary/pileupAnalysis/illumina/'+run+'/'+barcode+'.pileupanalysis.txt'
+            ]
+    return allFiles
+
 rule evaluateHeterozygosityVisual:
     input:
         pancov = getAllPancovVCFs(),
+        illuminaPileups = getAllIlluminaPileups(),
+        nanopore = getAllNanoporeVCFs(),
         ivar = getAllIVarTables()
     output:
         'data/output/evaluation/heterozygosity/plot1.html'

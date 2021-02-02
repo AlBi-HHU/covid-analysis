@@ -142,3 +142,12 @@ def getMinorStrandAbs(pileupForPosition,altallele):
 def getMinorStrandFrequency(pileupForPosition,altallele):
     sb = getStrandBias(pileupForPosition,altallele)
     return min(1-sb,sb)
+
+def getAlleleFrequency(pileupForPosition,altallele):
+    altallele = '(' if altalelle == '-' else altallele
+    alleleCount = 0
+    for allele,count in pileupForPosition.items():
+        if squashStrandedness(allele) == altallele:
+            alleleCount += count
+    total = sum(pileupForPosition.values())
+    return alleleCount/total
