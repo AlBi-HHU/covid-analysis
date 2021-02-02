@@ -30,7 +30,7 @@ for pancovF, ivarF in zip(snakemake.input["pancov"], snakemake.input["ivar"]):
                 d = il.split()
                 print(d)
                 if int(d[1]) == int(record.POS):
-                    illuminafreq = float(d[9])
+                    illuminafreq = float(d[10])
                     tuples.append((pancovF, record.POS, "illumina", illuminafreq))
                     break
 
@@ -39,21 +39,19 @@ for pancovF, ivarF in zip(snakemake.input["pancov"], snakemake.input["ivar"]):
 df = pd.DataFrame(tuples, columns=["file", "pos", "method", "rvt"])
 
 #charts = []
-'''
+
 for f in df["file"].unique():
 
     charts.append(
-'''
-alt.Chart(df).mark_rect().encode(
-    y="pos:O",
-    x=alt.X("rvt:Q", scale=alt.Scale(domain=[0, 1])),
-    color="method:N",
-    column="file:N",
-    tooltip=["rvt"],
-).interactive().save(snakemake.output[0])
-''''
+
+        alt.Chart(df[df.file == f],title=f).mark_rect().encode(
+            y="pos:O",
+            x=alt.X("rvt:Q", scale=alt.Scale(domain=[0, 1])),
+            color="method:N",
+            tooltip=["rvt"],
+        ).interactive()
+
     )
 
 concat = reduce(alt.vconcat, charts)
 concat.save(snakemake.output[0])
-'''
