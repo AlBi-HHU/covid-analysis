@@ -200,7 +200,8 @@ rule evaluateHeterozygosityVisual:
         ivar = getAllIVarTables()
     output:
         hetfolder = directory('data/output/evaluation/heterozygosity'),
-        overview = 'data/output/evaluation/heterozygosity.html'
+        overview = 'data/output/evaluation/heterozygosity.html',
+        resume = 'data/output/evaluation/heterozygosity.csv',
     conda:
         '../envs/altair.yaml'
     script:
