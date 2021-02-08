@@ -73,7 +73,7 @@ for pancovF, ivarF, nanoporeF, pileupF in zip(
                     lambda x: x[1] == pos and x[2] != "illumina", localtuples
                 ):
                     difftuples.append(
-                        (tuple[0], tuple[2], abs(tuple[3] - af), af - tuple[3])
+                        (tuple[0], tuple[2], tuple[3], af)
                     )
             else:
                 localtuples = list(filter(lambda x: x[1] != pos, localtuples))
@@ -84,12 +84,16 @@ for pancovF, ivarF, nanoporeF, pileupF in zip(
     tuples += localtuples
 
 df = pd.DataFrame(tuples, columns=["file", "pos", "method", "alleleFreq", "call"])
-diff_df = pd.DataFrame(difftuples, columns=["file", "method", "diff", "diff_abs"])
+diff_df = pd.DataFrame(difftuples, columns=["file", "method", "truth", "alleleFreq"])
+diff_df["square_diff"] = (diff_df["truth"] - diff_df["alleleFreq"]).pow(2)
+diff_df["abs_diff"] = (diff_df["truth"] - diff_df["alleleFreq"]).abs()
 
-resume = diff_df.groupby("method").agg({"diff": 'count', "diff_abs": 'sum'})
-resume = resume.rename(columns={"diff": "nb_variant"})
+diff_df.to_csv(snakemake.output["resume"])
+print(diff_df.groupby("method").describe())
 
-resume.to_csv(snakemake.output["resume"])
+for ((path, pos), data) in df.groupby(["file", "pos"]):
+    truth = data[data["method"] == "illumina"]["alleleFreq"]
+    print(truth)
 
 os.makedirs(snakemake.output[0], exist_ok=True)
 for f in df["file"].unique():
