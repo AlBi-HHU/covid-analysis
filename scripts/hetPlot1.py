@@ -88,12 +88,11 @@ diff_df = pd.DataFrame(difftuples, columns=["file", "method", "truth", "alleleFr
 diff_df["square_diff"] = (diff_df["truth"] - diff_df["alleleFreq"]).pow(2)
 diff_df["abs_diff"] = (diff_df["truth"] - diff_df["alleleFreq"]).abs()
 
-diff_df.to_csv(snakemake.output["resume"])
-print(diff_df.groupby("method").describe())
+diff_df["diff"] = (diff_df["truth"] - diff_df["alleleFreq"]).abs()
 
-for ((path, pos), data) in df.groupby(["file", "pos"]):
-    truth = data[data["method"] == "illumina"]["alleleFreq"]
-    print(truth)
+diff_df.to_csv(snakemake.output["resume"])
+for (method, data) in diff_df.groupby("method"):
+    print(method, data.describe())
 
 os.makedirs(snakemake.output[0], exist_ok=True)
 for f in df["file"].unique():

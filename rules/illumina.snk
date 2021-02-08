@@ -169,6 +169,7 @@ rule topLevelStats:
     input:
         verification = 'data/output/evaluation/illumina_verification_{method}.eval',
         recovery = 'data/output/evaluation/illumina_recovery_{method}.eval',
+        het_resume = 'data/output/evaluation/heterozygosity.csv',
     output:
         'data/output/evaluation/toplevelStats_{method}_'+str(config['pangenomeMinCovFactor'])+'_'+str(config['pangenomeRVTThreshold'])+'.eval'
     script:
