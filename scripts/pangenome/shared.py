@@ -37,15 +37,29 @@ def get_node2seq(graph_path):
 
     return node2seq
 
-def parse_gaf(path, storage, node2hit=None, edge2cov=None):
+def parse_gaf(path, storage, node2base=None, edge2cov=None, node2seq=None):
     with open(path) as fh:
         reader = csv.reader(fh, delimiter='\t')
         for row in reader:
             nodes = re.findall(r"([<|>][^<>]+)", row[5])
+            begin_path = int(row[7])
+            end_path = int(row[8])
+            remain_base = end_path - begin_path
 
-            if node2hit is not None:
+            if node2base is not None:
+                first = True
                 for node in nodes:
-                    node2hit[node[1:]] += 1
+                    node_len = len(node2seq[node[1:]])
+                    if first:
+                        first = False
+                        node2base[node[1:]] += node_len - begin_path
+                        remain_base -= node_len
+                    elif remain_base > node_len:
+                        node2base[node[1:]] += node_len
+                        remain_base -= node_len
+                    else:
+                        node2base[node[1:]] += remain_base
+                        break
 
             if edge2cov is not None:
                 for i in range(0, len(nodes) - 1):

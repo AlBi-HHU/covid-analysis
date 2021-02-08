@@ -26,20 +26,21 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
     ref_nodes = set(ref_path)
     ref_edge = {(ref_path[i], ref_path[i+1]) for i in range(len(ref_path)-1)}
 
-    # Get node coverage
-    node2hit = Counter()
-    edge2cov = Counter()
-    paths = defaultdict(list)
-
-    parse_gaf(reads_mapping, paths, node2hit, edge2cov)
-
     # get the sequence associate to node
     node2seq = get_node2seq(pangenome_path)
     graph = gfa2networkx(pangenome_path)
 
+    
+    # Get node coverage
+    node2base = Counter()
+    edge2cov = Counter()
+    paths = defaultdict(list)
+
+    parse_gaf(reads_mapping, paths, node2base, edge2cov, node2seq)
+
     node2cov = defaultdict(int)
-    for (node, hit) in node2hit.items():
-        node2cov[node] = hit# / len(node2seq[node])
+    for (node, base) in node2base.items():
+        node2cov[node] = base / len(node2seq[node])
 
     # Read bubble
     simple_bubble = set()
