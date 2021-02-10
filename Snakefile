@@ -193,7 +193,6 @@ rule all:
 
 include: 'rules/shared.snk'
 include: 'rules/errorCorrection.snk'
-include: 'rules/debruijn.snk'
 include: 'rules/kmerAnalysis.snk'
 include: 'rules/variantAnalysis.snk'
 include: 'rules/consensus.snk'
@@ -203,7 +202,5 @@ include: 'rules/discovery_fb.snk'
 include: 'rules/pangenome_variant_call.snk'
 include: 'rules/pangenome_eval.snk'
 include: 'rules/illumina.snk'
-
-#include: 'rules/discovery_ctx.snk'
 
 
