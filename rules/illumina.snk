@@ -50,15 +50,7 @@ rule illuminaVerify:
     script:
         '../scripts/illuminadiff.py'
 
-rule illuminaVerifyVisualize:
-    input:
-        'data/output/evaluation/illumina_verification_{method}.eval'
-    output:
-        'data/output/evaluation/illumina_verification_{method}.html'
-    conda:
-        '../envs/altair.yaml'
-    script:
-        '../scripts/verifyAltair.py'
+
 
 rule illuminaRecover:
     input:
@@ -71,15 +63,7 @@ rule illuminaRecover:
     script:
         '../scripts/illuminadiff2.py'
 
-rule illuminaRecoverVisualize:
-    input:
-        'data/output/evaluation/illumina_recovery_{method}.eval'
-    output:
-        'data/output/evaluation/illumina_recovery_{method}.html'
-    conda:
-        '../envs/altair.yaml'
-    script:
-        '../scripts/recoveryAltair.py'
+
 
 rule aggregateVerification:
     input:
@@ -174,3 +158,28 @@ rule topLevelStats:
         'data/output/evaluation/toplevelStats_{method}_'+str(config['pangenomeMinCovFactor'])+'_'+str(config['pangenomeRVTThreshold'])+'.eval'
     script:
         '../scripts/topLevelStats.py'
+
+
+### Visualizations ###
+
+rule illuminaVerifyVisualize:
+    input:
+        'data/output/evaluation/illumina_verification_{method}.eval'
+    output:
+        full='data/output/evaluation/illumina_verification_{method}.html',
+        reduced='data/output/evaluation/illumina_verification_{method}_reduced.html'
+    conda:
+        '../envs/altair.yaml'
+    script:
+        '../scripts/verifyAltair.py'
+
+rule illuminaRecoverVisualize:
+    input:
+        'data/output/evaluation/illumina_recovery_{method}.eval'
+    output:
+        full = 'data/output/evaluation/illumina_recovery_{method}.html',
+        reduced = 'data/output/evaluation/illumina_recovery_{method}_reduced.html'
+    conda:
+        '../envs/altair.yaml'
+    script:
+        '../scripts/recoveryAltair.py'

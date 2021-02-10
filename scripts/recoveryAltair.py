@@ -42,4 +42,15 @@ chart = alt.Chart(df).mark_rect().encode(
     selection
 ).interactive()
 
-alt.vconcat(make_selector,chart,padding=64).save(snakemake.output[0])
+alt.vconcat(make_selector,chart,padding=64).save(snakemake.output['full'])
+
+#Add a reduced chart, that focuses only on the differences
+
+chart = alt.Chart(df[df.recovered == 'False']).mark_rect().encode(
+    y = 'pos:O',
+    x = 'sample:N',
+    tooltip = ['ref','alt','comment','pileupillu','pileupnano']
+).interactive()
+
+chart.save(snakemake.output['reduced'])
+
