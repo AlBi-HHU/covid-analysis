@@ -1,4 +1,5 @@
-all_vcfs = [expand('data/auxiliary/discovery/freebayes/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
+all_vcfs = []
+all_vcfs += [expand('data/auxiliary/discovery/freebayes/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
 #all_vcfs += [expand('data/auxiliary/discovery/cortex/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
 
 #Although we don't use nanopolish READS we do use the nanopolish vcfs
