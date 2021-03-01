@@ -9,7 +9,7 @@ def fetchAllVCFs():
 def fetchAllPileups():
     list = []
     for run in barcodes:
-        list += expand('data/auxiliary/pileupAnalysis/'+run+'/{barcode}.pileupanalysis.txt',method=['medaka','nanopolish'],barcode=barcodes[run])
+        list += expand('data/auxiliary/pileupAnalysis/'+run+'/{barcode}.pileupanalysis.txt',barcode=barcodes[run])
     return list
 
 ### Snakemake Rules
