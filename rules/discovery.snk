@@ -4,16 +4,16 @@
 def fetchAllVCFDiffs(k, discoveryTool):
     list = []
     for run in barcodes:
-        list += expand('data/auxiliary/discovery/' + discoveryTool + '/{method}/' + run + '/' + k + '/{barcode}.diff',
-                       method=methods, barcode=barcodes[run])
+        list += expand('data/auxiliary/discovery/' + discoveryTool + '/' + run + '/' + k + '/{barcode}.diff',
+                       barcode=barcodes[run])
     return list
 
 
 def fetchAllPileups():
     list = []
     for run in barcodes:
-        list += expand('data/auxiliary/pileupAnalysis/{method}/' + run + '/{barcode}.pileupanalysis.txt',
-                       method=methods, barcode=barcodes[run])
+        list += expand('data/auxiliary/pileupAnalysis/' + run + '/{barcode}.pileupanalysis.txt',
+                       barcode=barcodes[run])
     return list
 
 ### Snakemake Rules
