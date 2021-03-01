@@ -160,22 +160,4 @@ rule correct_kmer_profiles:
     script:
         '../scripts/createKmerProfiles.py'     
 
-        
-rule correct_plot_kmer_histogram:
-    input:
-        kmerProfile = "data/auxiliary/corrections/{basecalling}/{run}/{k}/{barcode}.json",
-        uniqueKmers = 'data/auxiliary/uniqueKmers.json'
-
-    output:
-        report('data/output/corrections/{basecalling}/{run}/{k}/{barcode}.svg', category='k-mer histograms corrected reads')
-
-    params:
-        k = lambda wcs: int(wcs.k)
-                
-    conda:
-        '../envs/biopythonworkbench.yaml'
-
-    script:
-        '../scripts/createKmerHistogram.py'
-
 

@@ -1,16 +1,3 @@
-rule detectExpectedUniqueKmers:
-    input:
-        'data/input/nCoV-2019.reference.fasta'
-    output:
-        tobigram = report('data/output/tobigram.svg',category='k detection'),
-        uniqueKmers = 'data/auxiliary/uniqueKmers.json'
-    params:
-        krange = ks
-    conda:
-        '../envs/biopythonworkbench.yaml'
-    script:
-        '../scripts/detectUniqueKmers.py'
-
 rule index_bwa:
     input:
         '{any}.bam'
@@ -45,18 +32,6 @@ rule createKmerProfiles:
         '../scripts/createKmerProfiles.py'
 
 
-rule plotKmerHistogram:
-    input:
-        kmerProfile = 'data/auxiliary/kmerProfiles/{basecalling_method}/{run}/{barcode}_{k}.json',
-        uniqueKmers = 'data/auxiliary/uniqueKmers.json'
-    output:
-        report('data/output/kmerHistograms/{basecalling_method}/{run}/{barcode}_{k}.svg',category='k-mer histograms')
-    params:
-        k = lambda wildcards: wildcards.k
-    conda:
-        '../envs/biopythonworkbench.yaml'
-    script:
-        '../scripts/createKmerHistogram.py'
 
 
 rule addPseudoQualities:

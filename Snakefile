@@ -3,30 +3,24 @@ import os
 #Load Config File
 configfile: "config.yaml"
 
-ks = config['ks']
 
-methods = ['medaka']
-#Uses the IGV sessions which is completely arbitrary, could use any other input file here to get the barcode ids
-
+#We detect the runs that are provided as input, alternatively we can use a user-defined subset of runs (this needs to be toggled in the cofig.yaml)
 runs = config['runs'] if config['useSubsetOfRuns'] else glob_wildcards('data/input/{run}').run
 
-#describes the ending of the vcf files as output by the ARTIC pipeline
-vcf_suffix = config['vcf_suffix']
-bam_suffix = config['bam_suffix']
-
+#For each run we detect the barcodes it contains (individual samples)
 barcodes = {}
 
+#It is possible to use a user defined subset here as well
 if config['useSubsetOfBarcodes']:
     barcodes = config['barcodes']
     print("Using the following subset of barcodes: {}".format(barcodes))
 else:
     for run in runs:
+        #We use the medaka output here to determine the existing barcodes, this is arbritrary, any other file could be chosen for this purpose
         barcodes[run] = glob_wildcards('data/input/'+run+'/barcode{barcode}.medaka.'+vcf_suffix).barcode
 
-NWids = glob_wildcards('data/input/gisaidseqs/Germany_NW-HHU-{id}.fasta').id
 
-
-### REMOVE LATER
+### REMOVE LATER (THIS SECTION IS ONLY USED FOR EVALUATION OF THE PIPELINE AND IRRELEVANT FOR PRODUCTIVE USE)
 gisaidMapping = {}
 gisaidMappingInverse = {}
 
@@ -75,16 +69,41 @@ for run in runs:
 
 ### REMOVE LATER END
 
+
+# This function assembles all the required output files that serve as a target for the snakemake pipeline
 def getInput(wildcards):
-    inputList = [
-                      'data/output/tobigram.svg',
-                      'data/auxiliary/interestingHOMPositions.json',
-                      'data/auxiliary/interestingPositions.json',
-                      'data/auxiliary/sampleClassification.tsv'
-                      ]
+
+    inputList = []
 
     for run in runs:
 
+        #Mandatory: For each sample we curate a consensus sequence
+        inputList += expand('data/output/consensus/'+run+'/{barcode}/consensus.fasta', k=ks, barcode=barcodes[run])
+        #We also create an IGV session file for interactive data exploration
+        inputList += expand('data/output/IgvSessions/' + run + '/{barcode}.igv.xml',barcode=barcodes[run])
+
+        #Optional Files: For each sample perform quality control on the reads and output a human-readable .html report
+        if config['performQualityControl']:
+            inputList += expand('data/output/softClippedSeqs/'+run+'/{barcode}.html',barcode=barcodes[run])
+
+        #Optional Files: For each sample we can annotate our detected variants using SnpEff
+        if config['VarAnnotSnpEff']:
+            inputList += expand('data/auxiliary/pangenome_vc/'+run+'/{barcode}/filter.annoted.vcf', barcode=barcodes[run])
+
+        ### REMOVE LATER (THIS SECTION IS ONLY USED FOR EVALUATION OF THE PIPELINE AND IRRELEVANT FOR PRODUCTIVE USE)
+
+        inputList += ['data/output/evaluation/comparisonFastaBased/nanopolish.eval']
+        inputList += ['data/output/evaluation/comparisonFastaBased/medaka.eval']
+        inputList += ['data/output/evaluation/comparisonFastaBased/illumina.eval']
+        inputList += ['data/output/evaluation/contributions.txt']
+        inputList += ['data/output/evaluation/illumina_verification_pancov.html']
+        inputList += ['data/output/evaluation/illumina_verification_medaka.html']
+        inputList += ['data/output/evaluation/illumina_verification_nanopolish.html']
+        inputList += ['data/output/evaluation/illumina_recovery_pancov.html']
+        inputList += ['data/output/evaluation/illumina_recovery_medaka.html']
+        inputList += ['data/output/evaluation/illumina_recovery_nanopolish.html']
+        inputList += ['data/output/evaluation/heterozygosity']
+        inputList += ['data/output/evaluation/toplevelStats_pancov_'+str(config['pangenomeMinCovFactor'])+'_'+str(config['pangenomeRVTThreshold'])+'.eval']
         for barcode in barcodes[run]:
 
 
@@ -97,67 +116,11 @@ def getInput(wildcards):
             inputList += [
                 'data/auxiliary/illuminaVarCalls/'+run+'_'+barcode+'/ivar.vcf.tsv'
             ]
-
-        if config['generateGFAs']:
-            inputList += expand('data/auxiliary/graphs/{method}/'+run+'/{barcode}/{k}.gfa',method=methods,barcode=barcodes[run],k=ks)
-
-        if config['performQualityControl']:
-            inputList += expand('data/output/softClippedSeqs/{method}/'+run+'/{barcode}.html',method=methods,barcode=barcodes[run])
-
-
-        if config['generatePangenome']:
-           inputList += ["data/auxiliary/pangenome/pangenome.gfa"]
-
-        if config['pangenomeVariantCalling']:
-            inputList += expand('data/auxiliary/pangenome_vc/{method}/'+run+'/{barcode}/filter.vcf', method=methods, barcode=barcodes[run])
-
-        if config['discovery']:
-            #TODO: Rename to "Discovery"? but is mandatory ...
-            #Realignments (removed for now because this is misleading)
-            #inputList += expand('data/output/IgvSessions/realignment/{method}/'+run+'/{k}/{barcode}.igv.xml', method=methods, k=ks, barcode=barcodes[run])
-            
-            if config['discovery_fb']:
-                inputList += expand('data/auxiliary/discovery/freebayes/{method}/'+run+'/{k}/{barcode}.vcf', method=methods, k=ks, barcode=barcodes[run])
-                #inputList += expand('data/output/discovery/annotatedAggregatedDiffs_freebayes_{k}.json',k=ks)
-            #if config['discovery_ctx']:
-                #inputList += expand('data/auxiliary/discovery/cortex/{method}/'+run+'/{k}/{barcode}.vcf',method=methods,k=ks,barcode=barcodes[run])
-                #inputList += expand('data/output/discovery/annotatedAggregatedDiffs_cortex_{k}.json',k=ks)
-
-        if config['consensus']:
-            inputList += expand('data/output/consensus/{method}/'+run+'/{barcode}/consensus.fasta', method=methods, k=ks, barcode=barcodes[run])
-            #inputList += expand('data/output/consensus/{method}/curation.xlsx' method=methods)
-
-        if config['VarAnnotSnpEff']:
-            inputList += expand('data/auxiliary/pangenome_vc/{method}/'+run+'/{barcode}/filter.annoted.vcf', method=methods, barcode=barcodes[run])
-
-
-        #Always create the igv sessions for our input
-        inputList += expand('data/output/IgvSessions/{method}/'+run+'/{barcode}.igv.xml',method=methods,barcode=barcodes[run])
-		
-
-        #Debug/Eval Stuff
-        #inputList += ['data/auxiliary/pangenome_vc/contrib.txt']
-        inputList += ['data/output/evaluation/comparisonFastaBased/nanopolish.eval']
-        inputList += ['data/output/evaluation/comparisonFastaBased/medaka.eval']
-        #inputList += ['data/output/evaluation/comparisonFastaBased/gisaid.eval']
-        inputList += ['data/output/evaluation/comparisonFastaBased/illumina.eval']
-        inputList += ['data/output/evaluation/contributions.txt']
-        inputList += ['data/output/evaluation/illumina_verification_pancov.html']
-        inputList += ['data/output/evaluation/illumina_verification_medaka.html']
-        inputList += ['data/output/evaluation/illumina_verification_nanopolish.html']
-        #inputList += ['data/output/evaluation/illumina_verification_gisaid.html']
-        inputList += ['data/output/evaluation/illumina_recovery_pancov.html']
-        inputList += ['data/output/evaluation/illumina_recovery_medaka.html']
-        inputList += ['data/output/evaluation/illumina_recovery_nanopolish.html']
-        #inputList += ['data/output/evaluation/illumina_recovery_gisaid.html']
-        inputList += ['data/output/evaluation/heterozygosity']
-        inputList += ['data/output/evaluation/toplevelStats_pancov_'+str(config['pangenomeMinCovFactor'])+'_'+str(config['pangenomeRVTThreshold'])+'.eval']
-        #for id in NWids:
-        #    inputList += ['data/auxiliary/evaluation/consensusVariantExtraction/gisaid/'+id+'.info']
+        ### REMOVE LATER END
 
     return inputList
 
-
+#Main rule that aggregates all the targets and is used when they are not specified, see function above for output files that are being created
 rule all:
     input:
         getInput
