@@ -1,13 +1,13 @@
 #TODO: Handle multiple conflicting records (e.g. REF C two vars with ALT T and ALT G respectively at 40%)
 rule decideFinalVCF:
     input:
-        vcf = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf",
-        pileup = 'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.pileupanalysis.txt'
+        vcf = "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf",
+        pileup = 'data/auxiliary/pileupAnalysis{run}/{barcode}.pileupanalysis.txt'
     output:
-        vcf = "data/output/consensus/{method}/{run}/{barcode}/variant.vcf",
-        nMask = "data/auxiliary/consensus/{method}/{run}/{barcode}/mask.tsv"
+        vcf = "data/output/consensus/{run}/{barcode}/variant.vcf",
+        nMask = "data/auxiliary/consensus/{run}/{barcode}/mask.tsv"
     log:
-        'logs/decideFinalVCF_{method}_{run}_{barcode}.txt'
+        'logs/decideFinalVCF_{run}_{barcode}.txt'
     conda:
         '../envs/vcfpy.yaml'
     script:
@@ -16,9 +16,9 @@ rule decideFinalVCF:
 
 rule sort_vcf_consensus:
     input:
-        "data/output/consensus/{method}/{run}/{barcode}/variant.vcf"
+        "data/output/consensus/{run}/{barcode}/variant.vcf"
     output:
-        "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.sorted.vcf"
+        "data/auxiliary/consensus/{run}/{barcode}/variant.sorted.vcf"
     conda:
         '../envs/vt.yaml'
     shell:
@@ -26,10 +26,10 @@ rule sort_vcf_consensus:
 
 rule compress_vcf:
     input:
-        vcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.sorted.vcf"
+        vcf = "data/auxiliary/consensus/{run}/{barcode}/variant.sorted.vcf"
 
     output:
-        gvcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz"
+        gvcf = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz"
 
     conda:
         '../envs/realign.yaml'
@@ -40,10 +40,10 @@ rule compress_vcf:
 
 rule index_vcf:
     input:
-        vcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz"
+        vcf = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz"
 
     output:
-        index = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz.csi"
+        index = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz.csi"
 
     conda:
         '../envs/realign.yaml'
@@ -55,11 +55,11 @@ rule index_vcf:
 rule apply_vcf:
     input:
         ref = "data/input/nCoV-2019.reference.fasta",
-        vcf = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz",
-        index = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant.vcf.gz.csi",
-        nMask = "data/auxiliary/consensus/{method}/{run}/{barcode}/mask.tsv"
+        vcf = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz",
+        index = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz.csi",
+        nMask = "data/auxiliary/consensus/{run}/{barcode}/mask.tsv"
     output:
-        var_ref = "data/output/consensus/{method}/{run}/{barcode}/consensus.fasta"
+        var_ref = "data/output/consensus/{run}/{barcode}/consensus.fasta"
 
     conda:
         '../envs/realign.yaml'

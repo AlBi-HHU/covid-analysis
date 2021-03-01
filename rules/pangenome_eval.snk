@@ -18,6 +18,99 @@ rule generateTestSet:
             for e in eval:
                 evalSet.write('{}\t{}\n'.format(e[0],e[1]))
 
+### Helper Functions (for Aggregation)
+
+def getAllPancovVCFs():
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            # check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+            allFiles += [
+                "data/output/consensus/" + run + "/" + barcode + "/variant.vcf"
+            ]
+    return allFiles
+
+
+def getAllIVarTables():
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            # check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+            allFiles += [
+                'data/auxiliary/illuminaVarCalls/' + run + '_' + barcode + '/ivar.vcf.tsv'
+            ]
+    return allFiles
+
+
+def getAllNanoporeVCFs():
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            # check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+            allFiles += [
+                'data/input/' + run + '/' + 'barcode' + barcode + '.nanopolish.pass.vcf'
+            ]
+    return allFiles
+
+
+def getAllIlluminaPileups():
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            # check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+            allFiles += [
+                'data/auxiliary/pileupAnalysis/illumina/' + run + '/' + barcode + '.pileupanalysis.txt'
+            ]
+    return allFiles
+
+
+def getAllComparisonFiles(wildcards):
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+
+            # check for missing gisaid files
+            if wildcards.method == 'gisaid':
+                if run in gisaidMapping and barcode in gisaidMapping[run]:
+                    pass
+                else:
+                    # print('skipping run {} barcode {} for gisaid comparison as we have no seq yet ...'.format(run,barcode))
+                    continue
+
+            # check for missing illumina files
+            if wildcards.method == 'illumina':
+                if run in illuminaMapping and barcode in illuminaMapping[run]:
+                    pass
+                else:
+                    # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                    continue
+
+            allFiles += [
+                "data/auxiliary/evaluation/consensusVariantExtraction/pancov/" + run + "_" + barcode + ".info",
+                "data/auxiliary/evaluation/consensusVariantExtraction/{method}/" + run + "_" + barcode + ".info",
+                'data/auxiliary/pileupAnalysis/medaka/' + run + '/' + barcode + '.pileupanalysis.txt'
+            ]
+    return allFiles
 
 rule combineWithReference_pancov:
     input:
@@ -83,34 +176,6 @@ rule createInfoFile:
     script:
         '../scripts/consensusToTable.py'
 
-def getAllComparisonFiles(wildcards):
-    allFiles = []
-    for run in runs:
-        for barcode in barcodes[run]:
-        
-            #check for missing gisaid files
-            if wildcards.method == 'gisaid':
-                if run in gisaidMapping and barcode in gisaidMapping[run]:
-                    pass
-                else:
-                    #print('skipping run {} barcode {} for gisaid comparison as we have no seq yet ...'.format(run,barcode))
-                    continue
-                    
-            #check for missing illumina files
-            if wildcards.method == 'illumina':
-                if run in illuminaMapping and barcode in illuminaMapping[run]:
-                    pass
-                else:
-                    #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
-                    continue
-                    
-            allFiles += [
-                "data/auxiliary/evaluation/consensusVariantExtraction/pancov/"+run+"_"+barcode+".info",
-                "data/auxiliary/evaluation/consensusVariantExtraction/{method}/"+run+"_"+barcode+".info",
-                'data/auxiliary/pileupAnalysis/medaka/' + run + '/' + barcode + '.pileupanalysis.txt'
-            ]
-    return allFiles
-
 rule assembleMedians:
     input:
         fetchAllPileups()
@@ -130,67 +195,6 @@ rule comparePancovToX:
         "../envs/biopythonworkbench.yaml"
     script:
         '../scripts/variantdiff_summary.py'
-
-
-def getAllPancovVCFs():
-    allFiles = []
-    for run in runs:
-        for barcode in barcodes[run]:
-            #check for missing illumina files
-            if run in illuminaMapping and barcode in illuminaMapping[run]:
-                pass
-            else:
-                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
-                continue
-            allFiles += [
-                "data/output/consensus/medaka/" + run + "/" + barcode + "/variant.vcf"
-            ]
-    return allFiles
-    
-def getAllIVarTables():
-    allFiles = []
-    for run in runs:
-        for barcode in barcodes[run]:
-            #check for missing illumina files
-            if run in illuminaMapping and barcode in illuminaMapping[run]:
-                pass
-            else:
-                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
-                continue
-            allFiles += [
-                'data/auxiliary/illuminaVarCalls/'+run+'_'+barcode+'/ivar.vcf.tsv'
-            ]
-    return allFiles
-
-def getAllNanoporeVCFs():
-    allFiles = []
-    for run in runs:
-        for barcode in barcodes[run]:
-            #check for missing illumina files
-            if run in illuminaMapping and barcode in illuminaMapping[run]:
-                pass
-            else:
-                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
-                continue
-            allFiles += [
-                'data/input/'+run+'/'+'barcode'+barcode+'.nanopolish.pass.vcf'
-            ]
-    return allFiles
-
-def getAllIlluminaPileups():
-    allFiles = []
-    for run in runs:
-        for barcode in barcodes[run]:
-            #check for missing illumina files
-            if run in illuminaMapping and barcode in illuminaMapping[run]:
-                pass
-            else:
-                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
-                continue
-            allFiles += [
-                'data/auxiliary/pileupAnalysis/illumina/'+run+'/'+barcode+'.pileupanalysis.txt'
-            ]
-    return allFiles
 
 rule evaluateHeterozygosityVisual:
     input:
