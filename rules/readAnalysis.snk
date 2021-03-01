@@ -1,9 +1,10 @@
+#Note: We use the medaka bam files here for extraction, this is arbitrary
 rule extractSoftClippedReads:
     input:
-        alignment = 'data/input/{run}/barcode{barcode}.{basecalling_method}.'+config['bam_suffix'],
-        index = 'data/input/{run}/barcode{barcode}.{basecalling_method}.'+config['bam_suffix']+'.bai'
+        alignment = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix'],
+        index = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix']+'.bai'
     output:
-        'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta'
+        'data/auxiliary/softClippedSeqs/{run}/{barcode}.fasta'
     conda:
         '../envs/biopythonworkbench.yaml'
     script:
@@ -11,9 +12,9 @@ rule extractSoftClippedReads:
 
 rule addPseudoQualities:
     input:
-        'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta'
+        'data/auxiliary/softClippedSeqs/{run}/{barcode}.fasta'
     output:
-        'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fq'
+        'data/auxiliary/softClippedSeqs/{run}/{barcode}.fq'
     conda:
         '../envs/perl.yaml'
     shell:
@@ -21,11 +22,11 @@ rule addPseudoQualities:
 
 rule overabundance_analysis:
     input:
-        'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fq'
+        'data/auxiliary/softClippedSeqs/{run}/{barcode}.fq'
     output:
-        reporthtml = report('data/output/softClippedSeqs/{basecalling_method}/{run}/{barcode}.html',category='Quality Control'),
-        reportjson = report('data/output/softClippedSeqs/{basecalling_method}/{run}/{barcode}.json',category='Quality Control'),
-        fixedFasta = 'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.corrected.fasta'
+        reporthtml = report('data/output/softClippedSeqs/{run}/{barcode}.html',category='Quality Control'),
+        reportjson = report('data/output/softClippedSeqs/{run}/{barcode}.json',category='Quality Control'),
+        fixedFasta = 'data/auxiliary/softClippedSeqs/{run}/{barcode}.corrected.fasta'
     conda:
         '../envs/fastp.yaml'
     shell:
