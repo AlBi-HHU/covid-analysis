@@ -3,13 +3,13 @@
 def fetchAllVCFs():
     list = []
     for run in barcodes:
-        list+= expand('data/input/'+run+'/barcode{barcode}.{method}.'+config['vcf_suffix'],method=methods,barcode=barcodes[run])
+        list+= expand('data/input/'+run+'/barcode{barcode}.{method}.'+config['vcf_suffix'],method=['medaka','nanopolish'],barcode=barcodes[run])
     return list
 
 def fetchAllPileups():
     list = []
     for run in barcodes:
-        list += expand('data/auxiliary/pileupAnalysis/'+run+'/{barcode}.pileupanalysis.txt',method=methods,barcode=barcodes[run])
+        list += expand('data/auxiliary/pileupAnalysis/'+run+'/{barcode}.pileupanalysis.txt',method=['medaka','nanopolish'],barcode=barcodes[run])
     return list
 
 ### Snakemake Rules
@@ -19,11 +19,11 @@ rule generateIGVSessions:
         reference = 'data/input/nCoV-2019.reference.fasta',
         vcfFileNano = 'data/input/{run}/barcode{barcode}.nanopolish.'+config['vcf_suffix'],
         vcfFileMeda = 'data/input/{run}/barcode{barcode}.medaka.'+config['vcf_suffix'],
-        alignmentFileIndex = 'data/input/{run}/barcode{barcode}.{method}.'+config['bam_suffix']+'.bai'
+        alignmentFileIndex = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix']+'.bai'
     output:
         report('data/output/IgvSessions/{run}/{barcode}.igv.xml',category='IGVSessions')
     params:
-        alignmentFile = 'data/input/{run}/barcode{barcode}.{method}.'+config['bam_suffix'],
+        alignmentFile = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix'],
     conda:
         '../envs/perl.yaml'
     shell:
