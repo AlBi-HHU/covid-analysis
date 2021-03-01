@@ -1,157 +1,54 @@
+### Helper Functions for Aggregation
+
 def fetchAllVCFs():
     list = []
     for run in barcodes:
-        list+= expand('data/input/'+run+'/barcode{barcode}.{method}.'+vcf_suffix,method=methods,barcode=barcodes[run])
-    return list
-
-def fetchAllLabels():
-    list = []
-    for run in barcodes:
-        list+= expand('data/auxiliary/pileupAnalysis/{method}/'+run+'/{barcode}.labels.json',method=methods,barcode=barcodes[run])
+        list+= expand('data/input/'+run+'/barcode{barcode}.{method}.'+config['vcf_suffix'],method=methods,barcode=barcodes[run])
     return list
 
 def fetchAllPileups():
     list = []
     for run in barcodes:
-        list += expand('data/auxiliary/pileupAnalysis/{method}/'+run+'/{barcode}.pileupanalysis.txt',method=methods,barcode=barcodes[run])
+        list += expand('data/auxiliary/pileupAnalysis/'+run+'/{barcode}.pileupanalysis.txt',method=methods,barcode=barcodes[run])
     return list
 
-def fetchAllLikelihoods():
-    list = []
-    for run in barcodes:
-        list += expand('data/auxiliary/probabilisticGenotyping/{method}/'+run+'/{barcode}.probabilities.json',method=methods,barcode=barcodes[run])
-    return list
-
-def fetchAllVCFDiffs():
-    list = []
-    for run in barcodes:
-        list += expand('data/auxiliary/probabilisticGenotyping/{method}/'+run+'/{barcode}.vcfdiff',method=methods,barcode=barcodes[run])
-    return list
+### Snakemake Rules
 
 rule generateIGVSessions:
     input:
         reference = 'data/input/nCoV-2019.reference.fasta',
-        vcfFileNano = 'data/input/{run}/barcode{barcode}.nanopolish.'+vcf_suffix,
-        vcfFileMeda = 'data/input/{run}/barcode{barcode}.medaka.'+vcf_suffix,
-        alignmentFileIndex = 'data/input/{run}/barcode{barcode}.{method}.'+bam_suffix+'.bai'
+        vcfFileNano = 'data/input/{run}/barcode{barcode}.nanopolish.'+config['vcf_suffix'],
+        vcfFileMeda = 'data/input/{run}/barcode{barcode}.medaka.'+config['vcf_suffix'],
+        alignmentFileIndex = 'data/input/{run}/barcode{barcode}.{method}.'+config['bam_suffix']+'.bai'
     output:
-        report('data/output/IgvSessions/{method}/{run}/{barcode}.igv.xml',category='IGVSessions')
+        report('data/output/IgvSessions/{run}/{barcode}.igv.xml',category='IGVSessions')
     params:
-        alignmentFile = 'data/input/{run}/barcode{barcode}.{method}.'+bam_suffix,
-        # Cluster Execution
-        cpus = '1',
-        mem = '256M',
-        gpus = '0',
-        walltime = '00:05:00'
+        alignmentFile = 'data/input/{run}/barcode{barcode}.{method}.'+config['bam_suffix'],
     conda:
         '../envs/perl.yaml'
     shell:
         'perl scripts/generate_IGV.pl --covidReference {input.reference} --BAM {params.alignmentFile} --output {output} --VCF_Medaka {input.vcfFileMeda} --VCF_Nano {input.vcfFileNano}'
 
-rule getVariantPositions:
-    input:
-        vcfFiles = fetchAllVCFs()
-    output:
-        'data/auxiliary/interestingPositions.json'   #
-    params:
-        # Cluster Execution
-        cpus = '1',
-        mem = '1G',
-        gpus = '0',
-        walltime = '00:05:00'
-    conda:
-        '../envs/biopythonworkbench.yaml'
-    script:
-        '../scripts/determineVariantPositions.py'
 
 rule pileupAnalysis:
     input:
-        alignment = 'data/input/{run}/barcode{barcode}.{method}.'+bam_suffix,
-                alignment_index = 'data/input/{run}/barcode{barcode}.{method}.'+bam_suffix+'.bai',
+        alignment = 'data/input/{run}/barcode{barcode}.{method}.'+config['bam_suffix'],
+                alignment_index = 'data/input/{run}/barcode{barcode}.{method}.'+config['bam_suffix']+'.bai',
         reference = 'data/input/nCoV-2019.reference.fasta'
     output:
-        'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.pileupanalysis.txt'
-    params:
-        # Cluster Execution
-        cpus = '1',
-        mem = '8G',
-        gpus = '0',
-        walltime = '00:05:00'
+        'data/auxiliary/pileupAnalysis/{run}/{barcode}.pileupanalysis.txt'
     conda:
         '../envs/biopythonworkbench.yaml'
     shell:
         'perl scripts/getCompleteMycoFrequencies.pl --BAM {input.alignment} --output {output} --minMappingQuality 0 --minBaseQuality 0 --referenceGenome {input.reference}'
 
-
-rule labelAlleles:
-    input:
-        pileupAnalysis = 'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.'+vcf_suffix,
-        vcfFile = 'data/input/{run}/barcode{barcode}.{method}.'+vcf_suffix
-    output:
-        'data/auxiliary/pileupAnalysis/{method}/{run}/{barcode}.labels.json'
-    params:
-        # Cluster Execution
-        cpus = '1',
-        mem = '256M',
-        gpus = '0',
-        walltime = '00:05:00'
-    conda:
-        '../envs/biopythonworkbench.yaml'
-    script:
-        '../scripts/labelVariantCalls.py'
-
-rule labelSamples:
-    input:
-        labels = fetchAllLabels()
-    output:
-        'data/auxiliary/sampleClassification.tsv'
-    conda:
-        '../envs/biopythonworkbench.yaml'
-    script:
-        '../scripts/labelSamples.py'
-
-rule getHOMVariantPositions:
-    input:
-        labels = fetchAllLabels()
-    output:
-        'data/auxiliary/interestingHOMPositions.json'
-    conda:
-        '../envs/biopythonworkbench.yaml'
-    script:
-        '../scripts/assembleHOMPositions.py'
-
-rule averageCoveragePlot:
-    input:
-        pileups = fetchAllPileups()
-    output:
-        'data/output/coverageAverages.svg'
-    conda:
-        '../envs/biopythonworkbench.yaml'
-    script:
-        '../scripts/coveragePlot.py'   
-
-rule assembleReferenceEmissions:
-    input:
-        pileups = fetchAllPileups(),
-        reference = 'data/input/nCoV-2019.reference.fasta',
-        homPositions = 'data/auxiliary/interestingHOMPositions.json',
-        variantPositions = 'data/auxiliary/interestingPositions.json'
-    output:
-        referenceEmissions = 'data/auxiliary/referenceEmissions.json'
-    conda:
-        '../envs/biopythonworkbench.yaml'
-    script:
-        '../scripts/assembleReferenceEmissions.py'
-
+#TODO: Looks like the hardcoded chr names could be moved to some cfg
 rule annote_variant_snpeff:
     input:
         vcf = '{path}.vcf',
-
     output:
         annoted = '{path}.annoted.vcf'
-
     conda:
         '../envs/snpEff.yaml'
-        
     shell:
        "sed 's/MN908947.3/NC_045512.2/' {input.vcf} | snpEff NC_045512.2 | sed 's/NC_045512.2/MN908947.3/' > {output.annoted}"
