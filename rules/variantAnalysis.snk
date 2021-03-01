@@ -32,8 +32,8 @@ rule generateIGVSessions:
 
 rule pileupAnalysis:
     input:
-        alignment = 'data/input/{run}/barcode{barcode}.{method}.'+config['bam_suffix'],
-                alignment_index = 'data/input/{run}/barcode{barcode}.{method}.'+config['bam_suffix']+'.bai',
+        alignment = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix'],
+        alignment_index = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix']+'.bai',
         reference = 'data/input/nCoV-2019.reference.fasta'
     output:
         'data/auxiliary/pileupAnalysis/{run}/{barcode}.pileupanalysis.txt'
