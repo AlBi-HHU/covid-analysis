@@ -1,4 +1,3 @@
-
 #TODO: Handle multiple conflicting records (e.g. REF C two vars with ALT T and ALT G respectively at 40%)
 rule decideFinalVCF:
     input:

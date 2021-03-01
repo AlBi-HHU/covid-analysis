@@ -17,7 +17,7 @@ if config['useSubsetOfBarcodes']:
 else:
     for run in runs:
         #We use the medaka output here to determine the existing barcodes, this is arbritrary, any other file could be chosen for this purpose
-        barcodes[run] = glob_wildcards('data/input/'+run+'/barcode{barcode}.medaka.'+vcf_suffix).barcode
+        barcodes[run] = glob_wildcards('data/input/'+run+'/barcode{barcode}.medaka.'+config['vcf_suffix']).barcode
 
 
 ### REMOVE LATER (THIS SECTION IS ONLY USED FOR EVALUATION OF THE PIPELINE AND IRRELEVANT FOR PRODUCTIVE USE)
