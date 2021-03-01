@@ -1,19 +1,9 @@
 rule bwa_index:
     input:
         "{prefix}.fasta"
-        
     output:
         "{prefix}.fasta.bwt"
-    params:
-        # Cluster Execution
-        cpus = '1',
-        mem = '8G',
-        gpus = '0',
-        walltime = '00:15:00'
     conda:
         '../envs/realign.yaml'
-
     shell:
         'bwa index {input}'
-
-

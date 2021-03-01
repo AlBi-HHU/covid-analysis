@@ -1,3 +1,24 @@
+##### This contains shared functions or definitions that are used across multiple scripts
+
+#The ambiguity letters for nucleotides
+ambiguityLetters = {
+    frozenset(('A', 'G')): 'R',
+    frozenset(('C', 'T')): 'Y',
+    frozenset(('G', 'C')): 'S',
+    frozenset(('A', 'T')): 'W',
+    frozenset(('G', 'T')): 'K',
+    frozenset(('A', 'C')): 'M',
+    frozenset(('C', 'G', 'T')): 'B',
+    frozenset(('A', 'G', 'T')): 'D',
+    frozenset(('A', 'C', 'T')): 'H',
+    frozenset(('A', 'C', 'G')): 'V',
+    frozenset(('A', 'C', 'T', 'G')): 'N'
+}
+
+#An inversion of the map above to allow for quick reverse lookups
+ambiguityLetters_inverted = {v: k for k, v in degenerate.items()}
+
+
 def parseKmers(kmers,sequence,k):
     if len(sequence) < k:
         return

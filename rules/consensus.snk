@@ -10,12 +10,6 @@ rule decideFinalVCF:
         'logs/decideFinalVCF_{method}_{run}_{barcode}.txt'
     conda:
         '../envs/vcfpy.yaml'
-    params:
-        th_sbiais = config["consensusStrandBiais"],
-        th_cov = config["consensusMinCov"],
-        th_sb_cov = config['consensusPValCoverage'],
-        th_sb_pval = config['consensusPValCutoff'],
-        th_het = config["thresholdHomCall"]
     script:
             '../scripts/consensusVCF.py'
 

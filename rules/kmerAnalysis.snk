@@ -31,9 +31,6 @@ rule createKmerProfiles:
     script:
         '../scripts/createKmerProfiles.py'
 
-
-
-
 rule addPseudoQualities:
     input:
         'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta'
