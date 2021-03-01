@@ -6,7 +6,6 @@ from collections import defaultdict, Counter
 
 from shared import *
 
-
 def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshold, min_cov_factor, min_ends_cov, output_path):
 
     # Get ref information
@@ -233,7 +232,17 @@ def gfa2networkx(gfa_path):
 
 
 if "snakemake" in locals():
-    main(snakemake.input["pangenome"], snakemake.input["bubble"], snakemake.input["reads"], snakemake.input["node2pos"], float(snakemake.params["rvt"]), float(snakemake.params["min_cov_factor"]), int(snakemake.params["min_ends_cov"]), snakemake.output["variant"])
+    rvt = float(snakemake.config["pangenomeRVTThreshold"]),
+    min_cov_factor = float(snakemake.config["pangenomeMinCovFactor"]),
+    min_ends_cov = int(snakemake.config["pangenomeMinEndsCovBubble"]),
+    main(snakemake.input["pangenome"],
+         snakemake.input["bubble"],
+         snakemake.input["reads"],
+         snakemake.input["node2pos"],
+         rvt,
+         min_cov_factor,
+         min_ends_cov,
+         snakemake.output["variant"])
 else:
     import sys
 

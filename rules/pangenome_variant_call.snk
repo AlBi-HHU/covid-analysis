@@ -2,18 +2,14 @@ rule map_read_pangenome:
     input:
         graph = "data/auxiliary/pangenome/pangenome.gfa",
         reads = "data/auxiliary/softClippedSeqs/{method}/{run}/{barcode}.fasta",
-
     output:
-        mappings = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/reads.gaf",
-
+        mappings = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
     conda:
         '../envs/graphaligner.yaml',
-
     threads:
         48
-                
     log:
-        'logs/pangenome_vc_read_mapping_{method}_{run}_{barcode}.log',
+        'logs/pangenome_vc_read_mapping_{run}_{barcode}.log',
 
     shell:
         "GraphAligner -t {threads} -g {input.graph} -f {input.reads}  -a {output.mappings} -x vg 2>&1 > {log}"
@@ -23,19 +19,14 @@ rule map_ref_pangenome:
     input:
         graph = "data/auxiliary/pangenome/pangenome.gfa",
         ref = "data/input/nCoV-2019.reference.fasta",
-        
     output:
         mappings = "data/auxiliary/pangenome_vc/reference.gaf",
-
     conda:
         '../envs/graphaligner.yaml',
-
     threads:
-        48
-                
+        48      #TODO: cfg?
     log:
         'logs/pangenome_vc_reference_mapping.log',
-
     shell:
         "GraphAligner -t {threads} -g {input.graph} -f {input.ref}  -a {output.mappings} -x vg 2>&1 > {log}"
 
@@ -54,41 +45,33 @@ rule call_variant:
     input:
         pangenome = "data/auxiliary/pangenome/pangenome.gfa",
         bubble = "data/auxiliary/pangenome/bubble.json",
-        reads = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/reads.gaf",
+        reads = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
         node2pos = "data/auxiliary/pangenome_vc/node2pos.csv",
-
     output:
-        variant = "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf.ugly",
-
-    params:
-        rvt = config["pangenomeRVTThreshold"],
-        min_cov_factor = config["pangenomeMinCovFactor"],
-        min_ends_cov = config["pangenomeMinEndsCovBubble"],
-        #th_het = config["thresholdHomCall"]
+        variant = "data/auxiliary/pangenome_vc/{run}/{barcode}/variant.vcf.ugly",
     log:
-        'logs/pangenome_vc_call_variant_{method}_{run}_{barcode}.log',
-
+        'logs/pangenome_vc_call_variant_{run}_{barcode}.log',
     script:
         "../scripts/pangenome/call_variant.py"
 
 rule normalize_variant_pg:
     input:
-        ugly_variant = 'data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf.ugly',
+        ugly_variant = 'data/auxiliary/pangenome_vc/{run}/{barcode}/variant.vcf.ugly',
         reference = "data/input/nCoV-2019.reference.fasta"
     output:
-        variant = 'data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf'
+        variant = 'data/auxiliary/pangenome_vc/{run}/{barcode}/variant.vcf'
     conda:
         '../envs/vt.yaml',
     log:
-        'logs/pangenome_vc_normalize_variant_{method}_{run}_{barcode}_variant.log'
+        'logs/pangenome_vc_normalize_variant_{run}_{barcode}_variant.log'
     shell:
         'if [ -s {input.ugly_variant} ]; then vt normalize -r {input.reference} -o {output.variant} {input.ugly_variant}; else touch {output.variant}; fi 2> {log}'
 
 rule decomposeBlockSubs:
     input:
-        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/variant.vcf",
+        "data/auxiliary/pangenome_vc/{run}/{barcode}/variant.vcf",
     output:
-        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/decomposed.vcf",
+        "data/auxiliary/pangenome_vc/{run}/{barcode}/decomposed.vcf",
     conda:
         '../envs/vt.yaml'
     shell:
@@ -96,10 +79,10 @@ rule decomposeBlockSubs:
         
 rule filter_same_pos_variant:
     input:
-        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/decomposed.vcf"
+        "data/auxiliary/pangenome_vc/{run}/{barcode}/decomposed.vcf"
 
     output:
-        "data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf"
+        "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
 
     params:
         min_cov = config["pangenomeVarMinCov"]
@@ -109,28 +92,3 @@ rule filter_same_pos_variant:
 
     script:
         '../scripts/pangenome/clean_variant.py'
-    
-### Debug / Evaluation Only
-
-all_vcfs = []
-freebayes_vcfs = [expand('data/auxiliary/discovery/freebayes/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
-freebayes_vcfs = [item for sublist in freebayes_vcfs for item in sublist]
-all_vcfs += freebayes_vcfs
-cortex_vcfs = [expand('data/auxiliary/discovery/cortex/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
-cortex_vcfs = [item for sublist in cortex_vcfs for item in sublist]
-all_vcfs += cortex_vcfs
-original_vcfs = [expand('data/input/{run}/barcode{barcode}.{method}.'+vcf_suffix, method=methods, barcode=barcodes[run], run=run) for run in runs]
-original_vcfs = [item for sublist in original_vcfs for item in sublist]
-all_vcfs += original_vcfs
-
-rule get_contributions:
-    input:
-        cortex_calls = cortex_vcfs,
-        other_calls = list(set(all_vcfs) - set(cortex_vcfs)),
-        filter_vcfs = [expand('data/auxiliary/pangenome_vc/{method}/{run}/{barcode}/filter.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
-    output:
-        contrib = 'data/auxiliary/pangenome_vc/contrib.txt'
-    conda:
-        '../envs/vcfpy.yaml'
-    script:
-        '../scripts/getExclusiveCortex.py'
