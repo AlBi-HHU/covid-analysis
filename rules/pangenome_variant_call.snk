@@ -1,16 +1,15 @@
 rule map_read_pangenome:
     input:
         graph = "data/auxiliary/pangenome/pangenome.gfa",
-        reads = "data/auxiliary/softClippedSeqs/{method}/{run}/{barcode}.fasta",
+        reads = "data/auxiliary/softClippedSeqs/{run}/{barcode}.fasta",
     output:
         mappings = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
     conda:
         '../envs/graphaligner.yaml',
     threads:
-        48
+        48  #TODO: cfg?
     log:
         'logs/pangenome_vc_read_mapping_{run}_{barcode}.log',
-
     shell:
         "GraphAligner -t {threads} -g {input.graph} -f {input.reads}  -a {output.mappings} -x vg 2>&1 > {log}"
 
@@ -24,7 +23,7 @@ rule map_ref_pangenome:
     conda:
         '../envs/graphaligner.yaml',
     threads:
-        48      #TODO: cfg?
+        48  #TODO: cfg?
     log:
         'logs/pangenome_vc_reference_mapping.log',
     shell:
@@ -34,10 +33,8 @@ rule node_pos_on_ref:
     input:
         graph = "data/auxiliary/pangenome/pangenome.gfa",
         mappings = "data/auxiliary/pangenome_vc/reference.gaf",
-
     output:
         node_pos_on_ref = "data/auxiliary/pangenome_vc/node2pos.csv"
-
     script:
         "../scripts/pangenome/node2pos.py"
         
@@ -80,15 +77,11 @@ rule decomposeBlockSubs:
 rule filter_same_pos_variant:
     input:
         "data/auxiliary/pangenome_vc/{run}/{barcode}/decomposed.vcf"
-
     output:
         "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
-
     params:
         min_cov = config["pangenomeVarMinCov"]
-
     conda:
         '../envs/freebayes.yaml',
-
     script:
         '../scripts/pangenome/clean_variant.py'
