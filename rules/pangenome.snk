@@ -1,22 +1,25 @@
 all_vcfs = []
 
+#Optional: We add additional variants, found by our discovery routine to the pangenome graph
 if config["pangenomeUseFreebayes"]:
-    all_vcfs += [expand('data/auxiliary/discovery/freebayes/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
-#all_vcfs += [expand('data/auxiliary/discovery/cortex/{method}/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
+    all_vcfs += [expand('data/auxiliary/discovery/freebayes/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', method=methods, barcode=barcodes[run], run=run) for run in runs]
 
-#Although we don't use nanopolish READS we do use the nanopolish vcfs
+#The two methods utilized by the ARTIC pipeline
 allMethods = ['medaka','nanopolish']
 
+#We add all ARTIC pipeline VCFs as "known variants" to our pangenome graph in any case
 all_vcfs += [expand('data/input/{run}/barcode{barcode}.{method}.'+vcf_suffix, method=allMethods, barcode=barcodes[run], run=run) for run in runs]
 
-vcfs = [item for sublist in all_vcfs for item in sublist]
+#Restructure (flatten) the list
+all_vcfs = [item for sublist in all_vcfs for item in sublist]
 
-#Add Pangenome VCF
-vcfs += ['data/input/' + config['gisaidVCF']]
+#Add additional vcf files
+if config['pangenomeUseAdditionalVCFs']:
+    all_vcfs += config['pangenomeAdditionalVCFs']
 
 rule concatenate_vcf:
     input:
-        vcfs = lambda wlc: vcfs,
+        vcfs = all_vcfs
     output:
         out = "data/auxiliary/pangenome/merge.vcf"
     conda:
@@ -76,16 +79,6 @@ rule dropDuplicates:
     shell:
         'vt uniq {input} -o {output}'
 
-'''
-rule sortVCF:
-    input:
-        "data/auxiliary/pangenome/merge.vcf"
-    output:
-        "data/auxiliary/pangenome/merge_sorted.vcf"
-    shell:
-        "cat {input} | awk \'$1 ~ /^#/ {{print $0;next}} {{print $0 | \"sort -k1,1 -k2,2n\"}}\' > {output}"
-'''
-
 rule bgzip:
     input:
         "data/auxiliary/pangenome/merge_unique.vcf"
@@ -127,7 +120,6 @@ rule pangenome:
 
     shell:
         "vg construct -t {threads} -S -i -r {input.reference} -v {input.vcf} | vg view -g - > {output}"
-        #"vg construct -t {threads} -S -i -r {input.reference} | vg view -g - > {output}"
 
 rule unchop:
     input:

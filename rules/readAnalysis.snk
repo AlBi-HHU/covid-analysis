@@ -1,17 +1,7 @@
-rule index_bwa:
-    input:
-        '{any}.bam'
-    output:
-        '{any}.bam.bai'
-    conda:
-        '../envs/biopythonworkbench.yaml'
-    shell:
-        'samtools index {input}'
-
 rule extractSoftClippedReads:
     input:
-        alignment = 'data/input/{run}/barcode{barcode}.{basecalling_method}.'+bam_suffix,
-        index = 'data/input/{run}/barcode{barcode}.{basecalling_method}.'+bam_suffix+'.bai'
+        alignment = 'data/input/{run}/barcode{barcode}.{basecalling_method}.'+config['bam_suffix'],
+        index = 'data/input/{run}/barcode{barcode}.{basecalling_method}.'+config['bam_suffix']+'.bai'
     output:
         'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta'
     conda:
@@ -19,29 +9,11 @@ rule extractSoftClippedReads:
     script:
         '../scripts/extractSoftClippedReads.py'
 
-rule createKmerProfiles:
-    input:
-        'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta'
-    output:
-        'data/auxiliary/kmerProfiles/{basecalling_method}/{run}/{barcode}_{k}.json'
-    params:
-        k = lambda wildcards: int(wildcards.k)
-    conda:
-        '../envs/biopythonworkbench.yaml'
-    script:
-        '../scripts/createKmerProfiles.py'
-
 rule addPseudoQualities:
     input:
         'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fasta'
     output:
         'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.fq'
-    params:
-        #Cluster Execution
-        cpus = '1',
-        mem = '256M',
-        walltime = '00:01:00',
-        gpus = '0'
     conda:
         '../envs/perl.yaml'
     shell:
@@ -54,12 +26,6 @@ rule overabundance_analysis:
         reporthtml = report('data/output/softClippedSeqs/{basecalling_method}/{run}/{barcode}.html',category='Quality Control'),
         reportjson = report('data/output/softClippedSeqs/{basecalling_method}/{run}/{barcode}.json',category='Quality Control'),
         fixedFasta = 'data/auxiliary/softClippedSeqs/{basecalling_method}/{run}/{barcode}.corrected.fasta'
-    params:
-        # Cluster Execution
-        cpus = '1',
-        mem = '1G',
-        walltime = '00:05:00',
-        gpus = '0'
     conda:
         '../envs/fastp.yaml'
     shell:

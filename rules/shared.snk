@@ -1,4 +1,4 @@
-rule bwa_index:
+rule bwa_index_fasta:
     input:
         "{prefix}.fasta"
     output:
@@ -7,3 +7,14 @@ rule bwa_index:
         '../envs/realign.yaml'
     shell:
         'bwa index {input}'
+
+
+rule bwa_index_bam:
+    input:
+        '{any}.bam'
+    output:
+        '{any}.bam.bai'
+    conda:
+        '../envs/biopythonworkbench.yaml'
+    shell:
+        'samtools index {input}'

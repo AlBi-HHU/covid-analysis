@@ -127,12 +127,15 @@ rule all:
 
 include: 'rules/shared.snk'
 include: 'rules/errorCorrection.snk'
-include: 'rules/kmerAnalysis.snk'
+include: 'rules/readAnalysis.snk'
 include: 'rules/variantAnalysis.snk'
 include: 'rules/consensus.snk'
 include: 'rules/pangenome.snk'
-include: 'rules/discovery_shared.snk'
-include: 'rules/discovery_fb.snk'
+include: 'rules/discovery.snk'
 include: 'rules/pangenome_variant_call.snk'
+
+
+### REMOVE LATER (THIS SECTION IS ONLY USED FOR EVALUATION OF THE PIPELINE AND IRRELEVANT FOR PRODUCTIVE USE)
 include: 'rules/pangenome_eval.snk'
 include: 'rules/illumina.snk'
+### REMOVE LATER END
