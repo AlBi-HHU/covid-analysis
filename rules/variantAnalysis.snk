@@ -35,6 +35,8 @@ rule pileupAnalysis:
         alignment = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix'],
         alignment_index = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix']+'.bai',
         reference = 'data/input/nCoV-2019.reference.fasta'
+    wildcard_constraints:
+        barcode = "\d+"
     output:
         'data/auxiliary/pileupAnalysis/{run}/{barcode}.pileupanalysis.txt'
     conda:
