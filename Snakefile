@@ -133,9 +133,6 @@ include: 'rules/consensus.snk'
 include: 'rules/pangenome.snk'
 include: 'rules/discovery.snk'
 include: 'rules/pangenome_variant_call.snk'
-
-
-### REMOVE LATER (THIS SECTION IS ONLY USED FOR EVALUATION OF THE PIPELINE AND IRRELEVANT FOR PRODUCTIVE USE)
+### REMOVE LATER (THE INCLUDES BELOW ARE ONLY FOR EVALUATION)
 include: 'rules/pangenome_eval.snk'
 include: 'rules/illumina.snk'
-### REMOVE LATER END
