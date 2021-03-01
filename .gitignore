@@ -1,5 +1,6 @@
 __pycache__
 .snakemake
+.idea
 CovidSandbox.ipynb
 unsorted
 Bandage_Ubuntu_static_v0_8_1

@@ -1,7 +1,6 @@
-import sys
-import json
 import os
 
+#Load Config File
 configfile: "config.yaml"
 
 ks = config['ks']
@@ -105,17 +104,6 @@ def getInput(wildcards):
         if config['performQualityControl']:
             inputList += expand('data/output/softClippedSeqs/{method}/'+run+'/{barcode}.html',method=methods,barcode=barcodes[run])
 
-        #if config['generateKmerProfiles']:
-        #    inputList += expand('data/output/kmerHistograms/{method}/'+run+'/{barcode}_{k}.svg',method=methods,barcode=barcodes[run],k=ks)
-
-        '''
-        if config['performCorrections']:
-            inputList += expand('data/output/corrections/{basecalling}/'+run+'/{k}/{barcode}.svg',
-                                basecalling=methods,
-                                barcode=barcodes[run],
-                                k=ks
-                                )
-        '''
 
         if config['generatePangenome']:
            inputList += ["data/auxiliary/pangenome/pangenome.gfa"]
@@ -142,23 +130,6 @@ def getInput(wildcards):
         if config['VarAnnotSnpEff']:
             inputList += expand('data/auxiliary/pangenome_vc/{method}/'+run+'/{barcode}/filter.annoted.vcf', method=methods, barcode=barcodes[run])
 
-        '''
-        if config['performMethodEvaluation']:
-            sampleSetsFile = checkpoints.createSubsets.get().output
-            with open(str(sampleSetsFile),'r') as infile:
-                sampleSets = json.load(infile)
-                for cohortSize in sampleSets:
-                    for idx,sampleSet in enumerate(sampleSets[cohortSize]):
-                        #Very ugly in my opinion
-                        for f in sampleSet:
-                            #working with 'data/auxiliary/corrections/{method}/{run}/21/{barcode}.fasta'
-                            split = f.split('/')
-                            barcode = split[-1].split('.')[0]
-                            run = split[-3]
-                            method = split[-4]
-                            fstring = 'data/auxiliary/pangenome_vc/'+cohortSize+'/'+str(idx)+'/'+method+'/'+run+'/'+barcode+'/variant.vcf'
-                            inputList.append(fstring)
-        '''
 
         #Always create the igv sessions for our input
         inputList += expand('data/output/IgvSessions/{method}/'+run+'/{barcode}.igv.xml',method=methods,barcode=barcodes[run])
@@ -202,5 +173,3 @@ include: 'rules/discovery_fb.snk'
 include: 'rules/pangenome_variant_call.snk'
 include: 'rules/pangenome_eval.snk'
 include: 'rules/illumina.snk'
-
-

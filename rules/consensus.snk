@@ -73,25 +73,3 @@ rule apply_vcf:
 
     shell:
         'bcftools consensus -f {input.ref} -m {input.nMask} {input.vcf} > {output.var_ref}'
-
-'''
-rule map_on_consensus:
-    input:
-        new_ref = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant_applied.fasta",
-        index = "data/auxiliary/consensus/{method}/{run}/{barcode}/variant_applied.fasta.bwt",
-        raw_reads = "data/auxiliary/softClippedSeqs/{method}/{run}/{barcode}.fasta"
-
-    output:
-        mapping = 'data/auxiliary/consensus/{method}/{run}/{barcode}/mapping.bam'
-        
-    threads:
-        48
-        
-    conda:
-        '../envs/realign.yaml'
-
-    shell:
-        'bwa mem -t {threads} {input.new_ref} {input.raw_reads} | samtools sort - > {output.mapping} && samtools index {output.mapping}'
-'''
-
-
