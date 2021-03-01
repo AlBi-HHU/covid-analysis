@@ -78,7 +78,7 @@ def getInput(wildcards):
     for run in runs:
 
         #Mandatory: For each sample we curate a consensus sequence
-        inputList += expand('data/output/consensus/'+run+'/{barcode}/consensus.fasta', k=ks, barcode=barcodes[run])
+        inputList += expand('data/output/consensus/'+run+'/{barcode}/consensus.fasta', barcode=barcodes[run])
         #We also create an IGV session file for interactive data exploration
         inputList += expand('data/output/IgvSessions/' + run + '/{barcode}.igv.xml',barcode=barcodes[run])
 
