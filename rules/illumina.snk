@@ -44,7 +44,7 @@ rule illuminaVerify:
     input:
         pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info",
         illuminaPileup = 'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt',
-        nanoporePileup = 'data/auxiliary/pileupAnalysis/medaka/{run}/{barcode}.pileupanalysis.txt'
+        nanoporePileup = 'data/auxiliary/pileupAnalysis/nanopore/{run}/{barcode}.pileupanalysis.txt'
     output:
         diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}_{method}.verification.txt'
     script:
@@ -57,7 +57,7 @@ rule illuminaRecover:
         pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info",
         iVarInfo = "data/auxiliary/evaluation/consensusVariantExtraction/illumina/{run}_{barcode}.info",
         illuminaPileup = 'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt',
-        nanoporePileup = 'data/auxiliary/pileupAnalysis/medaka/{run}/{barcode}.pileupanalysis.txt'
+        nanoporePileup = 'data/auxiliary/pileupAnalysis/nanopore/{run}/{barcode}.pileupanalysis.txt'
     output:
         diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}_{method}.recovery.txt'
     script:

@@ -2,7 +2,7 @@
 rule decideFinalVCF:
     input:
         vcf = "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf",
-        pileup = 'data/auxiliary/pileupAnalysis/{run}/{barcode}.pileupanalysis.txt'
+        pileup = 'data/auxiliary/pileupAnalysis/nanopore/{run}/{barcode}.pileupanalysis.txt'
     output:
         vcf = "data/output/consensus/{run}/{barcode}/variant.vcf",
         nMask = "data/auxiliary/consensus/{run}/{barcode}/mask.tsv"

@@ -9,7 +9,7 @@ def fetchAllVCFs():
 def fetchAllPileups():
     list = []
     for run in barcodes:
-        list += expand('data/auxiliary/pileupAnalysis/'+run+'/{barcode}.pileupanalysis.txt',barcode=barcodes[run])
+        list += expand('data/auxiliary/pileupAnalysis/nanopore/'+run+'/{barcode}.pileupanalysis.txt',barcode=barcodes[run])
     return list
 
 ### Snakemake Rules
@@ -39,7 +39,7 @@ rule pileupAnalysis:
         barcode = "\d+",
         run = "\w+"
     output:
-        'data/auxiliary/pileupAnalysis/{run}/{barcode}.pileupanalysis.txt'
+        'data/auxiliary/pileupAnalysis/nanopore/{run}/{barcode}.pileupanalysis.txt'
     conda:
         '../envs/biopythonworkbench.yaml'
     shell:

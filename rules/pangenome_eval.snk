@@ -108,7 +108,7 @@ def getAllComparisonFiles(wildcards):
             allFiles += [
                 "data/auxiliary/evaluation/consensusVariantExtraction/pancov/" + run + "_" + barcode + ".info",
                 "data/auxiliary/evaluation/consensusVariantExtraction/{method}/" + run + "_" + barcode + ".info",
-                'data/auxiliary/pileupAnalysis/' + run + '/' + barcode + '.pileupanalysis.txt'
+                'data/auxiliary/pileupAnalysis/nanopore/' + run + '/' + barcode + '.pileupanalysis.txt'
             ]
     return allFiles
 
