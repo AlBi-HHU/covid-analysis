@@ -2,7 +2,7 @@
 import itertools
 
 import csv
-from collections import defaultdict, Counter
+from collections import Counter
 
 from shared import rev_comp
 
@@ -132,7 +132,18 @@ def generate_all_seq(length):
 
 
 if "snakemake" in locals():
-    main(snakemake.input["reference"], snakemake.input["reads"], int(snakemake.params["th_min"]), float(snakemake.params["th_frmr"]), int(snakemake.params["th_max"]), float(snakemake.params["th_covr"]), snakemake.output["kmerset"],snakemake.input['delKmers'])
+    th_min = int(config["kmerFilterMin"]),
+    th_frmr = float(config["kmerFilterFRMinRatio"]),
+    th_max = int(config["kmerFilterTrustAbundance"]),
+    th_covr = float(config["kmerFilterGuessCoverageRatio"]),
+    main(snakemake.input["reference"],
+         snakemake.input["reads"],
+         th_min,
+         th_frmr,
+         th_max,
+         th_covr,
+         snakemake.output["kmerset"],
+         snakemake.input['delKmers'])
 else:
     import sys
 
