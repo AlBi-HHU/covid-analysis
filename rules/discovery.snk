@@ -22,23 +22,20 @@ def fetchAllPileups():
 rule freebayes_calling:
     input:
         ref = "data/input/nCoV-2019.reference.fasta",
-        bam = 'data/auxiliary/realignment/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam',
-
+        bam = 'data/auxiliary/realignment/{run}/{k}/{barcode}.sorted.bam',
     output:
-        vcf = 'data/auxiliary/discovery/freebayes/{basecalling_method}/{run}/{k}/{barcode}.vcf.raw',
-        
+        vcf = 'data/auxiliary/discovery/freebayes/{run}/{k}/{barcode}.vcf.raw',
     conda:
         '../envs/freebayes.yaml'
-
     shell:
         'freebayes -f {input.ref} {input.bam} -v {output.vcf}'
                         
         
 rule freebayes_clean:
     input:
-        vcf = 'data/auxiliary/discovery/freebayes/{basecalling_method}/{run}/{k}/{barcode}.vcf.raw',
+        vcf = 'data/auxiliary/discovery/freebayes/{run}/{k}/{barcode}.vcf.raw',
     output:
-        output = 'data/auxiliary/discovery/freebayes/{basecalling_method}/{run}/{k}/{barcode}.vcf.ugly',
+        output = 'data/auxiliary/discovery/freebayes/{run}/{k}/{barcode}.vcf.ugly',
     params:
         e_th = config["freebayesMaxEntropyTh"],
         ratio_ref_cov = config["feebayesMaxRefCovRatio"]
@@ -51,15 +48,15 @@ rule freebayes_clean:
 rule realign_corrected_reads:
     input:
         index = 'data/input/nCoV-2019.reference.fasta.bwt',
-        corrected = 'data/auxiliary/corrections/{basecalling_method}/{run}/{k}/{barcode}.fasta',
+        corrected = 'data/auxiliary/corrections/{run}/{k}/{barcode}.fasta',
     output:
-        'data/auxiliary/realignment/{basecalling_method}/{run}/{k}/{barcode}.sorted.bam'
+        'data/auxiliary/realignment/{run}/{k}/{barcode}.sorted.bam'
     params:
         reference = 'data/input/nCoV-2019.reference.fasta'
     conda:
         '../envs/realign.yaml',
     log:
-        'logs/{basecalling_method}_{run}_{barcode}_{k}_realign_corrected_reads.log'
+        'logs/{run}_{barcode}_{k}_realign_corrected_reads.log'
     shell:
         'bwa mem {params.reference} {input.corrected} | samtools sort - > {output} 2> {log}'
 
