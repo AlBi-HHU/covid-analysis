@@ -11,7 +11,7 @@ rule decideFinalVCF:
     conda:
         '../envs/vcfpy.yaml'
     script:
-            '../scripts/consensusVCF.py'
+            '../scripts/consensus/consensusVCF.py'
 
 
 rule sort_vcf_consensus:
