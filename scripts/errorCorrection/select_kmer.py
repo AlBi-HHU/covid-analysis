@@ -1,9 +1,11 @@
 import itertools
-
 import csv
+import sys
+
+sys.path.append("scripts")
 from collections import Counter
 
-from scripts/shared import rev_comp
+from shared import rev_comp
 
 def main(reference, reads, th_min, th_frmr, th_max, th_covr, output, delKmers):
 
