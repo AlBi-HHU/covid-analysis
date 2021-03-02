@@ -1,6 +1,9 @@
 from collections import defaultdict
 
-from ..shared import  parse_gaf, get_node2seq
+sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
+
+
+from shared import  parse_gaf, get_node2seq
 
 def main(graph_path, reference_mapping, node2pos_path):
 

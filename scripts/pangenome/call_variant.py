@@ -3,8 +3,8 @@ import json
 import networkx
 
 from collections import defaultdict, Counter
-
-from ./../shared import *
+sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
+from shared import * #TODO: import only required modules
 
 def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshold, min_cov_factor, min_ends_cov, output_path):
 

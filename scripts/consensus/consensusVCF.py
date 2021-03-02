@@ -1,6 +1,8 @@
 from scipy.stats import binom
 import vcfpy
-from ..shared import *
+sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
+
+from shared import *
 import logging
 
 #Enable logging

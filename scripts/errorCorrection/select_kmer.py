@@ -2,7 +2,7 @@ import itertools
 import csv
 import sys
 
-sys.path.append("scripts")
+sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
 from collections import Counter
 
 from shared import rev_comp
@@ -133,10 +133,10 @@ def generate_all_seq(length):
 
 
 if "snakemake" in locals():
-    th_min = int(config["kmerFilterMin"]),
-    th_frmr = float(config["kmerFilterFRMinRatio"]),
-    th_max = int(config["kmerFilterTrustAbundance"]),
-    th_covr = float(config["kmerFilterGuessCoverageRatio"]),
+    th_min = int(snakemake.config["kmerFilterMin"]),
+    th_frmr = float(snakemake.config["kmerFilterFRMinRatio"]),
+    th_max = int(snakemake.config["kmerFilterTrustAbundance"]),
+    th_covr = float(snakemake.config["kmerFilterGuessCoverageRatio"]),
     main(snakemake.input["reference"],
          snakemake.input["reads"],
          th_min,
