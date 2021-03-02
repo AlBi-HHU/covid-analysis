@@ -16,7 +16,7 @@ ambiguityLetters = {
 }
 
 #An inversion of the map above to allow for quick reverse lookups
-ambiguityLetters_inverted = {v: k for k, v in degenerate.items()}
+ambiguityLetters_inverted = {v: k for k, v in ambiguityLetters.items()}
 
 
 def parseKmers(kmers,sequence,k):
