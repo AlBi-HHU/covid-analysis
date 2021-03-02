@@ -55,7 +55,7 @@ rule select_kmer:
     log:
         'logs/select_kmer_{run}_{barcode}_{k}_dsk.log',
     script:
-        '../scripts/select_kmer.py'
+        '../scripts/errorCorrection/select_kmer.py'
 
         
 rule asm_select_kmer:
