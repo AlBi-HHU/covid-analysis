@@ -92,15 +92,15 @@ def getInput(wildcards):
 
         ### REMOVE LATER (THIS SECTION IS ONLY USED FOR EVALUATION OF THE PIPELINE AND IRRELEVANT FOR PRODUCTIVE USE)
 
-        inputList += ['data/output/evaluation/comparisonFastaBased/nanopolish.eval']
+        #inputList += ['data/output/evaluation/comparisonFastaBased/nanopolish.eval']
         inputList += ['data/output/evaluation/comparisonFastaBased/medaka.eval']
         inputList += ['data/output/evaluation/comparisonFastaBased/illumina.eval']
         inputList += ['data/output/evaluation/illumina_verification_pancov.html']
         inputList += ['data/output/evaluation/illumina_verification_medaka.html']
-        inputList += ['data/output/evaluation/illumina_verification_nanopolish.html']
+        #inputList += ['data/output/evaluation/illumina_verification_nanopolish.html']
         inputList += ['data/output/evaluation/illumina_recovery_pancov.html']
         inputList += ['data/output/evaluation/illumina_recovery_medaka.html']
-        inputList += ['data/output/evaluation/illumina_recovery_nanopolish.html']
+        #inputList += ['data/output/evaluation/illumina_recovery_nanopolish.html']
         inputList += ['data/output/evaluation/heterozygosity']
         inputList += ['data/output/evaluation/toplevelStats_pancov_'+str(config['pangenomeMinCovFactor'])+'_'+str(config['pangenomeRVTThreshold'])+'.eval']
         for barcode in barcodes[run]:
