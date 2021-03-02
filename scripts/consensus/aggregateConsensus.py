@@ -7,6 +7,6 @@ with open(snakemake.output[0],'w') as outfile:
 		d = f.split('/')
 		id = d[-2] + ':' + d[-1]
 		rec = SeqIO.read(f,'fasta')
-		red.id = id
+		rec.id = id
 		records.append(rec)
 	SeqIO.write(outfile,records,'fasta')
