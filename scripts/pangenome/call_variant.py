@@ -1,7 +1,7 @@
 import csv
 import json
 import networkx
-
+import sys
 from collections import defaultdict, Counter
 sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
 from shared import * #TODO: import only required modules

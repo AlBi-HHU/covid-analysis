@@ -1,5 +1,7 @@
-from shared import *
 import sys
+sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
+
+from shared import *
 
 ambiguityChars = {
     "R": frozenset(("A", "G")),

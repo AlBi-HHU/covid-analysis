@@ -1,4 +1,6 @@
 import os
+import sys
+sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
 from shared import *
 import pandas as pd
 import altair as alt
