@@ -198,7 +198,7 @@ rule comparePancovToX:
 
 rule evaluateHeterozygosityVisual:
     input:
-        comparedMethod = getAllPancovVCFs(),
+        pancov = getAllPancovVCFs(),
         illuminaPileups = getAllIlluminaPileups(),
         nanopore = getAllNanoporeVCFs(),
         ivar = getAllIVarTables()
@@ -210,3 +210,19 @@ rule evaluateHeterozygosityVisual:
         '../envs/altair.yaml'
     script:
         '../scripts/evaluation/hetPlot1.py'
+
+def getAllConsensus():
+    inputList = []
+    for run in runs:
+        # Mandatory: For each sample we curate a consensus sequence
+        inputList += expand('data/output/consensus/' + run + '/{barcode}/consensus.fasta', barcode=barcodes[run])
+
+rule aggregateOneFile:
+    input:
+        getAllConsensus()
+    output:
+        'data/output/consensus/aggregated.fa'
+    conda:
+        '../envs/biopythonworkbench.yaml'
+    script:
+        '../scripts/consensus/aggregateConsensus.py'

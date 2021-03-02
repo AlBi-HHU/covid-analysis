@@ -12,7 +12,7 @@ difftuples = []
 cutoffHeterozigosity = 0.1
 
 for pancovF, ivarF, nanoporeF, pileupF in zip(
-    snakemake.input["comparedMethod"],
+    snakemake.input["pancov"],
     snakemake.input["ivar"],
     snakemake.input["nanopore"],
     snakemake.input["illuminaPileups"],
