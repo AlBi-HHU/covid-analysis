@@ -80,6 +80,7 @@ def isHomopolymer(kmer,length=4):
         lastBase = base
     return False
 
+#TODO: th_max is unused!
 def generate_untrust_kmer(reads_kmer, th_max, th_min, th_frmr, invalidDeletions):
     """ generate kmer can't be trust based on abundance, homopolymer content and forward reverse ratio """
 
@@ -96,7 +97,8 @@ def generate_untrust_kmer(reads_kmer, th_max, th_min, th_frmr, invalidDeletions)
                 ratio = min(forward / total, reverse / total)
             else:
                 ratio = 0
-
+            #If the total number of reads is below an absolute threshold we do not trust the k-mer
+            print(total,th_min) #TODO: Remove me!
             if total < th_min:
                 yield kmer
             elif ratio < th_frmr:
