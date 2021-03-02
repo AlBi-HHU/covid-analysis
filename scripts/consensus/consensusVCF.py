@@ -1,6 +1,6 @@
 from scipy.stats import binom
 import vcfpy
-from ./../shared import *
+from ..shared import *
 import logging
 
 #Enable logging

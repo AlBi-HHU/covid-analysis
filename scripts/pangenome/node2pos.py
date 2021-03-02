@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from ./../shared import  parse_gaf, get_node2seq
+from ..shared import  parse_gaf, get_node2seq
 
 def main(graph_path, reference_mapping, node2pos_path):
 
