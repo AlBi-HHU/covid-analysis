@@ -9,4 +9,4 @@ with open(snakemake.output[0],'w') as outfile:
 		rec = SeqIO.read(f,'fasta')
 		rec.id = id
 		records.append(rec)
-	SeqIO.write(outfile,records,'fasta')
+	SeqIO.write(records,outfile,'fasta')
