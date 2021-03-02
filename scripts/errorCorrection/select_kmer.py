@@ -98,7 +98,6 @@ def generate_untrust_kmer(reads_kmer, th_max, th_min, th_frmr, invalidDeletions)
             else:
                 ratio = 0
             #If the total number of reads is below an absolute threshold we do not trust the k-mer
-            print(total,th_min) #TODO: Remove me!
             if total < th_min:
                 yield kmer
             elif ratio < th_frmr:
@@ -135,10 +134,10 @@ def generate_all_seq(length):
 
 
 if "snakemake" in locals():
-    th_min = int(snakemake.config["kmerFilterMin"]),
-    th_frmr = float(snakemake.config["kmerFilterFRMinRatio"]),
-    th_max = int(snakemake.config["kmerFilterTrustAbundance"]),
-    th_covr = float(snakemake.config["kmerFilterGuessCoverageRatio"]),
+    th_min = int(snakemake.config["kmerFilterMin"])
+    th_frmr = float(snakemake.config["kmerFilterFRMinRatio"])
+    th_max = int(snakemake.config["kmerFilterTrustAbundance"])
+    th_covr = float(snakemake.config["kmerFilterGuessCoverageRatio"])
     main(snakemake.input["reference"],
          snakemake.input["reads"],
          th_min,
@@ -148,6 +147,4 @@ if "snakemake" in locals():
          snakemake.output["kmerset"],
          snakemake.input['delKmers'])
 else:
-    import sys
-
     main(sys.argv[1], sys.argv[2], int(sys.argv[3]), float(sys.argv[4]), int(sys.argv[5]), float(sys.argv[6]), sys.argv[7],sys.argv[8])
