@@ -17,7 +17,6 @@ def fetchAllPileups():
 rule generateIGVSessions:
     input:
         reference = 'data/input/nCoV-2019.reference.fasta',
-        vcfFileNano = 'data/input/{run}/barcode{barcode}.nanopolish.'+config['vcf_suffix'],
         vcfFileMeda = 'data/input/{run}/barcode{barcode}.medaka.'+config['vcf_suffix'],
         alignmentFileIndex = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix']+'.bai'
     output:
@@ -27,7 +26,7 @@ rule generateIGVSessions:
     conda:
         '../envs/perl.yaml'
     shell:
-        'perl scripts/generate_IGV.pl --covidReference {input.reference} --BAM {params.alignmentFile} --output {output} --VCF_Medaka {input.vcfFileMeda} --VCF_Nano {input.vcfFileNano}'
+        'perl scripts/generate_IGV.pl --covidReference {input.reference} --BAM {params.alignmentFile} --output {output} --VCF_Medaka {input.vcfFileMeda}'
 
 
 rule pileupAnalysis:
