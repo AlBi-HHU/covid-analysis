@@ -83,12 +83,10 @@ rule asm2graph:
         graph = "data/auxiliary/corrections/{run}/{k}/{barcode}.gfa"
     params:
         k = lambda wcs: wcs.k
-    conda:
-        '../envs/bcalm.yaml'
     log:
         'logs/corrections/asm2graph_{run}_{k}_{barcode}.log'
     shell:
-        'python3 scripts/convertToGFA.py {input.asm} {output.graph} {params.k} 2> {log}'
+        'python3 pangenome/convertToGFA.py {input.asm} {output.graph} {params.k} 2> {log}'
 
         
 rule correct_read:
