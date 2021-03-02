@@ -13,7 +13,7 @@ cutoffHeterozigosity = 0.1
 iterator = iter(snakemake.input)
 
 for pancovF, ivarF, nanoporeF, pileupF in zip(
-    snakemake.input["pancov"],
+    snakemake.input["comparedMethod"],
     snakemake.input["ivar"],
     snakemake.input["nanopore"],
     snakemake.input["illuminaPileups"],
