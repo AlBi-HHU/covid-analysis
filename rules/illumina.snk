@@ -48,7 +48,7 @@ rule illuminaVerify:
     output:
         diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}_{method}.verification.txt'
     script:
-        '../scripts/illuminadiff.py'
+        '../scripts/illumina_verification.py'
 
 
 
@@ -61,7 +61,7 @@ rule illuminaRecover:
     output:
         diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}_{method}.recovery.txt'
     script:
-        '../scripts/illuminadiff2.py'
+        '../scripts/illumina_recovery.py'
 
 
 

@@ -40,7 +40,7 @@ rule generateDelKmers:
     output:
         "data/auxiliary/corrections/reference/delkmers_k{k}.txt"
     script:
-        "../scripts/genIndelKmers.py"
+        "../scripts/errorCorrection/genIndelKmers.py"
 
 
 rule select_kmer:
