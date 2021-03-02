@@ -1,7 +1,5 @@
 import os
 import vcfpy
-import collections
-import sys
 
 def main(out_path, vcfs):
 

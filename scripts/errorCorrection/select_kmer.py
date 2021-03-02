@@ -4,7 +4,7 @@ import itertools
 import csv
 from collections import Counter
 
-from shared import rev_comp
+from ./../shared import rev_comp
 
 def main(reference, reads, th_min, th_frmr, th_max, th_covr, output, delKmers):
 

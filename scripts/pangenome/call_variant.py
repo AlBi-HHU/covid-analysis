@@ -4,7 +4,7 @@ import networkx
 
 from collections import defaultdict, Counter
 
-from shared import *
+from ./../shared import *
 
 def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshold, min_cov_factor, min_ends_cov, output_path):
 
