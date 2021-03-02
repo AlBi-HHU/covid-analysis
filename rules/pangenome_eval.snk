@@ -216,6 +216,7 @@ def getAllConsensus():
     for run in runs:
         # Mandatory: For each sample we curate a consensus sequence
         inputList += expand('data/output/consensus/' + run + '/{barcode}/consensus.fasta', barcode=barcodes[run])
+    return inputList
 
 rule aggregateOneFile:
     input:
