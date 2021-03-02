@@ -43,7 +43,6 @@ print XML qq(<?xml version="1.0" encoding="UTF-8" standalone="no"?>
     </Resources>
     <Panel height="84" name="DataPanel" width="1262">
         <Track clazz="org.broad.igv.variant.VariantTrack" color="0,0,178" displayMode="EXPANDED" fontSize="10" id="${VCFN_N}" name="${VCFN_N}" siteColorMode="ALLELE_FREQUENCY" squishedHeight="1" visible="true"/>
-        <Track clazz="org.broad.igv.variant.VariantTrack" color="0,0,178" displayMode="EXPANDED" fontSize="10" id="${VCFM_N}" name="${VCFM_N}" siteColorMode="ALLELE_FREQUENCY" squishedHeight="1" visible="true"/>
     </Panel>
     <Panel height="13302" name="Panel1583780401168" width="1262">
         <Track autoScale="true" clazz="org.broad.igv.sam.CoverageTrack" color="175,175,175" colorScale="ContinuousColorScale;0.0;937.0;255,255,255;175,175,175" fontSize="10" id="${BAM_N}_coverage" name="${BAM_N} Coverage" snpThreshold="0.2" visible="true">
