@@ -48,7 +48,7 @@ rule illuminaVerify:
     output:
         diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}_{method}.verification.txt'
     script:
-        '../scripts/illumina_verification.py'
+        '../scripts/evaluation/illumina_verification.py'
 
 
 
@@ -61,7 +61,7 @@ rule illuminaRecover:
     output:
         diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}_{method}.recovery.txt'
     script:
-        '../scripts/illumina_recovery.py'
+        '../scripts/evaluation/illumina_recovery.py'
 
 
 
@@ -71,7 +71,7 @@ rule aggregateVerification:
     output:
         'data/output/evaluation/illumina_verification_{method}.eval'
     script:
-        '../scripts/aggregateVerifications.py'
+        '../scripts/evaluation/aggregateVerifications.py'
 
 
 
@@ -81,7 +81,7 @@ rule aggregateRecoveries:
     output:
         'data/output/evaluation/illumina_recovery_{method}.eval'
     script:
-        '../scripts/aggregateRecoveries.py'
+        '../scripts/evaluation/aggregateRecoveries.py'
 
 rule ivar_var:
     input:
@@ -135,7 +135,7 @@ rule coverageplot:
     conda:
         '../envs/altair.yaml'
     script:
-        '../scripts/plotIlluCoverage.py'
+        '../scripts/evaluation/plotIlluCoverage.py'
 
 
 rule plotCoveragePerVariant:
@@ -147,7 +147,7 @@ rule plotCoveragePerVariant:
     conda:
         '../envs/altair.yaml'
     script:
-        '../scripts/plotCoveragePerVariant.py'
+        '../scripts/evaluation/plotCoveragePerVariant.py'
 
 rule topLevelStats:
     input:
@@ -157,7 +157,7 @@ rule topLevelStats:
     output:
         'data/output/evaluation/toplevelStats_{method}_'+str(config['pangenomeMinCovFactor'])+'_'+str(config['pangenomeRVTThreshold'])+'.eval'
     script:
-        '../scripts/topLevelStats.py'
+        '../scripts/evaluation/topLevelStats.py'
 
 
 ### Visualizations ###
@@ -171,7 +171,7 @@ rule illuminaVerifyVisualize:
     conda:
         '../envs/altair.yaml'
     script:
-        '../scripts/verifyAltair.py'
+        '../scripts/evaluation/verifyAltair.py'
 
 rule illuminaRecoverVisualize:
     input:
@@ -182,4 +182,4 @@ rule illuminaRecoverVisualize:
     conda:
         '../envs/altair.yaml'
     script:
-        '../scripts/recoveryAltair.py'
+        '../scripts/evaluation/recoveryAltair.py'
