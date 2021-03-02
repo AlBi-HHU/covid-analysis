@@ -86,7 +86,7 @@ rule asm2graph:
     log:
         'logs/corrections/asm2graph_{run}_{k}_{barcode}.log'
     shell:
-        'python3 pangenome/convertToGFA.py {input.asm} {output.graph} {params.k} 2> {log}'
+        'python3 scripts/pangenome/convertToGFA.py {input.asm} {output.graph} {params.k} 2> {log}'
 
         
 rule correct_read:
