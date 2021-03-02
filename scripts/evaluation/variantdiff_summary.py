@@ -1,3 +1,5 @@
+import sys
+sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
 from shared import *
 import json
 from Bio import SeqIO

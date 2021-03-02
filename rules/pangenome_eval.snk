@@ -182,7 +182,7 @@ rule assembleMedians:
     output:
         'data/auxiliary/pileupAnalysis/medians.json'
     script:
-        '../scripts/assembleMedians.py'
+        '../scripts/evaluation/assembleMedians.py'
 
 rule comparePancovToX:
     input:
@@ -194,7 +194,7 @@ rule comparePancovToX:
     conda:
         "../envs/biopythonworkbench.yaml"
     script:
-        '../scripts/variantdiff_summary.py'
+        '../scripts/evaluation/variantdiff_summary.py'
 
 rule evaluateHeterozygosityVisual:
     input:
@@ -209,4 +209,4 @@ rule evaluateHeterozygosityVisual:
     conda:
         '../envs/altair.yaml'
     script:
-        '../scripts/hetPlot1.py'
+        '../scripts/evaluation/hetPlot1.py'
