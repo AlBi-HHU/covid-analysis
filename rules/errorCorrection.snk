@@ -82,7 +82,9 @@ rule asm2graph:
     output:
         graph = "data/auxiliary/corrections/{run}/{k}/{barcode}.gfa"
     params:
-        k = lambda wcs: wcs.k,
+        k = lambda wcs: wcs.k
+    conda:
+        '../envs/bcalm.yaml'
     log:
         'logs/corrections/asm2graph_{run}_{k}_{barcode}.log'
     shell:
