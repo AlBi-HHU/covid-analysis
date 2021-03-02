@@ -2,6 +2,7 @@ import sys
 import altair as alt
 import pandas as pd
 import vcfpy
+sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
 from shared import *
 import os
 from functools import reduce
