@@ -24,7 +24,7 @@ df = pd.DataFrame(tuples,columns=['sample','pos','ref','alt','recovered','commen
 df['recovered'] = df['recovered'].replace({'Reject' : 'FilteredByAlexPerl'})
 df['recovered'] = df['recovered'].replace({'Nanopore' : 'NanoporeDropout'})
 df['recovered'] = df['recovered'].replace({'True' : 'Recovered'})
-df['recovered'] = df['recovered'].replace({'True' : 'Missed'})
+df['recovered'] = df['recovered'].replace({'False' : 'Missed'})
 
 #print(df['recovered'])
 
@@ -50,7 +50,7 @@ alt.vconcat(make_selector,chart,padding=64).save(snakemake.output['full'])
 
 #Add a reduced chart, that focuses only on the differences
 
-chart = alt.Chart(df[df.recovered == 'False']).mark_rect().encode(
+chart = alt.Chart(df[df.recovered == 'Missed']).mark_rect().encode(
     y = 'pos:O',
     x = 'sample:N',
     tooltip = ['ref','alt','comment','pileupillu','pileupnano']
