@@ -3,14 +3,6 @@ sys.path.append("scripts") #Hackfix but results in a more readable scripts folde
 
 from shared import *
 
-ambiguityChars = {
-    "R": frozenset(("A", "G")),
-    "Y": frozenset(("C", "T")),
-    "S": frozenset(("G", "C")),
-    "W": frozenset(("A", "T")),
-    "K": frozenset(("T", "G")),
-    "M": frozenset(("A", "C")),
-}
 
 illuminapileup = parsePileupStrandAwareLight(snakemake.input["illuminaPileup"])
 nanoporepileup = parsePileupStrandAwareLight(snakemake.input["nanoporePileup"])
@@ -36,13 +28,10 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
         lineData = l.split()
         position = int(lineData[0])
         reference = lineData[1]
-        altallele_unmodified = lineData[2]
-        altalleles = [altallele_unmodified]
+        altalleles = lineData[2]
 
         if altallele_unmodified == "N":
             continue
-        if altallele_unmodified in ambiguityChars:
-            altalleles = list(ambiguityChars[altallele_unmodified] - {reference})
 
         if position in illuminapileup:
             for altallele in altalleles:
@@ -73,7 +62,7 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
                         "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
                             position,
                             reference,
-                            altallele_unmodified,
+                            altalleles,
                             "Reject",
                             "Allele Component: {} did not pass Alex Perl Filter, we ignore it".format(
                                 altallele
@@ -105,7 +94,7 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
                     "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
                         position,
                         reference,
-                        altallele_unmodified,
+                        altalleles,
                         recovered,
                         "",
                         illuminapileup[position],
