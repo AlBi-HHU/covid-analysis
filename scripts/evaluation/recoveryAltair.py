@@ -46,11 +46,25 @@ alt.vconcat(make_selector,chart,padding=64).save(snakemake.output['full'])
 
 #Add a reduced chart, that focuses only on the differences
 
-chart = alt.Chart(df[df.recovered == 'Missed']).mark_rect().encode(
+df = df[df.recovered != 'Recovered']
+
+make = pd.DataFrame({'sample': list(df['sample'].unique())})
+selection = alt.selection_multi(fields=['sample'])
+color = alt.condition(selection, alt.value('green'), alt.value('lightgray'))
+make_selector = alt.Chart(make).mark_rect().encode(x='sample',color=color).add_selection(selection)
+
+chart = alt.Chart(df).mark_rect().encode(
     y = 'pos:O',
     x = 'sample:N',
+    color= alt.Color('recovered',scale=alt.Scale(
+        domain = ['Recovered','Missed','Disagreement','Filtered','NanoporeDropout'],
+        range=['blue','red','orange','grey','black']
+    )),
     tooltip = ['ref','alt','comment','pileupillu','pileupnano','comment']
+).transform_filter(
+    selection
 ).interactive()
 
-chart.save(snakemake.output['reduced'])
+alt.vconcat(make_selector,chart,padding=64).save(snakemake.output['reduced'])
+
 

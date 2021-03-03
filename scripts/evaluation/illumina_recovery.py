@@ -41,7 +41,7 @@ def determineRecoveryStatus(position,altallele):
 
         if position in nanoporepileup:
             if sum(nanoporepileup[position].values()) < snakemake.config["nanoporeCoverageCutoff"]:
-                return "NanoporeDropout","Below Threshold {}<{}".format(nanoporepileup[position].values(),snakemake.config["nanoporeCoverageCutoff"])
+                return "NanoporeDropout","Below Threshold {}<{}".format(sum(nanoporepileup[position].values()),snakemake.config["nanoporeCoverageCutoff"])
         else:
             return "NanoporeDropout","Full Dropout"
 
