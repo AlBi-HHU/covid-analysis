@@ -1,4 +1,5 @@
 import random
+import os
 
 #Should only be called on demand and not added to the SF as a default target file
 rule generateTestSet:
@@ -62,9 +63,9 @@ def getAllNanoporeVCFs():
             else:
                 # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
                 continue
-            allFiles += [
-                'data/input/' + run + '/' + 'barcode' + barcode + '.nanopolish.pass.vcf'
-            ]
+            npfile = 'data/input/' + run + '/' + 'barcode' + barcode + '.nanopolish.pass.vcf'
+            if os.path.isfile(npfile):
+                allFiles.append(npfile)
     return allFiles
 
 

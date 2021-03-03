@@ -47,7 +47,7 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
             for allele in checklist:
                 sb = getStrandBias(illuminapileup[position], allele)
                 cov = getCoverage(illuminapileup[position], allele)
-    
+
                 if (cov < snakemake.config["consensusMinCov"]):
                     status = "Rejected"
                     comment = " illumina coverage for component {} too low: {}".format(allele, cov)
