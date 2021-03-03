@@ -1,5 +1,5 @@
 # original location: /gpfs/project/dilthey/projects/COVID-19/generate_IGV.pl
-
+#TODO: Add credits (Torsten Houwaart, Alexander Dilthey ? Modded by Pierre Marijon / Philipp Spohr)
 use strict;
 use Data::Dumper;
 use Getopt::Long;
@@ -39,21 +39,35 @@ die "File --VCF_Medaka not existing" unless(-e $VCF_Medaka);
 my $outputDir = dirname($outputFile);
 
 my $BAM_N = File::Spec->abs2rel(abs_path($BAM), $outputDir);
-my $VCFM_N = File::Spec->abs2rel(abs_path($VCF_Nanopolish), $outputDir);
-my $VCFN_N = File::Spec->abs2rel(abs_path($VCF_Medaka), $outputDir);
+my $VCFM_N = File::Spec->abs2rel(abs_path($VCF_Medaka), $outputDir);
 my $REF_N = File::Spec->abs2rel(abs_path($COVID_ref), $outputDir);
+#Careful: Variable VCFN_N has no reasonable value if the parameter is not passed
+my $VCFN_N = File::Spec->abs2rel(abs_path($VCF_Nanopolish), $outputDir);
 
 open(XML, '>', $outputFile) or die "Cannot open $outputFile";
 print XML qq(<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Session genome="${REF_N}" hasGeneTrack="false" hasSequenceTrack="true" locus="MN908947.3:1-29903" version="8">
     <Resources>
         <Resource path="${VCFM_N}"/>
-        <Resource path="${VCFN_N}"/>
+);
+#print Nanopolish on demand
+if(-e $VCF_Nanopolish){
+	print XML qq(
+	<Resource path="${VCFN_N}"/>
+	);
+}
+print XML qq(
         <Resource path="${BAM_N}"/>
     </Resources>
     <Panel height="84" name="DataPanel" width="1262">
-        <Track clazz="org.broad.igv.variant.VariantTrack" color="0,0,178" displayMode="EXPANDED" fontSize="10" id="${VCFN_N}" name="${VCFN_N}" siteColorMode="ALLELE_FREQUENCY" squishedHeight="1" visible="true"/>
         <Track clazz="org.broad.igv.variant.VariantTrack" color="0,0,178" displayMode="EXPANDED" fontSize="10" id="${VCFM_N}" name="${VCFM_N}" siteColorMode="ALLELE_FREQUENCY" squishedHeight="1" visible="true"/>
+);
+if(-e $VCF_Nanopolish){
+	print XML qq(
+	        <Track clazz="org.broad.igv.variant.VariantTrack" color="0,0,178" displayMode="EXPANDED" fontSize="10" id="${VCFN_N}" name="${VCFN_N}" siteColorMode="ALLELE_FREQUENCY" squishedHeight="1" visible="true"/>
+);
+}
+print XML qq(
     </Panel>
     <Panel height="13302" name="Panel1583780401168" width="1262">
         <Track autoScale="true" clazz="org.broad.igv.sam.CoverageTrack" color="175,175,175" colorScale="ContinuousColorScale;0.0;937.0;255,255,255;175,175,175" fontSize="10" id="${BAM_N}_coverage" name="${BAM_N} Coverage" snpThreshold="0.2" visible="true">
