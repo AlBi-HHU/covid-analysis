@@ -20,11 +20,7 @@ with open(snakemake.input[0],'r') as infile:
                 sample =sid[0]+'/'+sid[1]
             
 df = pd.DataFrame(tuples,columns=['sample','pos','ref','alt','recovered','comment','pileupillu','pileupnano'])
-#print(df['recovered'])
-df['recovered'] = df['recovered'].replace({'Reject' : 'FilteredByAlexPerl'})
-df['recovered'] = df['recovered'].replace({'Nanopore' : 'NanoporeDropout'})
-df['recovered'] = df['recovered'].replace({'True' : 'Recovered'})
-df['recovered'] = df['recovered'].replace({'False' : 'Missed'})
+
 
 #print(df['recovered'])
 
@@ -38,10 +34,10 @@ chart = alt.Chart(df).mark_rect().encode(
     y = 'pos:O',
     x = 'sample:N',
     color= alt.Color('recovered',scale=alt.Scale(
-        domain = ['Recovered','Missed','FilteredByAlexPerl','NanoporeDropout'],
-        range=['blue','orange','grey','black']
+        domain = ['Recovered','Missed','Disagreement','Filtered','NanoporeDropout'],
+        range=['blue','red','orange','grey','black']
     )),
-    tooltip = ['ref','alt','comment','pileupillu','pileupnano']
+    tooltip = ['ref','alt','comment','pileupillu','pileupnano','comment']
 ).transform_filter(
     selection
 ).interactive()
@@ -53,7 +49,7 @@ alt.vconcat(make_selector,chart,padding=64).save(snakemake.output['full'])
 chart = alt.Chart(df[df.recovered == 'Missed']).mark_rect().encode(
     y = 'pos:O',
     x = 'sample:N',
-    tooltip = ['ref','alt','comment','pileupillu','pileupnano']
+    tooltip = ['ref','alt','comment','pileupillu','pileupnano','comment']
 ).interactive()
 
 chart.save(snakemake.output['reduced'])

@@ -14,11 +14,11 @@ with open(snakemake.output[0], "w") as outfile:
                 recovered = d[3]
                 altallele = d[2]
 
-                if recovered == "Reject":
+                if recovered == "Filtered":
                     continue
-                elif recovered == "True":
+                elif recovered == "Recovered":
                     recoveredCount += 1
-                elif recovered == "Nanopore":
+                elif recovered == "NanoporeDropout":
                     nanoDropCount += 1
 
                 if d[2] in ["R", "Y", "S", "W", "K", "M"]:

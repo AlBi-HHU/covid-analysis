@@ -22,6 +22,7 @@ def main(out_path, vcfs):
             continue
 
         try:
+
             reader = vcfpy.Reader.from_path(vcf)
             for record in reader:
                 h = str(record.POS) + record.REF + "".join([a.serialize() for a in record.ALT])
