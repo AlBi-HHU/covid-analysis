@@ -21,7 +21,11 @@ with open(snakemake.input[0],'r') as infile:
             
 df = pd.DataFrame(tuples,columns=['sample','pos','ref','alt','recovered','comment','pileupillu','pileupnano'])
 #print(df['recovered'])
-df['recovered'] = df['recovered'].replace({'-1' : 'AlexFiltered'})
+df['recovered'] = df['recovered'].replace({'Reject' : 'FilteredByAlexPerl'})
+df['recovered'] = df['recovered'].replace({'Nanopore' : 'NanoporeDropout'})
+df['recovered'] = df['recovered'].replace({'True' : 'Recovered'})
+df['recovered'] = df['recovered'].replace({'True' : 'Missed'})
+
 #print(df['recovered'])
 
 
@@ -34,8 +38,8 @@ chart = alt.Chart(df).mark_rect().encode(
     y = 'pos:O',
     x = 'sample:N',
     color= alt.Color('recovered',scale=alt.Scale(
-        domain = ['True','False','AlexFiltered'],
-        range=['blue','orange','grey']
+        domain = ['Recovered','Missed','FilteredByAlexPerl','NanoporeDropout'],
+        range=['blue','orange','grey','black']
     )),
     tooltip = ['ref','alt','comment','pileupillu','pileupnano']
 ).transform_filter(
