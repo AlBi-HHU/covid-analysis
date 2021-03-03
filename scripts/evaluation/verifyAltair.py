@@ -30,21 +30,37 @@ chart = alt.Chart(df).mark_rect().encode(
     y = 'pos:O',
     x = 'sample:N',
     color= alt.Color('rejected',scale=alt.Scale(
-        domain = ['True','False','-1'],
+        domain = ['Rejected','Verified','IlluminaDropout'],
         range=['orange','blue','grey']
     )),
-    tooltip = ['ref','alt','comment','pileupillu','pileupnano']
+    tooltip = ['ref','alt','comment','pileupillu','pileupnano','comment']
 ).transform_filter(
     selection
 ).interactive()
 
 alt.vconcat(make_selector,chart,padding=64).save(snakemake.output['full'])
 
-chart = alt.Chart(df[df.rejected == 'True']).mark_rect().encode(
+########## REDUCED PLOT
+
+df = df[df.rejected != 'Verified']
+
+
+make = pd.DataFrame({'sample': list(df['sample'].unique())})
+selection = alt.selection_multi(fields=['sample'])
+color = alt.condition(selection, alt.value('green'), alt.value('lightgray'))
+make_selector = alt.Chart(make).mark_rect().encode(x='sample',color=color).add_selection(selection)
+
+chart = alt.Chart(df).mark_rect().encode(
     y = 'pos:O',
     x = 'sample:N',
-    tooltip = ['ref','alt','comment','pileupillu','pileupnano']
+    color= alt.Color('rejected',scale=alt.Scale(
+        domain = ['Rejected','Verified','IlluminaDropout'],
+        range=['orange','blue','grey']
+    )),
+    tooltip = ['ref','alt','comment','pileupillu','pileupnano','comment']
+).transform_filter(
+    selection
 ).interactive()
 
-chart.save(snakemake.output['reduced'])
+alt.vconcat(make_selector,chart,padding=64).save(snakemake.output['reduced'])
 
