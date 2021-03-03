@@ -14,7 +14,7 @@ with open(snakemake.output[0],'w') as outfile:
                 reject = d[3]
                 if reject == "Rejected":
                     rejected += 1
-                elif reject == "Verified"
+                elif reject == "Verified":
                     total += 1
                 elif reject == "IlluminaDropout":
                     filteredIllumina += 1
