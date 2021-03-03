@@ -64,8 +64,7 @@ def getAllNanoporeVCFs():
                 # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
                 continue
             npfile = 'data/input/' + run + '/' + 'barcode' + barcode + '.nanopolish.pass.vcf'
-            if os.path.isfile(npfile):
-                allFiles.append(npfile)
+            allFiles.append(npfile)
     return allFiles
 
 
@@ -105,6 +104,9 @@ def getAllComparisonFiles(wildcards):
                 else:
                     # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
                     continue
+            # check for missing method files
+            if os.path.isfile("data/auxiliary/evaluation/consensusVariantExtraction/{method}/" + run + "_" + barcode + ".info") == False:
+                continue
 
             allFiles += [
                 "data/auxiliary/evaluation/consensusVariantExtraction/pancov/" + run + "_" + barcode + ".info",
