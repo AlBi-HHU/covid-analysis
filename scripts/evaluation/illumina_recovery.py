@@ -28,52 +28,53 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
         lineData = l.split()
         position = int(lineData[0])
         reference = lineData[1]
-        altalleles = lineData[2]
+        altallele = lineData[2]
 
-        if altallele_unmodified == "N":
+        if altallele == "N":
             continue
 
+
         if position in illuminapileup:
-            for altallele in altalleles:
-                # Alex perl
-                sb = getStrandBias(illuminapileup[position], altallele)
-                cov = getCoverage(illuminapileup[position], altallele)
-                abs = getMinorStrandAbs(illuminapileup[position], altallele)
-                fq = getMinorStrandFrequency(illuminapileup[position], altallele)
 
-                reject = False
-                if cov <= 10:
+            # Alex perl #TODO: Move elsewhere
+            sb = getStrandBias(illuminapileup[position], altallele)
+            cov = getCoverage(illuminapileup[position], altallele)
+            abs = getMinorStrandAbs(illuminapileup[position], altallele)
+            fq = getMinorStrandFrequency(illuminapileup[position], altallele)
+
+            reject = False
+            if cov <= 10:
+                reject = True
+            elif cov <= 20:
+                if abs < 5:
                     reject = True
-                elif cov <= 20:
-                    if abs < 5:
-                        reject = True
-                elif cov <= 50:
-                    if abs < 10 and fq < 0.25:
-                        reject = True
-                elif cov <= 100:
-                    if abs < 15 and fq < 0.15:
-                        reject = True
-                else:
-                    if fq < 0.1:
-                        reject = True
+            elif cov <= 50:
+                if abs < 10 and fq < 0.25:
+                    reject = True
+            elif cov <= 100:
+                if abs < 15 and fq < 0.15:
+                    reject = True
+            else:
+                if fq < 0.1:
+                    reject = True
 
-                if reject:
-                    outFile.write(
-                        "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                            position,
-                            reference,
-                            altalleles,
-                            "Reject",
-                            "Allele Component: {} did not pass Alex Perl Filter, we ignore it".format(
-                                altallele
-                            ),
-                            illuminapileup[position],
-                            nanoporepileup[position]
-                            if position in nanoporepileup
-                            else "No nanopore pileup",
-                        )
+            if reject:
+                outFile.write(
+                    "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                        position,
+                        reference,
+                        altallele,
+                        "Reject",
+                        "Allele Component: {} did not pass Alex Perl Filter, we ignore it".format(
+                            altallele
+                        ),
+                        illuminapileup[position],
+                        nanoporepileup[position]
+                        if position in nanoporepileup
+                        else "No nanopore pileup",
                     )
-                    break
+                )
+
             else:
                 recovered = "False"
 
@@ -83,7 +84,7 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
                     position2 = int(lineData2[0])
                     reference2 = lineData2[1]
                     altallele2 = lineData2[2]
-                    if position2 == position and altallele2 == altallele_unmodified:
+                    if position2 == position and altallele2 == altallele:
                         recovered = "True"
                         break
 
@@ -94,7 +95,7 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
                     "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
                         position,
                         reference,
-                        altalleles,
+                        altallele,
                         recovered,
                         "",
                         illuminapileup[position],
