@@ -49,7 +49,7 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
                 status = "Rejected"
             else:
                 status = "Verified"
-           comment = "strand bias for allele {}: {}".format(altallele, sb) + " illumina coverage for allele {}: {}".format(altallele, cov)
+            comment = "strand bias for allele {}: {}".format(altallele, sb) + " illumina coverage for allele {}: {}".format(altallele, cov)
 
         outFile.write(
             "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
