@@ -42,16 +42,24 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
             status = "IlluminaDropout"
             comment += "position not sufficiently covered by illumina reads (dropout?)"
         else:
-            sb = getStrandBias(illuminapileup[position], altallele)
-            cov = getCoverage(illuminapileup[position], altallele)
-
-            if (cov < snakemake.config["consensusMinCov"]) or (
-                    min(1 - sb, sb) < snakemake.config["consensusStrandBiais"]
-            ):
-                status = "Rejected"
-            else:
-                status = "Verified"
-            comment = "strand bias for allele {}: {}".format(altallele, sb) + " illumina coverage for allele {}: {}".format(altallele, cov)
+            #Check EACH component for ambiguity:
+            checklist = ambiguityLetters_inverted[altallele] if altallele in ambiguityLetters_inverted else [altallele]
+            for allele in checklist:
+                sb = getStrandBias(illuminapileup[position], allele)
+                cov = getCoverage(illuminapileup[position], allele)
+    
+                if (cov < snakemake.config["consensusMinCov"]):
+                    status = "Rejected"
+                    comment = " illumina coverage for component {} too low: {}".format(allele, cov)
+                    break
+                elif (
+                        min(1 - sb, sb) < snakemake.config["consensusStrandBiais"]
+                ):
+                    status = "Rejected"
+                    comment = "strand bias for component {} too extreme: {}".format(allele, sb)
+                    break
+                else:
+                    status = "Verified"
 
         outFile.write(
             "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
