@@ -33,7 +33,7 @@ def getAllPangenomeGraphVCFs():
 
 rule concatenate_vcf:
     input:
-        vcfs = getAllPangenomeGraphVCFs
+        vcfs = getAllPangenomeGraphVCFs()
     output:
         out = "data/auxiliary/pangenome/merge.vcf"
     conda:
