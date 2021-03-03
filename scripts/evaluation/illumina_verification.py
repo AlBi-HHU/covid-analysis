@@ -42,6 +42,8 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
             status = "IlluminaDropout"
             comment += "position not sufficiently covered by illumina reads (dropout?)"
         else:
+            sb = getStrandBias(illuminapileup[position], altallele)
+            cov = getCoverage(illuminapileup[position], altallele)
 
             if (cov < snakemake.config["consensusMinCov"]) or (
                     min(1 - sb, sb) < snakemake.config["consensusStrandBiais"]
