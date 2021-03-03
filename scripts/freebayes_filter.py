@@ -1,4 +1,3 @@
-
 import vcfpy
 
 from math import log2
@@ -34,5 +33,4 @@ if "snakemake" in locals():
     main(snakemake.input["vcf"], snakemake.params["e_th"], snakemake.params["ratio_ref_cov"], snakemake.output["output"])
 else:
     import sys
-    
     main(sys.argv[1], float(sys.argv[2]), float(sys.argv[3]), sys.argv[4])

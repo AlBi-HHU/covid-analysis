@@ -1,6 +1,7 @@
-import os
+#Fetch SM input
 alignmentfile = snakemake.input['alignment']
 infofile = snakemake.output['info']
+
 with open(alignmentfile, 'r') as infile, open(infofile, 'w') as outfile:
 	# Fetch and skip first three lines
 	lines = infile.read().splitlines()[3:]
