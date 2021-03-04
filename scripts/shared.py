@@ -42,6 +42,7 @@ def get_node2seq(graph_path):
 
     return node2seq
 
+
 #TODO: Move vals to cfg
 def alexSBFilter(cov, abs, fq):
     if cov <= 10:
