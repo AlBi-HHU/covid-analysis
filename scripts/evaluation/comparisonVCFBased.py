@@ -1,6 +1,6 @@
 import sys
 sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
-from shared import parsePileupStrandAwareLight,getTotalCoverage
+from shared import parsePileupStrandAwareLight,getTotalCoverage,ambiguityLetters_inverted
 from Bio import SeqIO
 import vcfpy
 import pandas as pd
@@ -89,6 +89,13 @@ with open(snakemake.output[0],'w') as outfile:
 			nanoporeType = recordsNanopore[position].ALT[0].type
 			if nanoporeType == 'INS':
 				nanoporeValue = recordsNanopore[position].ALT[0].value[2:] #Ignore first char as this is REF
+				#Simplification Step For Simple Comparison! We assume that Ambiguity get's resolved by subtraction from REF
+				if nanoporeValue in ambiguityLetters_inverted:
+					resolve = frozenset((recordsNanopore[position].REF))-ambiguityLetters_inverted[nanoporeValue]
+					if len(resolve) != 1:
+						print('Found ambiguity letter: {} that codes for more than one nucleotide!'.format(nanoporeValue))
+						sys.exit(-1)
+					nanoporeValue = list(resolve)[0]
 			elif nanoporeType == 'DEL':
 				nanoporeValue = str(len(recordsNanopore[position].REF)-1) #Ignore first char as this is retained
 			elif nanoporeType == 'SNV':
