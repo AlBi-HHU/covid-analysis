@@ -18,16 +18,16 @@ reference = SeqIO.read(snakemake.input['ref'],'fasta')
 ### Step 1: Determine all relevant positions
 relevantPositions = set()
 
-variantsPancov = {}
-variantsIvar = {}
+recordsNanopore = {}
+recordsIllumina = {}
 
 for record in pancovVCF:
 	relevantPositions.add(record.POS)
-	variantsPancov[record.POS] = record
+	recordsNanopore[record.POS] = record
 
 for position in ivarPseudoVCF['POS'].unique():
 	relevantPositions.add(position)
-	variantsIvar[position] = ivarPseudoVCF[ivarPseudoVCF.POS == position]
+	recordsIllumina[position] = ivarPseudoVCF[ivarPseudoVCF.POS == position]
 
 ### Step 2: Process
 
@@ -71,6 +71,6 @@ with open(snakemake.output[0],'w') as outfile:
 		outfile.write('{}\t{}\t{}\t{}\n'.format(
 			position,
 			reference[int(position-1)], #SeqIO is 0-based
-			variantsIvar[position] if position in variantsIvar else 'No Variant calls',
-			variantsPancov[position] if position in variantsPancov else 'No Variant calls',
+			recordsIllumina[position]['ALT'] if position in recordsIllumina else 'No Variant calls',
+			recordsNanopore[position].ALT if position in recordsNanopore else 'No Variant calls',
 		))
