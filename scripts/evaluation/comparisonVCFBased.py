@@ -1,6 +1,6 @@
 import sys
 sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
-from shared import parsePileupStrandAwareLight,getCoverage
+from shared import parsePileupStrandAwareLight,getTotalCoverage
 from Bio import SeqIO
 import vcfpy
 import pandas as pd
