@@ -121,7 +121,7 @@ with open(snakemake.output[0],'w') as outfile:
 				illuminaValue = str(len(altval)-1) #Ignore first char as this is retained
 			elif illuminaType == 'SNV':
 				illuminaValue = altval
-				if snakemake.config['thresholdHomCall'] <= ALT_FREQ <= (1-snakemake.config['thresholdHomCall']):
+				if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
 					cnt_realHETSNPs += 1
 					illuminaValue = ambiguityLetters[frozenset((altval,refval))]
 
