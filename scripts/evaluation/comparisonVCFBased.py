@@ -11,6 +11,7 @@ import pandas as pd
 #Read required input
 pancovVCF = vcfpy.Reader.from_path(snakemake.input['pancovVCF'])
 ivarPseudoVCF = pd.read_csv(snakemake.input['iVarVCF'],sep='\t')
+ivarPseudoVCF = ivarPseudoVCF[ivarPseudoVCF.PASS == 'TRUE'] #Filter passed vars only
 illuminapileup = parsePileupStrandAwareLight(snakemake.input["illuminaPileup"])
 nanoporepileup = parsePileupStrandAwareLight(snakemake.input["nanoporePileup"])
 reference = SeqIO.read(snakemake.input['ref'],'fasta')
@@ -33,7 +34,19 @@ for position in ivarPseudoVCF['POS'].unique():
 
 #Counter Variables for Top Level Stats
 cnt_realVariants = 0#
+
 cnt_realHETVariants = 0
+cnt_detectedHETVariants = 0
+
+cnt_realSNP = 0
+cnt_detectedSNP = 0
+
+cnt_realINS = 0
+cnt_detectedINS = 0
+
+cnt_realDEL = 0
+cnt_detectedDEL = 0
+
 cnt_concordance = 0
 cnt_falsePositives = 0
 cnt_falseNegatives = 0
@@ -68,11 +81,27 @@ with open(snakemake.output[0],'w') as outfile:
 		else:
 			pass
 
+		#Resolve Type and Value of Variant
+
+		nanoporeType = 'None'  # INS,DEL,SNP
+		nanoporeValue = ''  # Length of Del / Alt Allele / Insertion Seq
+		if position in recordsNanopore:
+			nanoporeType = recordsNanopore[position].ALT[0].type
+			if nanoporeType == 'INS':
+				nanoporeValue = recordsNanopore[position].ALT[0].value[2:] #Ignore first char as this is REF
+			elif nanoporeType == 'DEL':
+				nanoporeValue = len(recordsNanopore[position].REF)-1 #Ignore first char as this is retained
+			elif nanoporeType == 'SNV':
+				nanoporeValue = recordsNanopore[position].ALT[0].value
+
+		illuminaType = '?' #INS,DEL,SNP
+		illuminaValue = '?' #Length of Del / Alt Allele / Insertion Seq
+
 		outfile.write('{}\t{}\t{}\t{}\n'.format(
 			position,
 			reference[int(position-1)], #SeqIO is 0-based
 			recordsIllumina[position]['ALT'].values[0] if position in recordsIllumina else 'No Variant calls',
-			recordsNanopore[position].ALT[0] if position in recordsNanopore else 'No Variant calls',
+			nanoporeType+' '+nanoporeValue
 		))
 	#Output some stats
 	cnt_comparablePositions = len(relevantPositions)-cnt_unscoredPositions
