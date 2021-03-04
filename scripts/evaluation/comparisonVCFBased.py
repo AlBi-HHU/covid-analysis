@@ -31,13 +31,23 @@ for position in ivarPseudoVCF['POS'].unique():
 
 	record = ivarPseudoVCF[ivarPseudoVCF.POS == position]
 	altallele = record['ALT'].values[0]
-	cov = getCoverage(illuminapileup[position], altallele)
-	abs = getMinorStrandAbs(illuminapileup[position], altallele)
-	fq = getMinorStrandFrequency(illuminapileup[position], altallele)
+	#if we have a deletion or such we ignore it for the sb test
+	if altallele.startswith('-') or altval.startswith('+'):
+		recordsIllumina[position] = record
+		break
 
-	if alexSBFilter(cov, abs, fq):
-		print(altallele,cov,abs,fq)
-		continue
+	#otherwise we apply the strand bias filter test
+	components = ambiguityLetters_inverted[altallele] if altallele in ambiguityLetters_inverted else [altallele]
+
+	for component in components:
+
+		cov = getCoverage(illuminapileup[position], altallele)
+		abs = getMinorStrandAbs(illuminapileup[position], altallele)
+		fq = getMinorStrandFrequency(illuminapileup[position], altallele)
+
+		if alexSBFilter(cov, abs, fq):
+			#print(altallele,cov,abs,fq)
+			break
 	else:
 		recordsIllumina[position] = record
 
