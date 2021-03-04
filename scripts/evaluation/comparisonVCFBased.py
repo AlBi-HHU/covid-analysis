@@ -11,7 +11,7 @@ import pandas as pd
 #Read required input
 pancovVCF = vcfpy.Reader.from_path(snakemake.input['pancovVCF'])
 ivarPseudoVCF = pd.read_csv(snakemake.input['iVarVCF'],sep='\t')
-ivarPseudoVCF = ivarPseudoVCF[ivarPseudoVCF.PASS == 'TRUE'] #Filter passed vars only
+ivarPseudoVCF = ivarPseudoVCF[ivarPseudoVCF.PASS != False] #Filter passed vars only
 illuminapileup = parsePileupStrandAwareLight(snakemake.input["illuminaPileup"])
 nanoporepileup = parsePileupStrandAwareLight(snakemake.input["nanoporePileup"])
 reference = SeqIO.read(snakemake.input['ref'],'fasta')
