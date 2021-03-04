@@ -44,28 +44,33 @@ cnt_unscoredPositions = 0
 cnt_illuminaDropouts = 0
 cnt_nanoporeDropouts = 0
 
-for position in relevantPositions:
-	#Determine Nanopore and Illumina Coverage
-	nanoporeCoverage = getTotalCoverage(nanoporepileup[position]) if position in nanoporepileup else 0
-	illuminaCoverage = getTotalCoverage(illuminapileup[position]) if position in illuminapileup else 0
-	#Decide whether the position counts or not
-	nanoporeDropout = nanoporeCoverage < snakemake.config['consensusMinCov']
-	illuminaDropout = illuminaCoverage < snakemake.config['consensusMinCov']
+with open(snakemake.output[0],'w') as outfile:
+
+	fields = ['pos','ref','ivar','nanopore-method']
+	outfile.write('\t'.join(fields)+'\n')
+
+	for position in relevantPositions:
+		#Determine Nanopore and Illumina Coverage
+		nanoporeCoverage = getTotalCoverage(nanoporepileup[position]) if position in nanoporepileup else 0
+		illuminaCoverage = getTotalCoverage(illuminapileup[position]) if position in illuminapileup else 0
+		#Decide whether the position counts or not
+		nanoporeDropout = nanoporeCoverage < snakemake.config['consensusMinCov']
+		illuminaDropout = illuminaCoverage < snakemake.config['consensusMinCov']
 
 
-	#Dropouts
-	if illuminaDropout or nanoporeDropout:
-		cnt_unscoredPositions += 1
-		if illuminaDropout:
-			cnt_illuminaDropouts += 1
-		if nanoporeDropout:
-			cnt_nanoporeDropouts += 1
-	else:
-		pass
+		#Dropouts
+		if illuminaDropout or nanoporeDropout:
+			cnt_unscoredPositions += 1
+			if illuminaDropout:
+				cnt_illuminaDropouts += 1
+			if nanoporeDropout:
+				cnt_nanoporeDropouts += 1
+		else:
+			pass
 
-	outfile.write('{}\t{}\t{}\t{}\n'.format(
-		position,
-		reference[int(position-1)], #SeqIO is 0-based
-		variantsIvar[position] if position in variantsIvar else 'No Variant calls',
-		variantsPancov[position] if position in variantsPancov else 'No Variant calls',
-	))
+		outfile.write('{}\t{}\t{}\t{}\n'.format(
+			position,
+			reference[int(position-1)], #SeqIO is 0-based
+			variantsIvar[position] if position in variantsIvar else 'No Variant calls',
+			variantsPancov[position] if position in variantsPancov else 'No Variant calls',
+		))
