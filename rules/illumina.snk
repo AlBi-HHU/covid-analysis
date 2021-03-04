@@ -91,7 +91,7 @@ rule ivar_var:
         'data/auxiliary/illuminaVarCalls/{run}_{barcode}/ivar.vcf.tsv'
     params:
         prefix = 'data/auxiliary/illuminaVarCalls/{run}_{barcode}/ivar.vcf',
-        iac = config['illuminaAlleleFreqCutoff']
+        iac = 1-float(config['illuminaAlleleFreqCutoff'])
     conda:
         '../envs/ivar.yaml'
     shell:

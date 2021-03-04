@@ -19,7 +19,7 @@ with open(snakemake.input[0],'r') as infile:
                 sample =sid[0]+'/'+sid[1]
             elif len(sid) == 4:
                 sample = sid[0]+'_'+sid[1]+sid[2]
-                
+
 df = pd.DataFrame(tuples,columns=['sample','pos','ref','alt','rejected','comment','pileupillu','pileupnano'])
 
 

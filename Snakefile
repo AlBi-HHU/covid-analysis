@@ -66,7 +66,7 @@ for run in runs:
     for barcode in barcodes[run]:
         if os.path.isdir(os.path.join('data/input/illumina',(run+'_'+barcode))):
             illuminaMapping[run].add(barcode)
-print(illuminaMapping)
+
 ### REMOVE LATER END
 
 
