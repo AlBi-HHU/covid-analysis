@@ -78,8 +78,7 @@ with open(snakemake.output[0],'w') as outfile:
 				cnt_illuminaDropouts += 1
 			if nanoporeDropout:
 				cnt_nanoporeDropouts += 1
-		else:
-			pass
+
 
 		#Resolve Type and Value of Variant
 
@@ -125,14 +124,15 @@ with open(snakemake.output[0],'w') as outfile:
 					cnt_realHETSNPs += 1
 					illuminaValue = ambiguityLetters[frozenset((altval,refval))]
 
-		if (illuminaType == nanoporeType) and (illuminaValue == nanoporeValue):
-			cnt_concordance += 1
-		else:
-			cnt_discordance += 1
-			if (position in recordsIllumina )and (not position in recordsNanopore):
-				cnt_falseNegatives += 1
-			if (position in recordsNanopore )and (not position in recordsIllumina):
-				cnt_falsePositives += 1
+		if not(illuminaDropout or nanoporeDropout):
+			if (illuminaType == nanoporeType) and (illuminaValue == nanoporeValue):
+				cnt_concordance += 1
+			else:
+				cnt_discordance += 1
+				if (position in recordsIllumina )and (not position in recordsNanopore):
+					cnt_falseNegatives += 1
+				if (position in recordsNanopore )and (not position in recordsIllumina):
+					cnt_falsePositives += 1
 
 
 
