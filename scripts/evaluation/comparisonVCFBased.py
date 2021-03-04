@@ -90,7 +90,7 @@ with open(snakemake.output[0],'w') as outfile:
 			if nanoporeType == 'INS':
 				nanoporeValue = recordsNanopore[position].ALT[0].value[2:] #Ignore first char as this is REF
 			elif nanoporeType == 'DEL':
-				nanoporeValue = len(recordsNanopore[position].REF)-1 #Ignore first char as this is retained
+				nanoporeValue = str(len(recordsNanopore[position].REF)-1) #Ignore first char as this is retained
 			elif nanoporeType == 'SNV':
 				nanoporeValue = recordsNanopore[position].ALT[0].value
 
