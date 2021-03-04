@@ -83,7 +83,7 @@ with open(snakemake.output[0],'w') as outfile:
 
 		#Resolve Type and Value of Variant
 
-		nanoporeType = 'None'  # INS,DEL,SNP
+		nanoporeType = 'Not Called'  # INS,DEL,SNP
 		nanoporeValue = ''  # Length of Del / Alt Allele / Insertion Seq
 		if position in recordsNanopore:
 			nanoporeType = recordsNanopore[position].ALT[0].type
@@ -94,8 +94,8 @@ with open(snakemake.output[0],'w') as outfile:
 			elif nanoporeType == 'SNV':
 				nanoporeValue = recordsNanopore[position].ALT[0].value
 
-		illuminaType = '?' #INS,DEL,SNP
-		illuminaValue = '?' #Length of Del / Alt Allele / Insertion Seq
+		illuminaType = 'Not Called' #INS,DEL,SNP
+		illuminaValue = '' #Length of Del / Alt Allele / Insertion Seq
 
 		if position in recordsIllumina:
 			altval = recordsIllumina[position]['ALT'].values[0]
