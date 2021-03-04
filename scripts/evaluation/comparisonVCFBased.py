@@ -46,8 +46,8 @@ cnt_nanoporeDropouts = 0
 
 for position in relevantPositions:
 	#Determine Nanopore and Illumina Coverage
-	nanoporeCoverage = getCoverage(nanoporepileup[position]) if position in nanoporepileup else 0
-	illuminaCoverage = getCoverage(illuminapileup[position]) if position in illuminapileup else 0
+	nanoporeCoverage = getTotalCoverage(nanoporepileup[position]) if position in nanoporepileup else 0
+	illuminaCoverage = getTotalCoverage(illuminapileup[position]) if position in illuminapileup else 0
 	#Decide whether the position counts or not
 	nanoporeDropout = nanoporeCoverage < config['consensusMinCov']
 	illuminaDropout = illuminaCoverage < config['consensusMinCov']

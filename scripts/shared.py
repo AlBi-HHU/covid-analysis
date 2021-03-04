@@ -210,6 +210,9 @@ def getCoverage(pileupForPosition,altallele):
             total += count
     return total
 
+def getTotalCoverage(pileupForPosition):
+    return sum(pileupForPosition.values());
+
 def getMinorStrandAbs(pileupForPosition,altallele):
     altallele = '(' if altallele == '-' else altallele
     total = 0
