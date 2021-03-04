@@ -71,6 +71,6 @@ with open(snakemake.output[0],'w') as outfile:
 		outfile.write('{}\t{}\t{}\t{}\n'.format(
 			position,
 			reference[int(position-1)], #SeqIO is 0-based
-			recordsIllumina[position]['ALT'].str() if position in recordsIllumina else 'No Variant calls',
+			recordsIllumina[position]['ALT'].values[0] if position in recordsIllumina else 'No Variant calls',
 			recordsNanopore[position].ALT if position in recordsNanopore else 'No Variant calls',
 		))
