@@ -32,17 +32,17 @@ for position in ivarPseudoVCF['POS'].unique():
 ### Step 2: Process
 
 #Counter Variables for Top Level Stats
-cnt_realVariants = 0
+cnt_realVariants = 0#
 cnt_realHETVariants = 0
 cnt_concordance = 0
 cnt_falsePositives = 0
 cnt_falseNegatives = 0
 cnt_discordance = 0
-cnt_detectedVariants = 0
-cnt_comparablePositions = 0
-cnt_unscoredPositions = 0
-cnt_illuminaDropouts = 0
-cnt_nanoporeDropouts = 0
+cnt_detectedVariants = 0#
+cnt_comparablePositions = 0 #
+cnt_unscoredPositions = 0 #
+cnt_illuminaDropouts = 0 #
+cnt_nanoporeDropouts = 0 #
 
 with open(snakemake.output[0],'w') as outfile:
 
@@ -72,5 +72,9 @@ with open(snakemake.output[0],'w') as outfile:
 			position,
 			reference[int(position-1)], #SeqIO is 0-based
 			recordsIllumina[position]['ALT'].values[0] if position in recordsIllumina else 'No Variant calls',
-			recordsNanopore[position].ALT if position in recordsNanopore else 'No Variant calls',
+			recordsNanopore[position].ALT[0] if position in recordsNanopore else 'No Variant calls',
 		))
+	#Output some stats
+	cnt_comparablePositions = len(relevantPositions)-cnt_unscoredPositions
+	cnt_detectedVariants = len(recordsNanopore)
+	cnt_realVariants = len(recordsIllumina)
