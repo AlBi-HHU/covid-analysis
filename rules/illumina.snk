@@ -195,7 +195,7 @@ rule compareBasedOnVCF:
         pancovVCF = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz",
         ref = "data/input/nCoV-2019.reference.fasta",
     output:
-        'data/output/evaluation/vcfbased/{barcode}/{run}/comparison.tsv'
+        'data/output/evaluation/vcfbased/{run}/{barcode}/comparison.tsv'
     conda:
         '../envs/vcfpy.yaml'
     script:
