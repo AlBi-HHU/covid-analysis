@@ -1,6 +1,6 @@
 import sys
 sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
-from shared import parsePileupStrandAwareLight,getTotalCoverage,ambiguityLetters,ambiguityLetters_inverted
+from shared import parsePileupStrandAwareLight,getTotalCoverage,ambiguityLetters,ambiguityLetters_inverted,getCoverage,getMinorStrandAbs,getMinorStrandFrequency,alexSBFilter
 from Bio import SeqIO
 import vcfpy
 import pandas as pd
@@ -28,7 +28,16 @@ for record in pancovVCF:
 
 for position in ivarPseudoVCF['POS'].unique():
 	relevantPositions.add(position)
-	recordsIllumina[position] = ivarPseudoVCF[ivarPseudoVCF.POS == position]
+
+	record = ivarPseudoVCF[ivarPseudoVCF.POS == position]
+	altallele = record['ALT'].values[0]
+	cov = getCoverage(illuminapileup[position], altallele)
+	abs = getMinorStrandAbs(illuminapileup[position], altallele)
+	fq = getMinorStrandFrequency(illuminapileup[position], altallele)
+
+	if alexSBFilter(cov, abs, fq):
+		continue
+	recordsIllumina[position] = record
 
 ### Step 2: Process
 

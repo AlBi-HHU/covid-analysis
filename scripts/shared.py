@@ -42,6 +42,24 @@ def get_node2seq(graph_path):
 
     return node2seq
 
+#TODO: Move vals to cfg
+def alexSBFilter(cov, abs, fq):
+    if cov <= 10:
+        return True
+    elif cov <= 20:
+        if abs < 5:
+            return True
+    elif cov <= 50:
+        if abs < 10 and fq < 0.25:
+            return True
+    elif cov <= 100:
+        if abs < 15 and fq < 0.15:
+            return True
+    else:
+        if fq < 0.1:
+            return True
+    return False
+
 def parse_gaf(path, storage, node2base=None, edge2cov=None, node2seq=None):
     with open(path) as fh:
         reader = csv.reader(fh, delimiter='\t')

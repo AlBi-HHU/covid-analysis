@@ -15,29 +15,15 @@ def determineRecoveryStatus(position,altallele):
     if position in illuminapileup:
 
         # Alex perl #TODO: Move elsewhere
-        sb = getStrandBias(illuminapileup[position], altallele)
         cov = getCoverage(illuminapileup[position], altallele)
         abs = getMinorStrandAbs(illuminapileup[position], altallele)
         fq = getMinorStrandFrequency(illuminapileup[position], altallele)
 
-        variantFiltered = False
-        if cov <= 10:
-            variantFiltered = True
-        elif cov <= 20:
-            if abs < 5:
-                variantFiltered = True
-        elif cov <= 50:
-            if abs < 10 and fq < 0.25:
-                variantFiltered = True
-        elif cov <= 100:
-            if abs < 15 and fq < 0.15:
-                variantFiltered = True
-        else:
-            if fq < 0.1:
-                variantFiltered = True
 
-        if variantFiltered:
-            return "Filtered","Filtered by Alex SB Filter"
+
+
+        if alexSBFilter(cov,abs,fq):
+            return "Filtered","Filtered by Alex Filter"
 
         if position in nanoporepileup:
             if sum(nanoporepileup[position].values()) < snakemake.config["nanoporeCoverageCutoff"]:
