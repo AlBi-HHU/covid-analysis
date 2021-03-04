@@ -36,8 +36,10 @@ for position in ivarPseudoVCF['POS'].unique():
 	fq = getMinorStrandFrequency(illuminapileup[position], altallele)
 
 	if alexSBFilter(cov, abs, fq):
+		print(altallele,cov,abs,fq)
 		continue
-	recordsIllumina[position] = record
+	else:
+		recordsIllumina[position] = record
 
 ### Step 2: Process
 
