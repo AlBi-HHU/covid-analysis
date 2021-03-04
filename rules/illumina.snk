@@ -183,3 +183,20 @@ rule illuminaRecoverVisualize:
         '../envs/altair.yaml'
     script:
         '../scripts/evaluation/recoveryAltair.py'
+
+
+### VCF Based Comparison
+
+rule compareBasedOnVCF:
+    input:
+        illuminaPileup = 'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt',
+        nanoporePileup = 'data/auxiliary/pileupAnalysis/nanopore/{run}/{barcode}.pileupanalysis.txt',
+        iVarVCF = 'data/auxiliary/illuminaVarCalls/{run}_{barcode}/ivar.vcf.tsv',
+        pancovVCF = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz",
+        ref = "data/input/nCoV-2019.reference.fasta",
+    output:
+        'data/output/evaluation/vcfbased/{barcode}/{run}/comparison.tsv'
+    conda:
+        '../envs/vcfpy.yaml'
+    script:
+        '../scripts/evaluation/comparisonVCFBased.py'
