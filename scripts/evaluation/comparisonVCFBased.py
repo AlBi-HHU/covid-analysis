@@ -97,10 +97,25 @@ with open(snakemake.output[0],'w') as outfile:
 		illuminaType = '?' #INS,DEL,SNP
 		illuminaValue = '?' #Length of Del / Alt Allele / Insertion Seq
 
+		if position in recordsIllumina:
+			altval = recordsIllumina[position]['ALT'].values[0]
+			if altval.startswith('-'):
+				illuminaType = 'DEL'
+			elif altval.startswith('+'):
+				illuminaType = 'INS'
+			else:
+				illuminaType = 'SNV'
+			if illuminaType == 'INS':
+				illuminaValue = altval[2:] #Don't use the +
+			elif illuminaType == 'DEL':
+				illuminaValue = str(len(altval)-1) #Ignore first char as this is retained
+			elif illuminaType == 'SNV':
+				illuminaValue = altval
+
 		outfile.write('{}\t{}\t{}\t{}\n'.format(
 			position,
 			reference[int(position-1)], #SeqIO is 0-based
-			recordsIllumina[position]['ALT'].values[0] if position in recordsIllumina else 'No Variant calls',
+			illuminaType+' '+illuminaValue,
 			nanoporeType+' '+nanoporeValue
 		))
 	#Output some stats
