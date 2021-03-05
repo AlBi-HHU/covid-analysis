@@ -212,8 +212,8 @@ with open(snakemake.output['text'],'w') as outfile:
 				bool_heterozygousIllu,
 				bool_heterozygousNano,
 				bool_concordance,
-				illuminapileup[position],
-				nanoporepileup[position]
+				illuminapileup[position] if position in illuminapileup else 'Dropout',
+				nanoporepileup[position] if position in nanoporepileup else 'Dropout'
 			))
 
 
