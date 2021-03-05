@@ -136,14 +136,14 @@ with open(snakemake.output['text'],'w') as outfile:
 				nanoporeType = recordsNanopore[position].ALT[0].type
 				if nanoporeType == 'INS':
 					nanoporeValue = recordsNanopore[position].ALT[0].value[2:] #Ignore first char as this is REF
-					if nanoporeValue in ambiguityLetters_inverted:
-						bool_heterozygousNano = True
-						cnt_detectedHETSNPs += 1
 					cnt_detectedINS += 1
 				elif nanoporeType == 'DEL':
 					nanoporeValue = str(len(recordsNanopore[position].REF)-1) #Ignore first char as this is retained
 					cnt_detectedDEL += 1
 				elif nanoporeType == 'SNV':
+					if nanoporeValue in ambiguityLetters_inverted:
+						bool_heterozygousNano = True
+						cnt_detectedHETSNPs += 1
 					nanoporeValue = recordsNanopore[position].ALT[0].value
 					cnt_detectedSNP += 1
 
