@@ -225,21 +225,22 @@ with open(snakemake.output['text'],'w') as outfile:
 
 	cnt_comparablePositions = cnt_relevantPositions-cnt_unscoredPositions
 
-	outfile.write('Real (iVar) Variants:\t{} \n'.format(cnt_realVariants))
-	outfile.write('Real (iVar) SNPs:\t{} \n'.format(cnt_realSNP))
-	outfile.write('Detected SNPs:\t{} \n'.format(cnt_detectedSNP))
-	outfile.write('Real (iVar) HET SNPs:\t{} \n'.format(cnt_realHETSNPs))
-	outfile.write('Detected HET SNPs:\t{} \n'.format(cnt_detectedHETSNPs))
-	outfile.write('Real (iVar) INS:\t{} \n'.format(cnt_realINS))
-	outfile.write('Detected INS:\t{} \n'.format(cnt_detectedINS))
-	outfile.write('Real (iVar) DEL:\t{} \n'.format(cnt_realDEL))
-	outfile.write('Detected DEL:\t{} \n'.format(cnt_detectedDEL))
-	outfile.write('Concordance:\t{}\t of\t{}\t comparable positions \n'.format(cnt_concordance,cnt_comparablePositions))
-	outfile.write('FP:\t{} \n'.format(cnt_falsePositives))
-	outfile.write('FN:\t{} \n'.format(cnt_falseNegatives))
-	outfile.write('Discordance: \t{}\t of \t{}\t comparable positions \n'.format(cnt_discordance,cnt_comparablePositions))
-	outfile.write('Detected Variants: \t{} \n'.format(cnt_detectedVariants))
-	outfile.write('Unscored Positions: \t{}\t (\t{}\t Illumina and \t{}\t Nanopore Dropouts) \n'.format(cnt_unscoredPositions,cnt_illuminaDropouts,cnt_nanoporeDropouts))
+	outfile.write('Real (iVar) Variants:{} \n'.format(cnt_realVariants))
+	outfile.write('Real (iVar) SNPs:} \n'.format(cnt_realSNP))
+	outfile.write('Detected SNPs:{} \n'.format(cnt_detectedSNP))
+	outfile.write('Real (iVar) HET SNPs:{} \n'.format(cnt_realHETSNPs))
+	outfile.write('Detected HET SNPs:{} \n'.format(cnt_detectedHETSNPs))
+	outfile.write('Real (iVar) INS:{} \n'.format(cnt_realINS))
+	outfile.write('Detected INS:{} \n'.format(cnt_detectedINS))
+	outfile.write('Real (iVar) DEL:{} \n'.format(cnt_realDEL))
+	outfile.write('Detected DEL:{} \n'.format(cnt_detectedDEL))
+	outfile.write('Relevant Positions: {} (of which {} could not be evaluated)\n'.format(cnt_relevantPositions,cnt_unscoredPositions))
+	outfile.write('Concordance:{} of{} comparable positions \n'.format(cnt_concordance,cnt_comparablePositions))
+	outfile.write('FP:{} \n'.format(cnt_falsePositives))
+	outfile.write('FN:{} \n'.format(cnt_falseNegatives))
+	outfile.write('Discordance: {} of {} comparable positions \n'.format(cnt_discordance,cnt_comparablePositions))
+	outfile.write('Detected Variants: {} \n'.format(cnt_detectedVariants))
+	outfile.write('Unscored Positions: {} ({} Illumina and {} Nanopore Dropouts) \n'.format(cnt_unscoredPositions,cnt_illuminaDropouts,cnt_nanoporeDropouts))
 
 
 #Write Pandas Dataframe
