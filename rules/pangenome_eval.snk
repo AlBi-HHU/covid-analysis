@@ -150,10 +150,10 @@ def getAllVCFComparisonRequirements(wildcards):
                 continue
 
             allFiles += [
+                'data/auxiliary/illuminaVarCalls/' + run + '_' + barcode + '/ivar.vcf.tsv',
+                'data/auxiliary/consensus/' + run + '/' + barcode + '/variant.vcf.gz',
                 'data/auxiliary/pileupAnalysis/illumina/'+run+'/'+barcode+'.pileupanalysis.txt',
                 'data/auxiliary/pileupAnalysis/nanopore/'+run+'/'+barcode+'.pileupanalysis.txt',
-                'data/auxiliary/illuminaVarCalls/'+run+'_'+barcode+'/ivar.vcf.tsv',
-                'data/auxiliary/consensus/'+run+'/'+barcode+'/variant.vcf.gz',
             ]
 
     return allFiles
