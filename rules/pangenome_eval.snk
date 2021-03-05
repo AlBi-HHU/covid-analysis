@@ -400,3 +400,13 @@ rule illuminaRecoverVisualize:
         '../envs/altair.yaml'
     script:
         '../scripts/evaluation/recoveryAltair.py'
+
+rule concordanceVisualize:
+    input:
+        'data/output/evaluation/vcfbased/comparison_{method}.csv'
+    output:
+        'data/output/evaluation/vcfbased/concordance_{method}.html'
+    conda:
+        '../envs/altair.yaml'
+    script:
+        '../scripts/evaluation/visualizeConcordance.py'
