@@ -144,11 +144,10 @@ def getAllVCFComparisonRequirements(wildcards):
         for barcode in barcodes[run]:
 
             # check for missing illumina files
-            if wildcards.method == 'illumina':
-                if run in illuminaMapping and barcode in illuminaMapping[run]:
-                    pass
-                else:
-                    continue
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                continue
 
             allFiles += [
                 'data/auxiliary/pileupAnalysis/illumina/'+run+'/'+barcode+'.pileupanalysis.txt',
