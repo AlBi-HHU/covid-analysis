@@ -248,6 +248,13 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 	outfile.write('Detected Variants: {} \n'.format(cnt_detectedVariants))
 	outfile.write('Unscored Positions: {} ({} Illumina and {} Nanopore Dropouts) \n'.format(cnt_unscoredPositions,cnt_illuminaDropouts,cnt_nanoporeDropouts))
 
+	#Calculate top level stats
+	precision = cnt_concordance / (cnt_concordance+cnt_falsePositives)
+	recall = cnt_concordance / (cnt_concordance+cnt_falseNegatives)
+	f1 = (2*cnt_concordance)/(2*cnt_concordance+cnt_falsePositives+cnt_falseNegatives)
+	outfile.write('Precision: {}\n'.format(precision))
+	outfile.write('Recall: {}\n'.format(recall))
+	outfile.write('F1: {}\n'.format(f1))
 
 #Write Pandas Dataframe
 df = pd.DataFrame(dataTuples,columns=[
