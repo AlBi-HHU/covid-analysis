@@ -76,7 +76,7 @@ with open(snakemake.output['text'],'w') as outfile:
 			record = ivarPseudoVCF[ivarPseudoVCF.POS == position]
 			altallele = record['ALT'].values[0]
 			#if we have a deletion or such we ignore it for the sb test
-			if altallele.startswith('-') or altval.startswith('+'):
+			if altallele.startswith('-') or atlallele.startswith('+'):
 				recordsIllumina[position] = record
 				break
 
@@ -97,7 +97,7 @@ with open(snakemake.output['text'],'w') as outfile:
 
 		### Step 2: Process
 
-		fields = ['pos','ref','ivar','nanopore-method','evaluation']
+		fields = ['pos','ref','ivar','nanopore-method']
 		outfile.write('\t'.join(fields)+'\n')
 
 		for position in relevantPositions:
