@@ -28,6 +28,7 @@ cnt_falsePositives = 0
 cnt_falseNegatives = 0
 cnt_discordance = 0  #
 cnt_detectedVariants = 0  #
+cnt_relevantPositions = 0 #
 cnt_comparablePositions = 0  #
 cnt_unscoredPositions = 0  #
 cnt_illuminaDropouts = 0  #
@@ -216,9 +217,11 @@ with open(snakemake.output['text'],'w') as outfile:
 				nanoporepileup[position] if position in nanoporepileup else 'Dropout'
 			))
 
+			cnt_relevantPositions += len(relevantPositions)
+
 
 		#Calculate some additional stats
-		cnt_comparablePositions += len(relevantPositions)-cnt_unscoredPositions
+		cnt_comparablePositions += cnt_relevantPositions-cnt_unscoredPositions
 		cnt_detectedVariants += len(recordsNanopore)
 		cnt_realVariants += len(recordsIllumina)
 
