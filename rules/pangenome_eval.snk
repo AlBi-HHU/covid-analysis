@@ -149,9 +149,16 @@ def getAllVCFComparisonRequirements(wildcards):
             else:
                 continue
 
+            vcf = None
+            if wildcards.method == 'pancov':
+                vcf = 'data/auxiliary/consensus/' + run + '/' + barcode + '/variant.vcf.gz'
+            elif wildcards.method == 'medaka':
+                vcf = 'data/input/'+barcode+'/barcode'+barcode+'.medaka.'+config['vcf_suffix']
+            elif wildcards.method == 'nanopolish':
+                vcf = 'data/input/'+barcode+'/barcode'+barcode+'.nanopolish.'+config['vcf_suffix']
             allFiles += [
                 'data/auxiliary/illuminaVarCalls/' + run + '_' + barcode + '/ivar.vcf.tsv',
-                'data/auxiliary/consensus/' + run + '/' + barcode + '/variant.vcf.gz',
+                vcf,
                 'data/auxiliary/pileupAnalysis/illumina/'+run+'/'+barcode+'.pileupanalysis.txt',
                 'data/auxiliary/pileupAnalysis/nanopore/'+run+'/'+barcode+'.pileupanalysis.txt',
             ]
@@ -337,9 +344,9 @@ rule compareBasedOnVCF:
         comparisonFiles = getAllVCFComparisonRequirements,
         ref = "data/input/nCoV-2019.reference.fasta",
     output:
-        text = 'data/output/evaluation/vcfbased/comparison.tsv',
-        dataframe = 'data/output/evaluation/vcfbased/comparison.csv',
-        filter = 'data/output/evaluation/vcfbased/filtered.txt'
+        text = 'data/output/evaluation/vcfbased/comparison_{method}.tsv',
+        dataframe = 'data/output/evaluation/vcfbased/comparison_{method}.csv',
+        filter = 'data/output/evaluation/vcfbased/filtered_{method}.txt'
     conda:
         '../envs/vcfpy.yaml'
     script:
