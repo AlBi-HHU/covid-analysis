@@ -30,6 +30,13 @@ def ambiguousBase(frozenset):
         return ambiguityLetters[frozenset]
     else:
         return None
+    
+def isAmbiguous(base):
+    if base in ['N','A','C','G','T']:
+        return False
+    elif base in ambiguityLetters_inverted:
+        return True
+    return None
 
 def get_node2seq(graph_path):
     node2seq = dict()

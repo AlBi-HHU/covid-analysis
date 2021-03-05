@@ -1,6 +1,6 @@
 import sys
 sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
-from shared import parsePileupStrandAwareLight,getTotalCoverage,ambiguityLetters,ambiguityLetters_inverted,getCoverage,getMinorStrandAbs,getMinorStrandFrequency,alexSBFilter
+from shared import parsePileupStrandAwareLight,getTotalCoverage,ambiguityLetters,ambiguityLetters_inverted,getCoverage,getMinorStrandAbs,getMinorStrandFrequency,alexSBFilter,isAmbiguous
 from Bio import SeqIO
 import vcfpy
 import pandas as pd
@@ -144,7 +144,7 @@ with open(snakemake.output['text'],'w') as outfile:
 				elif nanoporeType == 'SNV':
 					nanoporeValue = recordsNanopore[position].ALT[0].value
 					cnt_detectedSNP += 1
-					if nanoporeValue in ambiguityLetters_inverted:
+					if isAmbiguous(nanoporeValue):
 						bool_heterozygousNano = True
 						cnt_detectedHETSNPs += 1
 
