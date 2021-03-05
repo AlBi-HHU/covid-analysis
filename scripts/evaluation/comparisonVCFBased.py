@@ -142,11 +142,12 @@ with open(snakemake.output['text'],'w') as outfile:
 					nanoporeValue = str(len(recordsNanopore[position].REF)-1) #Ignore first char as this is retained
 					cnt_detectedDEL += 1
 				elif nanoporeType == 'SNV':
+					nanoporeValue = recordsNanopore[position].ALT[0].value
+					cnt_detectedSNP += 1
 					if nanoporeValue in ambiguityLetters_inverted:
 						bool_heterozygousNano = True
 						cnt_detectedHETSNPs += 1
-					nanoporeValue = recordsNanopore[position].ALT[0].value
-					cnt_detectedSNP += 1
+
 
 			illuminaType = 'Not Called' #INS,DEL,SNP
 			illuminaValue = '' #Length of Del / Alt Allele / Insertion Seq
