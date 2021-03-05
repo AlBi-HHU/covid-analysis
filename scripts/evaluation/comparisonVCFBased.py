@@ -54,7 +54,7 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 
 		#Variable Reassignment to keep code more readable
 		ivarPseudoVCF = pd.read_csv(ivarPseudoVCF, sep='\t')
-		ivarPseudoVCF = ivarPseudoVCF[ivarPseudoVCF.PASS != False]  # Filter passed vars only
+		#ivarPseudoVCF = ivarPseudoVCF[ivarPseudoVCF.PASS != False]  # Filter passed vars only
 
 		pancovVCF = vcfpy.Reader.from_path(next(data))
 
@@ -91,7 +91,10 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 				fq = getMinorStrandFrequency(illuminapileup[position], altallele)
 
 				if alexSBFilter(cov, abs, fq):
-					filterfile.write('iVar call for {} did not pass Alex Filter with AltAllele Cov {}: Total Cov: {} and Minor Strand FQ: {}\n'.format(altallele,cov,abs,fq))
+					filterfile.write('{}: iVar call for {} did not pass Alex Filter with AltAllele Cov {}: Total Cov: {} and Minor Strand FQ: {}\n'.format(fid,altallele,cov,abs,fq))
+					break
+				elif str(record['PASS'].values[0]) == 'FALSE':
+					filterfile.write('{}: iVar call for {} did not pass the internal iVar filter\n'.format(fid,altallele))
 					break
 			else:
 				recordsIllumina[position] = record
