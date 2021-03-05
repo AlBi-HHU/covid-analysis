@@ -79,7 +79,7 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 			if altallele.startswith('-') or altallele.startswith('+'):
 				recordsIllumina[position] = record
 				relevantPositions.add(position)
-				break
+				continue
 
 			#otherwise we apply the strand bias filter test
 			components = ambiguityLetters_inverted[altallele] if altallele in ambiguityLetters_inverted else [altallele]
