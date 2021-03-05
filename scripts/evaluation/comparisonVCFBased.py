@@ -217,14 +217,14 @@ with open(snakemake.output['text'],'w') as outfile:
 				nanoporepileup[position] if position in nanoporepileup else 'Dropout'
 			))
 
-			cnt_relevantPositions += len(relevantPositions)
 
 
 		#Calculate some additional stats
-		cnt_comparablePositions += cnt_relevantPositions-cnt_unscoredPositions
 		cnt_detectedVariants += len(recordsNanopore)
 		cnt_realVariants += len(recordsIllumina)
+		cnt_relevantPositions += len(relevantPositions)
 
+	cnt_comparablePositions += cnt_relevantPositions-cnt_unscoredPositions
 
 	outfile.write('Real (iVar) Variants:\t{} \n'.format(cnt_realVariants))
 	outfile.write('Real (iVar) SNPs:\t{} \n'.format(cnt_realSNP))
