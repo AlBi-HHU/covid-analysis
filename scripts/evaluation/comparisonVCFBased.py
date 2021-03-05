@@ -72,13 +72,13 @@ with open(snakemake.output['text'],'w') as outfile:
 			recordsNanopore[record.POS] = record
 
 		for position in ivarPseudoVCF['POS'].unique():
-			relevantPositions.add(position)
 
 			record = ivarPseudoVCF[ivarPseudoVCF.POS == position]
 			altallele = record['ALT'].values[0]
 			#if we have a deletion or such we ignore it for the sb test
 			if altallele.startswith('-') or altallele.startswith('+'):
 				recordsIllumina[position] = record
+				relevantPositions.add(position)
 				break
 
 			#otherwise we apply the strand bias filter test
@@ -95,6 +95,8 @@ with open(snakemake.output['text'],'w') as outfile:
 					break
 			else:
 				recordsIllumina[position] = record
+				relevantPositions.add(position)
+
 
 		### Step 2: Process
 

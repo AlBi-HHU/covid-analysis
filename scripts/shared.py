@@ -30,7 +30,7 @@ def ambiguousBase(frozenset):
         return ambiguityLetters[frozenset]
     else:
         return None
-    
+
 def isAmbiguous(base):
     if base in ['N','A','C','G','T']:
         return False
