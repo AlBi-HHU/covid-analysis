@@ -1,27 +1,3 @@
-def getAllIlluminaFiles(type,wildcards):
-    allFiles = []
-    for run in runs:
-        for barcode in barcodes[run]:
-
-            #Check for missing gisaid files
-            if wildcards.method == 'gisaid':
-                if run in gisaidMapping and barcode in gisaidMapping[run]:
-                    pass
-                else:
-                    #print('skipping run {} barcode {} for gisaid comparison as we have no seq yet ...'.format(run,barcode))
-                    continue
-
-            if run in illuminaMapping and barcode in illuminaMapping[run]:
-                pass
-            else:
-                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
-                continue
-
-            allFiles += [
-                'data/auxiliary/evaluation/illumina/'+run+'_'+barcode+'_'+wildcards.method+'.'+type+'.txt'
-            ]
-    return allFiles
-
 rule illuminaPileup:
     input:
         alignment = 'data/input/illumina/{run}_{barcode}/alignment.bam',
@@ -40,48 +16,7 @@ rule illuminaPileup:
     shell:
         'perl scripts/getCompleteMycoFrequencies.pl --BAM {input.alignment} --output {output} --minMappingQuality 0 --minBaseQuality 0 --referenceGenome {input.reference}'
 
-rule illuminaVerify:
-    input:
-        pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info",
-        illuminaPileup = 'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt',
-        nanoporePileup = 'data/auxiliary/pileupAnalysis/nanopore/{run}/{barcode}.pileupanalysis.txt'
-    output:
-        diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}_{method}.verification.txt'
-    script:
-        '../scripts/evaluation/illumina_verification.py'
 
-
-
-rule illuminaRecover:
-    input:
-        pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info",
-        iVarInfo = "data/auxiliary/evaluation/consensusVariantExtraction/illumina/{run}_{barcode}.info",
-        illuminaPileup = 'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt',
-        nanoporePileup = 'data/auxiliary/pileupAnalysis/nanopore/{run}/{barcode}.pileupanalysis.txt'
-    output:
-        diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}_{method}.recovery.txt'
-    script:
-        '../scripts/evaluation/illumina_recovery.py'
-
-
-
-rule aggregateVerification:
-    input:
-        iteratorList = lambda wildcards : getAllIlluminaFiles('verification',wildcards)
-    output:
-        'data/output/evaluation/illumina_verification_{method}.eval'
-    script:
-        '../scripts/evaluation/aggregateVerifications.py'
-
-
-
-rule aggregateRecoveries:
-    input:
-        iteratorList = lambda wildcards : getAllIlluminaFiles('recovery',wildcards)
-    output:
-        'data/output/evaluation/illumina_recovery_{method}.eval'
-    script:
-        '../scripts/evaluation/aggregateRecoveries.py'
 
 rule ivar_var:
     input:
@@ -112,21 +47,6 @@ rule ivar_consensus:
     shell:
         'samtools mpileup -aa -A -d 0 -B -Q 0 --reference {input.reference} {input.alignment} | ivar consensus -t {params.iac} -m 20 {input.alignment} -p {params.prefix}'
 
-def getAllIlluminaPileups():
-    allFiles = []
-    for run in runs:
-        for barcode in barcodes[run]:
-            if run in illuminaMapping and barcode in illuminaMapping[run]:
-                pass
-            else:
-                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
-                continue
-
-            allFiles += [
-                'data/auxiliary/pileupAnalysis/illumina/'+run+'/'+barcode+'.pileupanalysis.txt'
-            ]
-    return allFiles
-
 rule coverageplot:
     input:
         getAllIlluminaPileups()
@@ -137,66 +57,3 @@ rule coverageplot:
     script:
         '../scripts/evaluation/plotIlluCoverage.py'
 
-
-rule plotCoveragePerVariant:
-    input:
-        verification = 'data/output/evaluation/illumina_verification_{method}.eval',
-        iteratorList = lambda wildcards: getAllIlluminaPileups()
-    output:
-        directory('data/output/evaluation/coveragePlots_{method}')
-    conda:
-        '../envs/altair.yaml'
-    script:
-        '../scripts/evaluation/plotCoveragePerVariant.py'
-
-rule topLevelStats:
-    input:
-        verification = 'data/output/evaluation/illumina_verification_{method}.eval',
-        recovery = 'data/output/evaluation/illumina_recovery_{method}.eval',
-        het_resume = 'data/output/evaluation/heterozygosity.csv',
-    output:
-        'data/output/evaluation/toplevelStats_{method}_'+str(config['pangenomeMinCovFactor'])+'_'+str(config['pangenomeRVTThreshold'])+'.eval'
-    script:
-        '../scripts/evaluation/topLevelStats.py'
-
-
-### Visualizations ###
-
-rule illuminaVerifyVisualize:
-    input:
-        'data/output/evaluation/illumina_verification_{method}.eval'
-    output:
-        full='data/output/evaluation/illumina_verification_{method}.html',
-        reduced='data/output/evaluation/illumina_verification_{method}_reduced.html'
-    conda:
-        '../envs/altair.yaml'
-    script:
-        '../scripts/evaluation/verifyAltair.py'
-
-rule illuminaRecoverVisualize:
-    input:
-        'data/output/evaluation/illumina_recovery_{method}.eval'
-    output:
-        full = 'data/output/evaluation/illumina_recovery_{method}.html',
-        reduced = 'data/output/evaluation/illumina_recovery_{method}_reduced.html'
-    conda:
-        '../envs/altair.yaml'
-    script:
-        '../scripts/evaluation/recoveryAltair.py'
-
-
-### VCF Based Comparison
-
-rule compareBasedOnVCF:
-    input:
-        illuminaPileup = 'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt',
-        nanoporePileup = 'data/auxiliary/pileupAnalysis/nanopore/{run}/{barcode}.pileupanalysis.txt',
-        iVarVCF = 'data/auxiliary/illuminaVarCalls/{run}_{barcode}/ivar.vcf.tsv',
-        pancovVCF = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz",
-        ref = "data/input/nCoV-2019.reference.fasta",
-    output:
-        'data/output/evaluation/vcfbased/{run}/{barcode}/comparison.tsv'
-    conda:
-        '../envs/vcfpy.yaml'
-    script:
-        '../scripts/evaluation/comparisonVCFBased.py'
