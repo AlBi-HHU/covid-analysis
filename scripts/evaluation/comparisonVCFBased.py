@@ -226,7 +226,7 @@ with open(snakemake.output['text'],'w') as outfile:
 	cnt_comparablePositions = cnt_relevantPositions-cnt_unscoredPositions
 
 	outfile.write('Real (iVar) Variants:{} \n'.format(cnt_realVariants))
-	outfile.write('Real (iVar) SNPs:} \n'.format(cnt_realSNP))
+	outfile.write('Real (iVar) SNPs:{} \n'.format(cnt_realSNP))
 	outfile.write('Detected SNPs:{} \n'.format(cnt_detectedSNP))
 	outfile.write('Real (iVar) HET SNPs:{} \n'.format(cnt_realHETSNPs))
 	outfile.write('Detected HET SNPs:{} \n'.format(cnt_detectedHETSNPs))
