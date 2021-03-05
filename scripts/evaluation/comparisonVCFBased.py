@@ -241,7 +241,7 @@ with open(snakemake.output['text'],'w') as outfile:
 
 
 #Write Pandas Dataframe
-df = pd.DataFrame(dataTuples,[
+df = pd.DataFrame(dataTuples,columns=[
 	'sample',
 	'position',
 	'reference',
