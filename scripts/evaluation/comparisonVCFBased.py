@@ -53,7 +53,7 @@ with open(snakemake.output['text'],'w') as outfile:
 
 		#Variable Reassignment to keep code more readable
 		ivarPseudoVCF = pd.read_csv(ivarPseudoVCF, sep='\t')
-		ivarPseudoVCF = ivarPseudoVCF[ivarPseudoVCF['PASS'] is not False]  # Filter passed vars only
+		ivarPseudoVCF = ivarPseudoVCF[ivarPseudoVCF.PASS is not False]  # Filter passed vars only
 
 		pancovVCF = vcfpy.Reader.from_path(next(data))
 
