@@ -47,7 +47,7 @@ with open(snakemake.output['text'],'w') as outfile:
 	data = iter(snakemake.input['comparisonFiles'])
 	for ivarPseudoVCF in data:
 
-		fid = ivarPseudoVCF.split('/')[-1]
+		fid = ivarPseudoVCF.split('/')[-2]
 
 		#Write down file name to keep output file readable
 		outfile.write(fid+'\n')
@@ -235,7 +235,7 @@ with open(snakemake.output['text'],'w') as outfile:
 	outfile.write('Real (iVar) DEL:{} \n'.format(cnt_realDEL))
 	outfile.write('Detected DEL:{} \n'.format(cnt_detectedDEL))
 	outfile.write('Relevant Positions: {} (of which {} could not be evaluated)\n'.format(cnt_relevantPositions,cnt_unscoredPositions))
-	outfile.write('Concordance:{} of{} comparable positions \n'.format(cnt_concordance,cnt_comparablePositions))
+	outfile.write('Concordance:{} of {} comparable positions \n'.format(cnt_concordance,cnt_comparablePositions))
 	outfile.write('FP:{} \n'.format(cnt_falsePositives))
 	outfile.write('FN:{} \n'.format(cnt_falseNegatives))
 	outfile.write('Discordance: {} of {} comparable positions \n'.format(cnt_discordance,cnt_comparablePositions))
