@@ -338,7 +338,8 @@ rule compareBasedOnVCF:
         ref = "data/input/nCoV-2019.reference.fasta",
     output:
         text = 'data/output/evaluation/vcfbased/comparison.tsv',
-        dataframe = 'data/output/evaluation/vcfbased/comparison.csv'
+        dataframe = 'data/output/evaluation/vcfbased/comparison.csv',
+        filter = 'data/output/evaluation/vcfbased/filtered.txt'
     conda:
         '../envs/vcfpy.yaml'
     script:

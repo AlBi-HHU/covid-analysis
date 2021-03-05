@@ -38,7 +38,7 @@ cnt_nanoporeDropouts = 0  #
 #We keep track of tuples in addition to construct a pandas dataframe for easy transformation into altair plots
 dataTuples = []
 
-with open(snakemake.output['text'],'w') as outfile:
+with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filter'],'w') as filterfile:
 
 	#Read required input
 	reference = SeqIO.read(snakemake.input['ref'],'fasta')
@@ -91,7 +91,7 @@ with open(snakemake.output['text'],'w') as outfile:
 				fq = getMinorStrandFrequency(illuminapileup[position], altallele)
 
 				if alexSBFilter(cov, abs, fq):
-					#print(altallele,cov,abs,fq)
+					filterfile.write('iVar call for {} did not pass Alex Filter with AltAllele Cov {}: Total Cov: {} and Minor Strand FQ: {}\n'.format(altallele,cov,abs,fq))
 					break
 			else:
 				recordsIllumina[position] = record
