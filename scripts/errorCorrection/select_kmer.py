@@ -1,6 +1,7 @@
 import itertools
 import csv
 import sys
+from collections import Counter
 
 sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
 
