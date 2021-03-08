@@ -21,8 +21,6 @@ def getAllPangenomeGraphVCFs():
                 if os.path.isfile(vcf):
                     all_vcfs.append(vcf)
 
-    #Restructure (flatten) the list
-    all_vcfs = [item for sublist in all_vcfs for item in sublist]
 
     #Add additional vcf files
     if config['pangenomeUseAdditionalVCFs']:
