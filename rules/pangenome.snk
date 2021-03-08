@@ -16,7 +16,9 @@ def getAllPangenomeGraphVCFs():
     input_vcfs = [expand('data/input/{run}/barcode{barcode}.{method}.'+config['vcf_suffix'], method=allMethods, barcode=barcodes[run], run=run) for run in runs]
     ######TODO: Maybe remove in release
     ###Background: in newer releases, ARTIC no longer outputs nanopolish vcfs, if you use a mix of newer and older runs it becomes neccessary to check which exist
+    input_vcfs = [item for sublist in input_vcfs for item in sublist]
     input_vcfs = [vcf for vcf in input_vcfs if os.path.isfile(vcf)]
+
 
     all_vcfs += input_vcfs
 
