@@ -13,14 +13,17 @@ def getAllPangenomeGraphVCFs():
     allMethods = config['articMethods']
 
     #We add all ARTIC pipeline VCFs as "known variants" to our pangenome graph in any case
-    all_vcfs += [expand('data/input/{run}/barcode{barcode}.{method}.'+config['vcf_suffix'], method=allMethods, barcode=barcodes[run], run=run) for run in runs]
+    input_vcfs = [expand('data/input/{run}/barcode{barcode}.{method}.'+config['vcf_suffix'], method=allMethods, barcode=barcodes[run], run=run) for run in runs]
+    ######TODO: Maybe remove in release
+    ###Background: in newer releases, ARTIC no longer outputs nanopolish vcfs, if you use a mix of newer and older runs it becomes neccessary to check which exist
+    input_vcfs = [vcf for vcf in input_vcfs if os.path.isfile(vcf)]
+
+    all_vcfs += input_vcfs
 
     #Restructure (flatten) the list
     all_vcfs = [item for sublist in all_vcfs for item in sublist]
 
-    ######TODO: Maybe remove in release
-    ###Background: in newer releases, ARTIC no longer outputs nanopolish vcfs, if you use a mix of newer and older runs it becomes neccessary to check which exist
-    all_vcfs = [vcf for vcf in all_vcfs if os.path.isfile(vcf)]
+
 
 
     #Add additional vcf files
