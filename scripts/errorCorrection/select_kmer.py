@@ -3,9 +3,9 @@ import csv
 import sys
 
 sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
-from collections import Counter
 
-from shared import rev_comp
+from shared import rev_comp,compute_entropy
+
 
 def main(reference, reads, th_min, th_frmr, th_max, th_covr, output, delKmers):
 
@@ -17,7 +17,7 @@ def main(reference, reads, th_min, th_frmr, th_max, th_covr, output, delKmers):
     kmer_counts = read_jellyfish(reads)
 
     # Remove kmer can't be trust based on abundance and forward reverse ratio
-    for kmer in generate_untrust_kmer(kmer_counts, th_max, th_min, th_frmr,invalidDeletionKmers):
+    for kmer in generate_untrust_kmer(kmer_counts, th_min, th_frmr,invalidDeletionKmers):
         if kmer in kmer_counts:
             del kmer_counts[kmer]
         if rev_comp(kmer) in kmer_counts:
@@ -67,25 +67,13 @@ def read_jellyfish(path):
 
     return data
 
-def isHomopolymer(kmer,length=4):
-    currentRepeatLength = 0
-    lastBase = 'N'
-    for base in kmer:
-        if base == lastBase:
-            currentRepeatLength += 1
-            if currentRepeatLength == length:
-                return True
-        else:
-            currentRepeatLength = 0
-        lastBase = base
-    return False
 
-#TODO: th_max is unused!
-def generate_untrust_kmer(reads_kmer, th_max, th_min, th_frmr, invalidDeletions):
-    """ generate kmer can't be trust based on abundance, homopolymer content and forward reverse ratio """
+def generate_untrust_kmer(reads_kmer, th_min, th_frmr, invalidDeletions):
+    """ generate a set of kmers that can't be trust based on abundance, homopolymer content and forward reverse ratio """
 
     for kmer in list(reads_kmer.keys()):
-        if isHomopolymer(kmer):
+        #Shannon Entropy Test
+        if compute_entropy(kmer) < snakemake.config['freebayesMaxEntropyTh']:
             yield kmer
         else:
             forward = reads_kmer[kmer]

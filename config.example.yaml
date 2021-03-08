@@ -12,9 +12,7 @@ bam_suffix : primertrimmed.rg.sorted.bam
 
 
 #fraction (between 0 and 0.5) of reads that need to support a variant for it to be labeled homozygous
-thresholdHomCall : 0.2
-thresholdHomCall_coverage : 50
-
+thresholdHomCall : 0.2 #This is used for consensus creation
 
 performQualityControl: True
 
@@ -54,7 +52,7 @@ pangenomeVarMinCov: 15
 illuminaAlleleFreqCutoff: 0.05
 
 # Illumina cutoff for evaluation
-illuminaCoverageCutoff: 50
+illuminaCoverageCutoff: 50 #TODO: Check if this is used?
 nanoporeCoverageCutoff: 20
 
 # Consensus section

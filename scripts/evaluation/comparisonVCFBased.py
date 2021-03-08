@@ -122,8 +122,8 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 			nanoporeCoverage = getTotalCoverage(nanoporepileup[position]) if position in nanoporepileup else 0
 			illuminaCoverage = getTotalCoverage(illuminapileup[position]) if position in illuminapileup else 0
 			#Decide whether the position counts or not
-			nanoporeDropout = nanoporeCoverage < snakemake.config['consensusMinCov']
-			illuminaDropout = illuminaCoverage < snakemake.config['consensusMinCov']
+			nanoporeDropout = nanoporeCoverage < snakemake.config['nanoporeCoverageCutoff']
+			illuminaDropout = illuminaCoverage < snakemake.config['illuminaCoverageCutoff']
 
 			#Dropouts
 			if illuminaDropout or nanoporeDropout:

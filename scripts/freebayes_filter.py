@@ -1,8 +1,6 @@
 import vcfpy
 
-from math import log2
-from collections import Counter
-
+from shared import compute_entropy
 
 def main(vcf, entropy_th, ratio_ref_cov_th, out):
     reader = vcfpy.Reader.from_path(vcf)
@@ -20,13 +18,6 @@ def main(vcf, entropy_th, ratio_ref_cov_th, out):
             
             writer.write_record(record)
 
-            
-def compute_entropy(seq):
-    entropy = 0
-    for k, v in Counter(seq).items():
-        entropy += v/len(seq) * log2(v/len(seq))
-
-    return entropy * -1
 
     
 if "snakemake" in locals():

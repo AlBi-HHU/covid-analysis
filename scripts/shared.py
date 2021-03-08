@@ -1,5 +1,7 @@
 import re
 import csv
+from collections import Counter
+from math import log2
 
 ##### This contains shared functions or definitions that are used across multiple scripts
 
@@ -38,6 +40,8 @@ def isAmbiguous(base):
         return True
     return None
 
+######## Graph Aligner Helper Functions
+
 def get_node2seq(graph_path):
     node2seq = dict()
 
@@ -49,6 +53,15 @@ def get_node2seq(graph_path):
 
     return node2seq
 
+
+####### Various
+
+def compute_entropy(seq):
+    entropy = 0
+    for k, v in Counter(seq).items():
+        entropy += v/len(seq) * log2(v/len(seq))
+
+    return entropy * -1
 
 #TODO: Move vals to cfg
 def alexSBFilter(cov, abs, fq):
