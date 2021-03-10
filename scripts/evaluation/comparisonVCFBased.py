@@ -133,7 +133,7 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 			illuminaDropout = illuminaCoverage < snakemake.config['illuminaCoverageCutoff']
 
 			# Check non-relevant positions
-			if not pos in relevantPositions:
+			if not (pos in relevantPositions):
 				cnt_illuminaDropouts_unscored += illuminaDropout
 				cnt_nanoporeDropouts_unscored += nanoporeDropout
 				cnt_implicit_agreement += (not illuminaDropout) and (not nanoporeDropout)
@@ -228,10 +228,10 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 					cnt_concordance += 1
 				else:
 					cnt_discordance += 1
-					if (position in recordsIllumina )and (not position in recordsNanopore):
+					if (position in recordsIllumina )and (position not in recordsNanopore):
 						bool_falseNegative = True
 						cnt_falseNegatives += 1
-					if (position in recordsNanopore )and (not position in recordsIllumina):
+					if (position in recordsNanopore )and (position not in recordsIllumina):
 						bool_falsePositive = True
 						cnt_falsePositives += 1
 					if (bool_heterozygousIllu and not bool_heterozygousNano):
