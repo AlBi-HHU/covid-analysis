@@ -37,6 +37,7 @@ def main(out_path, vcfs):
             for record in reader:
                 h = (
                     str(record.POS)
+                    + '/'
                     + record.REF
                     + "".join([a.serialize() for a in record.ALT])
                 )
@@ -49,7 +50,7 @@ def main(out_path, vcfs):
             raise Exception("Error parsing vcf: {}: {}".format(vcf, sys.exc_info()[0]))
 
     #Pass 2: Write to output
-    for variant in variants:
+    for variant in sorted(variants.keys(),key = int(lambda x : x.split('/')[0])):
         record = variants[variant]
         ## vcfpy black magic I didn't understand what I do but it's work don't touch it  // :)
         record.INFO = {"ORI": '/'.join(list(variant_sources[variant]))}
