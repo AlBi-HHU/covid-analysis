@@ -20,7 +20,7 @@ def getAllPangenomeGraphVCFs():
             if os.path.isfile(vcf):
                 all_vcfs.append(vcf)
 
-            vcf = f"data/auxillary/pangenome/arti/{run}/{barcode}.{config['vcf_suffix']}"
+            vcf = f"data/auxiliary/pangenome/arti/{run}/{barcode}.{config['vcf_suffix']}"
             all_vcfs.append(vcf)
 
 
@@ -65,7 +65,7 @@ rule artic_vcf_filter:
     input:
         unpack(artic_filter_input)
     output:
-        f"data/auxillary/pangenome/arti/{{run}}/{{barcode}}.{config['vcf_suffix']}"
+        f"data/auxiliary/pangenome/arti/{{run}}/{{barcode}}.{config['vcf_suffix']}"
     conda:
         '../envs/freebayes.yaml',
     script:
