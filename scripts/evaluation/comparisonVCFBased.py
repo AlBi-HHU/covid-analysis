@@ -125,7 +125,6 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 
 		#Loop over the entire genome
 		for pos in range(1, snakemake.config['ref_genome_length'] + 1):
-			pos = str(pos)
 			#Determine Nanopore and Illumina Coverage
 			nanoporeCoverage = getTotalCoverage(nanoporepileup[position]) if position in nanoporepileup else 0
 			illuminaCoverage = getTotalCoverage(illuminapileup[position]) if position in illuminapileup else 0
