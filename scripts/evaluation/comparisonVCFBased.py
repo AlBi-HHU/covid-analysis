@@ -209,13 +209,13 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 						if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
 							bool_heterozygousIllu = True
 							cnt_realHETINS += 1
-							illuminaValue = altval + '(HET)' #Add (HET) as marker for heterozygosity
+							illuminaValue += '(HET)' #Add (HET) as marker for heterozygosity
 					elif illuminaType == 'DEL':
 						illuminaValue = str(len(altval)-1) #Ignore first char as this is retained
 						if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
 							bool_heterozygousIllu = True
 							cnt_realHETDEL += 1
-							illuminaValue = altval + '(HET)'
+							illuminaValue += '(HET)'
 					elif illuminaType == 'SNV':
 						illuminaValue = altval
 						if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
