@@ -20,8 +20,14 @@ cnt_detectedSNP = 0  #
 cnt_realINS = 0  #
 cnt_detectedINS = 0  #
 
+cnt_realHETINS = 0
+cnt_detectedHETINS = 0
+
 cnt_realDEL = 0  #
 cnt_detectedDEL = 0  #
+
+cnt_realHETDEL = 0
+cnt_detectedHETDEL = 0
 
 cnt_concordance = 0  #
 cnt_falsePositives = 0
@@ -34,9 +40,20 @@ cnt_unscoredPositions = 0  #
 cnt_illuminaDropouts = 0  #
 cnt_nanoporeDropouts = 0  #
 
+cnt_illuminaDropouts_unscored = 0 #
+cnt_nanoporeDropouts_unscored = 0 #
+
+cnt_implicit_agreement = 0 #
+
+cnt_unfairComparisons = 0 #
+
+cnt_falseHomozygous = 0 #
+
+#TODO: Track structural SV, Track detected Heterozygosity based on Medaka / Nano Info
 
 #We keep track of tuples in addition to construct a pandas dataframe for easy transformation into altair plots
 dataTuples = []
+
 
 with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filter'],'w') as filterfile:
 
@@ -106,16 +123,10 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 		fields = ['pos','ref','ivar','nanopore-method']
 		outfile.write('\t'.join(fields)+'\n')
 
-		for position in relevantPositions:
+		#Loop over the entire genome
+		for pos in range(1, snakemake.config['ref_genome_length'] + 1):
 
 			#Track some properties for easier visualization of results later on
-
-
-			bool_falseNegative = False
-			bool_falsePositive = False
-			bool_heterozygousIllu = False
-			bool_heterozygousNano = False
-			bool_concordance = False
 
 
 			#Determine Nanopore and Illumina Coverage
@@ -124,6 +135,19 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 			#Decide whether the position counts or not
 			nanoporeDropout = nanoporeCoverage < snakemake.config['nanoporeCoverageCutoff']
 			illuminaDropout = illuminaCoverage < snakemake.config['illuminaCoverageCutoff']
+
+			# Check non-relevant positions
+			if not pos in relevantPositions:
+				cnt_illuminaDropouts_unscored += illuminaDropout
+				cnt_nanoporeDropouts_unscored += nanoporeDropout
+				cnt_implicit_agreement += (not illuminaDropout) and (not nanoporeDropout)
+				continue
+
+			bool_falseNegative = False
+			bool_falsePositive = False
+			bool_heterozygousIllu = False
+			bool_heterozygousNano = False
+			bool_concordance = False
 
 			#Dropouts
 			if illuminaDropout or nanoporeDropout:
@@ -143,13 +167,21 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 				if nanoporeType == 'INS':
 					nanoporeValue = recordsNanopore[position].ALT[0].value[2:] #Ignore first char as this is REF
 					cnt_detectedINS += 1
+					if snakemake.config['method']=='pancov' and 'HSV' in recordsNanopore[position].INFO:
+						bool_heterozygousNano = True
+						cnt_detectedHETINS += 1
+						nanoporeValue += '(HET)'
 				elif nanoporeType == 'DEL':
 					nanoporeValue = str(len(recordsNanopore[position].REF)-1) #Ignore first char as this is retained
 					cnt_detectedDEL += 1
+					if snakemake.config['method']=='pancov' and 'HSV' in recordsNanopore[position].INFO:
+						bool_heterozygousNano = True
+						cnt_detectedHETDEL += 1
+						nanoporeValue += '(HET)'
 				elif nanoporeType == 'SNV':
 					nanoporeValue = recordsNanopore[position].ALT[0].value
 					cnt_detectedSNP += 1
-					if isAmbiguous(nanoporeValue):
+					if snakemake.config['method']=='pancov' and isAmbiguous(nanoporeValue):
 						bool_heterozygousNano = True
 						cnt_detectedHETSNPs += 1
 
@@ -172,8 +204,16 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 					cnt_realSNP += 1
 				if illuminaType == 'INS':
 					illuminaValue = altval[2:] #Don't use the +
+					if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
+						bool_heterozygousIllu = True
+						cnt_realHETINS += 1
+						illuminaValue = altval + '(HET)' #Add (HET) as marker for heterozygosity
 				elif illuminaType == 'DEL':
 					illuminaValue = str(len(altval)-1) #Ignore first char as this is retained
+					if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
+						bool_heterozygousIllu = True
+						cnt_realHETDEL += 1
+						illuminaValue = altval + '(HET)'
 				elif illuminaType == 'SNV':
 					illuminaValue = altval
 					if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
@@ -193,6 +233,11 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 					if (position in recordsNanopore )and (not position in recordsIllumina):
 						bool_falsePositive = True
 						cnt_falsePositives += 1
+					if (bool_heterozygousIllu and not bool_heterozygousNano):
+						cnt_falseHomozygous += 1
+					if (bool_heterozygousIllu and snakemake.config['method'] != 'pancov'):
+						cnt_unfairComparisons += 1
+
 
 
 			#Write Text Output
@@ -245,6 +290,8 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 	outfile.write('FP:{} \n'.format(cnt_falsePositives))
 	outfile.write('FN:{} \n'.format(cnt_falseNegatives))
 	outfile.write('Discordance: {} of {} comparable positions \n'.format(cnt_discordance,cnt_comparablePositions))
+	outfile.write('Possible unfair comparisons for method != pancov (HET was not found or only as HOM): {} \n'.format(cnt_unfairComparisons))
+	outfile.write('Positions where a HOM variant was detected but iVar detected a HET: {} \n'.format(cnt_falseHomozygous))
 	outfile.write('Detected Variants: {} \n'.format(cnt_detectedVariants))
 	outfile.write('Unscored Positions: {} ({} Illumina and {} Nanopore Dropouts) \n'.format(cnt_unscoredPositions,cnt_illuminaDropouts,cnt_nanoporeDropouts))
 
@@ -252,9 +299,23 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 	precision = cnt_concordance / (cnt_concordance+cnt_falsePositives)
 	recall = cnt_concordance / (cnt_concordance+cnt_falseNegatives)
 	f1 = (2*cnt_concordance)/(2*cnt_concordance+cnt_falsePositives+cnt_falseNegatives)
-	outfile.write('Precision: {}\n'.format(precision))
-	outfile.write('Recall: {}\n'.format(recall))
-	outfile.write('F1: {}\n'.format(f1))
+	outfile.write('Precision (Concordance / (Concordance+FP)): {}\n'.format(precision))
+	outfile.write('Recall (Concordance / (Concordance+FN)): {}\n'.format(recall))
+	outfile.write('F1 ( (2*Concordance)/(2*Concordance+FP+FN)): {}\n'.format(f1))
+
+	#Additional TLS
+	accuracy = cnt_concordance / cnt_comparablePositions
+	outfile.write('Accuracy (Concordance/Comparable Positions): {}\n'.format(accuracy))
+	outfile.write('Additional Nanopore Dropouts without VCs in either method: {}\n'.format(cnt_nanoporeDropouts_unscored))
+	outfile.write('Additional Illumina Dropouts without VCs in either method: {}\n'.format(cnt_illuminaDropouts_unscored))
+	outfile.write('Implicit reference agreement (IA): {}\n'.format(cnt_implicit_agreement))
+
+	#Calculate top level stats in a variation
+	precision_var = (cnt_concordance+cnt_implicit_agreement) / (cnt_concordance+cnt_falsePositives+cnt_implicit_agreement)
+	outfile.write('Precision (Concordance+IA / (Concordance+FP+IA)): {}\n'.format(precision))
+	accuracy = (cnt_concordance+cnt_implicit_agreement) / (cnt_comparablePositions+cnt_implicit_agreement)
+	outfile.write('Accuracy ((Concordance+IA)/(Comparable Positions+IA)): {}\n'.format(accuracy))
+
 
 #Write Pandas Dataframe
 df = pd.DataFrame(dataTuples,columns=[

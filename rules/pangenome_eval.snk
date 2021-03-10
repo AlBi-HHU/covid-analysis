@@ -347,6 +347,8 @@ rule compareBasedOnVCF:
         text = 'data/output/evaluation/vcfbased/comparison_{method}.tsv',
         dataframe = 'data/output/evaluation/vcfbased/comparison_{method}.csv',
         filter = 'data/output/evaluation/vcfbased/filtered_{method}.txt'
+    params:
+        method = lambda wc : wc.method
     conda:
         '../envs/vcfpy.yaml'
     script:
