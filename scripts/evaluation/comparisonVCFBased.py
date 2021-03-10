@@ -167,21 +167,21 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 				if nanoporeType == 'INS':
 					nanoporeValue = recordsNanopore[position].ALT[0].value[2:] #Ignore first char as this is REF
 					cnt_detectedINS += 1
-					if snakemake.config['method']=='pancov' and 'HSV' in recordsNanopore[position].INFO:
+					if snakemake.params['method']=='pancov' and 'HSV' in recordsNanopore[position].INFO:
 						bool_heterozygousNano = True
 						cnt_detectedHETINS += 1
 						nanoporeValue += '(HET)'
 				elif nanoporeType == 'DEL':
 					nanoporeValue = str(len(recordsNanopore[position].REF)-1) #Ignore first char as this is retained
 					cnt_detectedDEL += 1
-					if snakemake.config['method']=='pancov' and 'HSV' in recordsNanopore[position].INFO:
+					if snakemake.params['method']=='pancov' and 'HSV' in recordsNanopore[position].INFO:
 						bool_heterozygousNano = True
 						cnt_detectedHETDEL += 1
 						nanoporeValue += '(HET)'
 				elif nanoporeType == 'SNV':
 					nanoporeValue = recordsNanopore[position].ALT[0].value
 					cnt_detectedSNP += 1
-					if snakemake.config['method']=='pancov' and isAmbiguous(nanoporeValue):
+					if snakemake.params['method']=='pancov' and isAmbiguous(nanoporeValue):
 						bool_heterozygousNano = True
 						cnt_detectedHETSNPs += 1
 
@@ -235,7 +235,7 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 						cnt_falsePositives += 1
 					if (bool_heterozygousIllu and not bool_heterozygousNano):
 						cnt_falseHomozygous += 1
-					if (bool_heterozygousIllu and snakemake.config['method'] != 'pancov'):
+					if (bool_heterozygousIllu and snakemake.params['method'] != 'pancov'):
 						cnt_unfairComparisons += 1
 
 
