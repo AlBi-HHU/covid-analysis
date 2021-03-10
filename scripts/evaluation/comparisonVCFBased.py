@@ -277,14 +277,22 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 	cnt_comparablePositions = cnt_relevantPositions-cnt_unscoredPositions
 
 	outfile.write('Real (iVar) Variants:{} \n'.format(cnt_realVariants))
+
 	outfile.write('Real (iVar) SNPs:{} \n'.format(cnt_realSNP))
 	outfile.write('Detected SNPs:{} \n'.format(cnt_detectedSNP))
 	outfile.write('Real (iVar) HET SNPs:{} \n'.format(cnt_realHETSNPs))
 	outfile.write('Detected HET SNPs:{} \n'.format(cnt_detectedHETSNPs))
+
 	outfile.write('Real (iVar) INS:{} \n'.format(cnt_realINS))
 	outfile.write('Detected INS:{} \n'.format(cnt_detectedINS))
+	outfile.write('Real (iVar) HET INS:{} \n'.format(cnt_realHETINS))
+	outfile.write('Detected HET INS:{} \n'.format(cnt_detectedHETINS))
+
 	outfile.write('Real (iVar) DEL:{} \n'.format(cnt_realDEL))
 	outfile.write('Detected DEL:{} \n'.format(cnt_detectedDEL))
+	outfile.write('Real (iVar) HET DEL:{} \n'.format(cnt_realHETDEL))
+	outfile.write('Detected HET DEL:{} \n'.format(cnt_detectedHETDEL))
+
 	outfile.write('Relevant Positions: {} (of which {} could not be evaluated)\n'.format(cnt_relevantPositions,cnt_unscoredPositions))
 	outfile.write('Concordance:{} of {} comparable positions \n'.format(cnt_concordance,cnt_comparablePositions))
 	outfile.write('FP:{} \n'.format(cnt_falsePositives))
