@@ -66,6 +66,8 @@ rule artic_vcf_filter:
         unpack(artic_filter_input)
     output:
         f"data/auxillary/pangenome/arti/{{run}}/{{barcode}}.{config['vcf_suffix']}"
+    conda:
+        '../envs/freebayes.yaml',
     script:
         "../scripts/pangenome/medaka_filter.py"
 
