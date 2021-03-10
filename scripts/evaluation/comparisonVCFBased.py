@@ -54,7 +54,7 @@ cnt_falseHomozygous = 0 #
 #We keep track of tuples in addition to construct a pandas dataframe for easy transformation into altair plots
 dataTuples = []
 
-
+#Keep Output files open
 with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filter'],'w') as filterfile:
 
 	#Read required input
@@ -92,11 +92,11 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 
 			record = ivarPseudoVCF[ivarPseudoVCF.POS == position]
 			altallele = record['ALT'].values[0]
-			#if we have a deletion or such we ignore it for the sb test
+			#if we have a deletion or an insertion we ignore it for the sb test
 			if altallele.startswith('-') or altallele.startswith('+'):
 				recordsIllumina[position] = record
 				relevantPositions.add(position)
-				continue
+				continue #with the next position
 
 			#otherwise we apply the strand bias filter test
 			components = ambiguityLetters_inverted[altallele] if altallele in ambiguityLetters_inverted else [altallele]
@@ -125,10 +125,7 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 
 		#Loop over the entire genome
 		for pos in range(1, snakemake.config['ref_genome_length'] + 1):
-
-			#Track some properties for easier visualization of results later on
-
-
+			pos = str(pos)
 			#Determine Nanopore and Illumina Coverage
 			nanoporeCoverage = getTotalCoverage(nanoporepileup[position]) if position in nanoporepileup else 0
 			illuminaCoverage = getTotalCoverage(illuminapileup[position]) if position in illuminapileup else 0
@@ -141,8 +138,12 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 				cnt_illuminaDropouts_unscored += illuminaDropout
 				cnt_nanoporeDropouts_unscored += nanoporeDropout
 				cnt_implicit_agreement += (not illuminaDropout) and (not nanoporeDropout)
-				continue
+				continue #with next position
 
+			#From here on: relevant position
+
+
+			#Track some properties for easier visualization of results later on
 			bool_falseNegative = False
 			bool_falsePositive = False
 			bool_heterozygousIllu = False
@@ -162,6 +163,7 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 
 			nanoporeType = 'Not Called'  # INS,DEL,SNP
 			nanoporeValue = ''  # Length of Del / Alt Allele / Insertion Seq
+
 			if position in recordsNanopore:
 				nanoporeType = recordsNanopore[position].ALT[0].type
 				if nanoporeType == 'INS':
