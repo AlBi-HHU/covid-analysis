@@ -133,111 +133,112 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 			illuminaDropout = illuminaCoverage < snakemake.config['illuminaCoverageCutoff']
 
 			# Check non-relevant positions
-			if not (pos in relevantPositions):
+			if pos not in relevantPositions:
 				cnt_illuminaDropouts_unscored += illuminaDropout
 				cnt_nanoporeDropouts_unscored += nanoporeDropout
 				cnt_implicit_agreement += (not illuminaDropout) and (not nanoporeDropout)
 				continue #with next position
-
-			#From here on: relevant position
-
-
-			#Track some properties for easier visualization of results later on
-			bool_falseNegative = False
-			bool_falsePositive = False
-			bool_heterozygousIllu = False
-			bool_heterozygousNano = False
-			bool_concordance = False
-
-			#Dropouts
-			if illuminaDropout or nanoporeDropout:
-				cnt_unscoredPositions += 1
-				if illuminaDropout:
-					cnt_illuminaDropouts += 1
-				if nanoporeDropout:
-					cnt_nanoporeDropouts += 1
+			else:
+				#From here on: relevant position
 
 
-			#Resolve Type and Value of Variant
+				#Track some properties for easier visualization of results later on
+				bool_falseNegative = False
+				bool_falsePositive = False
+				bool_heterozygousIllu = False
+				bool_heterozygousNano = False
+				bool_concordance = False
 
-			nanoporeType = 'Not Called'  # INS,DEL,SNP
-			nanoporeValue = ''  # Length of Del / Alt Allele / Insertion Seq
-
-			if position in recordsNanopore:
-				nanoporeType = recordsNanopore[position].ALT[0].type
-				if nanoporeType == 'INS':
-					nanoporeValue = recordsNanopore[position].ALT[0].value[2:] #Ignore first char as this is REF
-					cnt_detectedINS += 1
-					if snakemake.params['method']=='pancov' and 'HSV' in recordsNanopore[position].INFO:
-						bool_heterozygousNano = True
-						cnt_detectedHETINS += 1
-						nanoporeValue += '(HET)'
-				elif nanoporeType == 'DEL':
-					nanoporeValue = str(len(recordsNanopore[position].REF)-1) #Ignore first char as this is retained
-					cnt_detectedDEL += 1
-					if snakemake.params['method']=='pancov' and 'HSV' in recordsNanopore[position].INFO:
-						bool_heterozygousNano = True
-						cnt_detectedHETDEL += 1
-						nanoporeValue += '(HET)'
-				elif nanoporeType == 'SNV':
-					nanoporeValue = recordsNanopore[position].ALT[0].value
-					cnt_detectedSNP += 1
-					if snakemake.params['method']=='pancov' and isAmbiguous(nanoporeValue):
-						bool_heterozygousNano = True
-						cnt_detectedHETSNPs += 1
+				#Dropouts
+				if illuminaDropout or nanoporeDropout:
+					cnt_unscoredPositions += 1
+					if illuminaDropout:
+						cnt_illuminaDropouts += 1
+					if nanoporeDropout:
+						cnt_nanoporeDropouts += 1
 
 
-			illuminaType = 'Not Called' #INS,DEL,SNP
-			illuminaValue = '' #Length of Del / Alt Allele / Insertion Seq
+				#Resolve Type and Value of Variant
 
-			if position in recordsIllumina:
-				altval = recordsIllumina[position]['ALT'].values[0]
-				refval = recordsIllumina[position]['REF'].values[0]
-				altfreq = float(recordsIllumina[position]['ALT_FREQ'].values[0])
-				if altval.startswith('-'):
-					illuminaType = 'DEL'
-					cnt_realDEL += 1
-				elif altval.startswith('+'):
-					illuminaType = 'INS'
-					cnt_realINS += 1
-				else:
-					illuminaType = 'SNV'
-					cnt_realSNP += 1
-				if illuminaType == 'INS':
-					illuminaValue = altval[2:] #Don't use the +
-					if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
-						bool_heterozygousIllu = True
-						cnt_realHETINS += 1
-						illuminaValue = altval + '(HET)' #Add (HET) as marker for heterozygosity
-				elif illuminaType == 'DEL':
-					illuminaValue = str(len(altval)-1) #Ignore first char as this is retained
-					if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
-						bool_heterozygousIllu = True
-						cnt_realHETDEL += 1
-						illuminaValue = altval + '(HET)'
-				elif illuminaType == 'SNV':
-					illuminaValue = altval
-					if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
-						bool_heterozygousIllu = True
-						cnt_realHETSNPs += 1
-						illuminaValue = ambiguityLetters[frozenset((altval,refval))]
+				nanoporeType = 'Not Called'  # INS,DEL,SNP
+				nanoporeValue = ''  # Length of Del / Alt Allele / Insertion Seq
 
-			if not(illuminaDropout or nanoporeDropout):
-				if (illuminaType == nanoporeType) and (illuminaValue == nanoporeValue):
-					bool_concordance = True
-					cnt_concordance += 1
-				else:
-					cnt_discordance += 1
-					if (position in recordsIllumina )and (position not in recordsNanopore):
-						bool_falseNegative = True
-						cnt_falseNegatives += 1
-					if (position in recordsNanopore )and (position not in recordsIllumina):
-						bool_falsePositive = True
-						cnt_falsePositives += 1
-					if (bool_heterozygousIllu and not bool_heterozygousNano):
-						cnt_falseHomozygous += 1
-					if (bool_heterozygousIllu and snakemake.params['method'] != 'pancov'):
-						cnt_unfairComparisons += 1
+				if position in recordsNanopore:
+					nanoporeType = recordsNanopore[position].ALT[0].type
+					if nanoporeType == 'INS':
+						nanoporeValue = recordsNanopore[position].ALT[0].value[2:] #Ignore first char as this is REF
+						cnt_detectedINS += 1
+						if snakemake.params['method']=='pancov' and 'HSV' in recordsNanopore[position].INFO:
+							bool_heterozygousNano = True
+							cnt_detectedHETINS += 1
+							nanoporeValue += '(HET)'
+					elif nanoporeType == 'DEL':
+						nanoporeValue = str(len(recordsNanopore[position].REF)-1) #Ignore first char as this is retained
+						cnt_detectedDEL += 1
+						if snakemake.params['method']=='pancov' and 'HSV' in recordsNanopore[position].INFO:
+							bool_heterozygousNano = True
+							cnt_detectedHETDEL += 1
+							nanoporeValue += '(HET)'
+					elif nanoporeType == 'SNV':
+						nanoporeValue = recordsNanopore[position].ALT[0].value
+						cnt_detectedSNP += 1
+						if snakemake.params['method']=='pancov' and isAmbiguous(nanoporeValue):
+							bool_heterozygousNano = True
+							cnt_detectedHETSNPs += 1
+
+
+				illuminaType = 'Not Called' #INS,DEL,SNP
+				illuminaValue = '' #Length of Del / Alt Allele / Insertion Seq
+
+				if position in recordsIllumina:
+					altval = recordsIllumina[position]['ALT'].values[0]
+					refval = recordsIllumina[position]['REF'].values[0]
+					altfreq = float(recordsIllumina[position]['ALT_FREQ'].values[0])
+					if altval.startswith('-'):
+						illuminaType = 'DEL'
+						cnt_realDEL += 1
+					elif altval.startswith('+'):
+						illuminaType = 'INS'
+						cnt_realINS += 1
+					else:
+						illuminaType = 'SNV'
+						cnt_realSNP += 1
+
+					if illuminaType == 'INS':
+						illuminaValue = altval[2:] #Don't use the +
+						if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
+							bool_heterozygousIllu = True
+							cnt_realHETINS += 1
+							illuminaValue = altval + '(HET)' #Add (HET) as marker for heterozygosity
+					elif illuminaType == 'DEL':
+						illuminaValue = str(len(altval)-1) #Ignore first char as this is retained
+						if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
+							bool_heterozygousIllu = True
+							cnt_realHETDEL += 1
+							illuminaValue = altval + '(HET)'
+					elif illuminaType == 'SNV':
+						illuminaValue = altval
+						if snakemake.config['thresholdHomCall'] <= altfreq <= (1-snakemake.config['thresholdHomCall']):
+							bool_heterozygousIllu = True
+							cnt_realHETSNPs += 1
+							illuminaValue = ambiguityLetters[frozenset((altval,refval))]
+
+				if not(illuminaDropout or nanoporeDropout):
+					if (illuminaType == nanoporeType) and (illuminaValue == nanoporeValue):
+						bool_concordance = True
+						cnt_concordance += 1
+					else:
+						cnt_discordance += 1
+						if (position in recordsIllumina )and (position not in recordsNanopore):
+							bool_falseNegative = True
+							cnt_falseNegatives += 1
+						if (position in recordsNanopore )and (position not in recordsIllumina):
+							bool_falsePositive = True
+							cnt_falsePositives += 1
+						if (bool_heterozygousIllu and not bool_heterozygousNano):
+							cnt_falseHomozygous += 1
+						if (bool_heterozygousIllu and snakemake.params['method'] != 'pancov'):
+							cnt_unfairComparisons += 1
 
 
 
