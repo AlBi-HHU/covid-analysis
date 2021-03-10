@@ -54,10 +54,10 @@ for run in runs:
             if os.path.isfile(os.path.join('data/input/gisaidseqs',gisaidpath)):
                 continue
             else:
-                print('No sequence for gisaid id: {} (run: {} bc: {})'.format(gisaidpath,run,barcode))
+                #print('No sequence for gisaid id: {} (run: {} bc: {})'.format(gisaidpath,run,barcode))
                 del gisaidMapping[run][barcode]
         else:
-            print('No mapping for run: {} bc: {}'.format(run,barcode))
+            #print('No mapping for run: {} bc: {}'.format(run,barcode))
 
 
 illuminaMapping = {}
