@@ -124,7 +124,7 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 		outfile.write('\t'.join(fields)+'\n')
 
 		#Loop over the entire genome
-		for pos in range(1, snakemake.config['ref_genome_length'] + 1):
+		for position in range(1, snakemake.config['ref_genome_length'] + 1):
 			#Determine Nanopore and Illumina Coverage
 			nanoporeCoverage = getTotalCoverage(nanoporepileup[position]) if position in nanoporepileup else 0
 			illuminaCoverage = getTotalCoverage(illuminapileup[position]) if position in illuminapileup else 0
@@ -133,7 +133,7 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 			illuminaDropout = illuminaCoverage < snakemake.config['illuminaCoverageCutoff']
 
 			# Check non-relevant positions
-			if pos not in relevantPositions:
+			if position not in relevantPositions:
 				cnt_illuminaDropouts_unscored += illuminaDropout
 				cnt_nanoporeDropouts_unscored += nanoporeDropout
 				cnt_implicit_agreement += (not illuminaDropout) and (not nanoporeDropout)
