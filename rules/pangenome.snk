@@ -59,7 +59,7 @@ rule concatenate_vcf:
     log:
         'logs/pangenome_concatenate_vcf.log'
     script:
-        '../scripts/pangenome/concate_vcf.py'
+        '../scripts/pangenome/concatenate_vcf.py'
 
 
 rule artic_vcf_filter:
