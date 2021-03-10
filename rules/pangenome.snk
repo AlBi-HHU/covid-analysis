@@ -21,8 +21,7 @@ def getAllPangenomeGraphVCFs():
                 all_vcfs.append(vcf)
 
             vcf = f"data/auxillary/pangenome/arti/{run}/{barcode}.{config['vcf_suffix']}"
-            if os.path.isfile(vcf):
-                all_vcfs.append(vcf)
+            all_vcfs.append(vcf)
 
 
     #Add additional vcf files
