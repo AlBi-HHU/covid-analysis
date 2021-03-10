@@ -58,7 +58,7 @@ for run in runs:
                 del gisaidMapping[run][barcode]
         else:
             #print('No mapping for run: {} bc: {}'.format(run,barcode))
-
+            pass
 
 illuminaMapping = {}
 for run in runs:
