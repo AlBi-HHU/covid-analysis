@@ -16,10 +16,13 @@ def getAllPangenomeGraphVCFs():
     #We add all ARTIC pipeline VCFs as "known variants" to our pangenome graph in any case
     for run in runs:
         for barcode in barcodes[run]:
-            for method in allMethods:
-                vcf = 'data/input/'+run+'/barcode'+barcode+'.'+method+'.'+config['vcf_suffix']
-                if os.path.isfile(vcf):
-                    all_vcfs.append(vcf)
+            vcf = 'data/input/'+run+'/barcode'+barcode+'.nanopolish.'+config['vcf_suffix']
+            if os.path.isfile(vcf):
+                all_vcfs.append(vcf)
+
+            vcf = f"data/auxillary/pangenome/arti/{run}/{barcode}.{config['vcf_suffix']}"
+            if os.path.isfile(vcf):
+                all_vcfs.append(vcf)
 
 
     #Add additional vcf files
@@ -28,8 +31,22 @@ def getAllPangenomeGraphVCFs():
     return all_vcfs
 
 
-#### Snakemake Rules
+def artic_filter_input(wcd):
+    run = wcd["run"]
+    barcode = wcd["barcode"]
+    
+    out = dict()
+    vcf = f"data/input/{run}/barcode{barcode}.medaka.{config['vcf_suffix']}"
+    out["medaka"] = vcf
 
+    vcf = f"data/input/{run}/barcode{barcode}.nanopolish.{config['vcf_suffix']}"
+    if os.path.isfile(vcf):
+        out["nanopolish"] = vcf
+
+    return out
+
+
+#### Snakemake Rules
 rule concatenate_vcf:
     input:
         vcfs = getAllPangenomeGraphVCFs()
@@ -44,6 +61,16 @@ rule concatenate_vcf:
     script:
         '../scripts/pangenome/concate_vcf.py'
 
+
+rule artic_vcf_filter:
+    input:
+        unpack(artic_filter_input)
+    output:
+        f"data/auxillary/pangenome/arti/{{run}}/{{barcode}}.{config['vcf_suffix']}"
+    script:
+        "../scripts/pangenome/medaka_filter.py"
+
+        
 rule hackfix:
     input:
         "data/auxiliary/pangenome/merge.vcf"
@@ -51,6 +78,7 @@ rule hackfix:
         "data/auxiliary/pangenome/merge_fixed.vcf"
     shell:
         "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
+
 
 rule sortVCF:
     input:
@@ -62,6 +90,7 @@ rule sortVCF:
     shell:
         'vt sort {input.file} -o {output}'
 
+
 rule decompose1:
     input:
         "data/auxiliary/pangenome/merge_sorted.vcf"
@@ -71,6 +100,7 @@ rule decompose1:
         '../envs/vt.yaml'
     shell:
         'vt decompose {input} -o {output}'
+
 
 rule decompose2:
     input:
@@ -82,6 +112,7 @@ rule decompose2:
     shell:
         'vt decompose_blocksub -a {input} -o {output}'
 
+
 rule dropDuplicates:
     input:
         "data/auxiliary/pangenome/merge_dc2.vcf"
@@ -91,6 +122,7 @@ rule dropDuplicates:
         '../envs/vt.yaml'
     shell:
         'vt uniq {input} -o {output}'
+
 
 rule bgzip:
     input:
@@ -103,6 +135,7 @@ rule bgzip:
     shell:
         "bgzip {input}"
 
+
 rule indexVcf:
     input:
         "data/auxiliary/pangenome/merge_unique.vcf.gz"
@@ -114,6 +147,7 @@ rule indexVcf:
     shell:
         "tabix -f -p vcf {input}"
        
+
 rule pangenome:
     input:
         vcf = "data/auxiliary/pangenome/merge_unique.vcf.gz",
@@ -134,6 +168,7 @@ rule pangenome:
     shell:
         "vg construct -t {threads} -S -i -r {input.reference} -v {input.vcf} | vg view -g - > {output}"
 
+
 rule unchop:
     input:
         "data/auxiliary/pangenome/pangenome_messy.gfa",
@@ -143,6 +178,7 @@ rule unchop:
         "../envs/vg.yaml"
     shell:
         "vg view -Fv {input} | vg mod -u - | vg view - > {output}"
+
 
 rule found_bubble:
     input:

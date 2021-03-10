@@ -29,7 +29,6 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
     node2seq = get_node2seq(pangenome_path)
     graph = gfa2networkx(pangenome_path)
 
-    
     # Get node coverage
     node2base = Counter()
     edge2cov = Counter()
