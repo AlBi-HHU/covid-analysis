@@ -42,9 +42,9 @@ def main(out_path, vcfs):
                 )
                 #If we see this the first time we save it and initialize the source list
                 if h not in variants:
-                    variant_sources[h] = []
+                    variant_sources[h] = set()
                     variants[h] = record
-                variant_sources[h].append(get_origin(vcf))
+                variant_sources[h].add(get_origin(vcf))
         except:
             raise Exception("Error parsing vcf: {}: {}".format(vcf, sys.exc_info()[0]))
 
@@ -52,7 +52,7 @@ def main(out_path, vcfs):
     for variant in variants:
         record = variants[variant]
         ## vcfpy black magic I didn't understand what I do but it's work don't touch it  // :)
-        record.INFO = {"ORI": ''.join(variant_sources[variant])}
+        record.INFO = {"ORI": '/'.join(list(variant_sources[variant]))}
         record.FORMAT = dict()
 
         record.calls = [
