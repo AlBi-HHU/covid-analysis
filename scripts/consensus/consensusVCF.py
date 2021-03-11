@@ -45,10 +45,24 @@ for record in reader:
 
     rcov = float(record.INFO["RCOV"])
     vcov = float(record.INFO["VCOV"])
+    vcov_forward = float(record.INFO["VCOVF"])
+    vcov_reverse = float(record.INFO["VCOVR"])
     tcov = rcov + vcov
 
-    if tcov < th_cov:
+    if vcov < th_cov:
         continue
+    elif vcov < th_sb_cov: #use pVal
+        pval = binom.pmf(vcov_forward, vcov,0.5)
+        if pval > th_sb_pval:
+            pass
+        else:
+            continue # discard the record
+    else: #ratio test
+        ratio = min(vcov_forward, vcov_reverse) / tcov
+        if ratio > th_sbiais:
+            pass
+        else:
+            continue # discard the record
 
     if vcov <= 0 or rcov + vcov <= 0:
         continue
