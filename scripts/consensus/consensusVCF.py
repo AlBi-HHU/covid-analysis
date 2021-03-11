@@ -44,44 +44,20 @@ for record in reader:
     logging.debug('Corresponding pileup record: {}'.format(pileup[pos]))
 
 
-    #Check for SBIAS
-    upperAlt = alt.replace('-','(')
-    lowerAlt = alt.lower().replace('-',')')
-    if (not lowerAlt in pileup[pos]) and (not upperAlt in pileup[pos]):
-        logging.debug('Can\'t find the alt allele in the pileup for either plus/minus strand: {} / {}'.format(lowerAlt,upperAlt))
-        #sys.exit(-1)
-    else:
-        upperCount = pileup[pos][upperAlt] if upperAlt in pileup[pos] else 0
-        lowerCount = pileup[pos][lowerAlt] if lowerAlt in pileup[pos] else 0
-        totalCount = upperCount + lowerCount
+    rcov = float(record.INFO["RCOV"])
+    vcov = float(record.INFO["VCOV"])
+    tcov = rcov + vcov
 
-        logging.debug('Calculated a total ALT count on both strands of: {}, comparing to threshold: {}'.format(totalCount,th_cov))
+    if vcov < th_cov:
+        continue
 
-        if totalCount < th_cov:
-            continue # discard the record
-        elif totalCount < th_sb_cov: #use pVal
-            pval = binom.pmf(upperCount,totalCount,0.5)
-            if pval > th_sb_pval:
-                pass
-            else:
-                continue # discard the record
-        else: #ratio test
-            ratio = min(lowerCount, upperCount) / totalCount
-            if ratio > th_sbiais:
-                pass
-            else:
-                continue # discard the record
-        #Substitute heterozygosity characters on demand and write the records
-        upperCount_ref = pileup[pos][ref] if ref in pileup[pos] else 0
-        lowerCount_ref = pileup[pos][ref.lower()] if ref.lower() in pileup[pos] else 0
-        totalCount_ref = upperCount_ref + lowerCount_ref
-        varRatio = totalCount/(totalCount_ref+totalCount)
+    varRatio = vcov / rcov + vcov
 
-        if th_het <= varRatio <= 1-th_het:
-            #SNPs get the ambiguous base chars
-            if len(alt) == 1 and len(ref) == 1:
-                record.ALT[0].value = ambiguityLetters[frozenset({record.ALT[0].value,record.REF})]
-            else:
-                record.INFO['HSV'] = True
+    if th_het <= varRatio <= 1-th_het:
+        #SNPs get the ambiguous base chars
+        if len(alt) == 1 and len(ref) == 1:
+            record.ALT[0].value = ambiguityLetters[frozenset({record.ALT[0].value,record.REF})]
+        else:
+            record.INFO['HSV'] = True
 
-        writer.write_record(record)
+    writer.write_record(record)
