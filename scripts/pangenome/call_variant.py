@@ -30,15 +30,17 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
     graph = gfa2networkx(pangenome_path)
 
     # Get node coverage
-    node2base = Counter()
+    node2base = defaultdict(lambda: Counter())
     edge2cov = Counter()
     paths = defaultdict(list)
 
     parse_gaf(reads_mapping, paths, node2base, edge2cov, node2seq)
 
-    node2cov = defaultdict(int)
+    node2cov = defaultdict(lambda: Counter())
     for (node, base) in node2base.items():
-        node2cov[node] = base / len(node2seq[node])
+        node2cov[node][True] = base[True] / len(node2seq[node])
+        node2cov[node][False] = base[False] / len(node2seq[node])
+        node2cov[node]["all"] = (base[True] + base[False]) / len(node2seq[node])
 
     # Read bubble
     simple_bubble = set()
@@ -78,7 +80,7 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
             continue
 
         # Compute coverage around bubble
-        ends_cov = min((node2cov[node] for node in bubble["ends"]))
+        ends_cov = min((node2cov[node]["all"] for node in bubble["ends"]))
 
         # If bubble have ref node with low coverage it's a variant bubble
         if ends_cov < min_ends_cov:
@@ -90,7 +92,7 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
         not_cov_nodes = set()
         not_cov_edges = set()
         for (node, data) in subgraph.nodes.items():
-            if node2cov[node] < ends_cov * min_cov_factor:
+            if node2cov[node]["all"] < ends_cov * min_cov_factor:
                 not_cov_nodes.add(node)
 
         # Annotate edge
@@ -107,7 +109,7 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
         else:
             ref_path = sorted(ref_path, key=lambda x: len(x), reverse=True)[0]
         ref_seq = "".join(node2seq[node] for node in ref_path)
-        ref_cov = path_coverage(ref_path, edge2cov, node2cov)
+        (ref_cov, ref_covf, ref_covr) = path_coverage(ref_path, edge2cov, node2cov)
 
         # Clean not covered node and edge
         subgraph.remove_nodes_from(not_cov_nodes)
@@ -129,10 +131,10 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
                 prev = node
 
         for var_path in var_paths:
-            var_cov = path_coverage(var_path, edge2cov, node2cov)
+            (var_cov, var_covf, var_covr) = path_coverage(var_path, edge2cov, node2cov)
             var_seq = "".join(node2seq[node] for node in var_path)
 
-            variants.append((ref_seq, var_seq, node2pos[ref_path[0]], ref_cov, var_cov, b_id))
+            variants.append((ref_seq, var_seq, node2pos[ref_path[0]], ref_cov, ref_covf, ref_covr,  var_cov, var_covf, var_covr, b_id))
 
     # set data required by vcf format
     ref_name = "MN908947.3"
@@ -142,22 +144,25 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
     with open(output_path, "w") as fh:
         vcf_header(fh, ref_name, ref_length)
 
-        for (r_seq, v_seq, pos, ref_cov, var_cov, bubble_id) in variants:
+        for (r_seq, v_seq, pos, ref_cov, ref_covf, ref_covr,  var_cov, var_covf, var_covr, bubble_id) in variants:
             rvt = var_cov / (ref_cov + var_cov)
             if rvt >= rvt_threshold:
-                print("{}\t{}\t.\t{}\t{}\t.\t.\tRCOV={:.4f};VCOV={:.4f};BUBBLEID={}".format(ref_name, pos + 1, r_seq, v_seq, ref_cov, var_cov, bubble_id), file=fh)
+                print("{}\t{}\t.\t{}\t{}\t.\t.\tRCOV={:.4f};RCOVF={:.4f};RCOVR={:.4f};VCOV={:.4f};VCOVF={:.4f};VCOVR={:.4f};BUBBLEID={}".format(ref_name, pos + 1, r_seq, v_seq, ref_cov, ref_covf, ref_covr, var_cov, var_covf, var_covr, bubble_id), file=fh)
 
 
 def path_coverage(path, edge2cov, node2cov):
     if len(path) < 2:
-        return 0
+        return (0, 0, 0)
     elif len(path) == 2:
         if frozenset(path) in edge2cov:
-            return edge2cov[frozenset(path)]
+            return (edge2cov[frozenset(path)], edge2cov[frozenset(path)], edge2cov[frozenset(path)])
         else:
-            return 0
+            return (0, 0, 0)
 
-    return sum(node2cov[node] for node in path[1:-1]) / len(path)  # Don't take ends whne compute var_cov 
+    # Don't take ends whne compute var_cov 
+    return (sum(node2cov[node]["all"] for node in path[1:-1]) / len(path),
+            sum(node2cov[node][True] for node in path[1:-1]) / len(path),
+            sum(node2cov[node][False] for node in path[1:-1]) / len(path))
 
 
 def get_paths(graph, ends):
@@ -171,7 +176,11 @@ def get_paths(graph, ends):
 def vcf_header(fh, ref_name, length):
     print("##fileformat=VCFv4.2", file=fh)
     print("##INFO=<ID=RCOV,Number=1,Type=Float,Description=\"Coverage of reference path\">", file=fh)
+    print("##INFO=<ID=RCOVF,Number=1,Type=Float,Description=\"Coverage of reference path forward strand\">", file=fh)
+    print("##INFO=<ID=RCOVR,Number=1,Type=Float,Description=\"Coverage of reference path reverse strand \">", file=fh)
     print("##INFO=<ID=VCOV,Number=1,Type=Float,Description=\"Coverage of variant path\">", file=fh)
+    print("##INFO=<ID=VCOVF,Number=1,Type=Float,Description=\"Coverage of variant path forward strand\">", file=fh)
+    print("##INFO=<ID=VCOVR,Number=1,Type=Float,Description=\"Coverage of variant path reverse strand\">", file=fh)
     print("##INFO=<ID=BUBBLEID,Number=1,Type=Integer,Description=\"Id of bubble in pangenome\">", file=fh)
     print("##contig=<ID={},length={}>".format(ref_name, length), file=fh)
     print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT", file=fh)

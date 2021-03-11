@@ -93,16 +93,17 @@ def parse_gaf(path, storage, node2base=None, edge2cov=None, node2seq=None):
             if node2base is not None:
                 first = True
                 for node in nodes:
+                    forward = node[0] == ">"
                     node_len = len(node2seq[node[1:]])
                     if first:
                         first = False
-                        node2base[node[1:]] += node_len - begin_path
+                        node2base[node[1:]][forward] += node_len - begin_path
                         remain_base -= node_len
                     elif remain_base > node_len:
-                        node2base[node[1:]] += node_len
+                        node2base[node[1:]][forward] += node_len
                         remain_base -= node_len
                     else:
-                        node2base[node[1:]] += remain_base
+                        node2base[node[1:]][forward] += remain_base
                         break
 
             if edge2cov is not None:
