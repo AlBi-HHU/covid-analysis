@@ -69,7 +69,7 @@ def main(out_path, vcfs):
 def get_origin(path):
     if "freebayes" in path:
         return "Freebayes"
-    elif "medaka" in path:
+    elif "arti" in path: #Medaka is filtered one more
         return "Medaka"
     elif "nanopolish" in path:
         return "Nanopolish"
