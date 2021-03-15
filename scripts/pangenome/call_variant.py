@@ -160,7 +160,7 @@ def path_coverage(path, edge2cov, node2cov,node2seq):
         else:
             return (0, 0, 0)
 
-    path_len = sum(len(node2seq(x)) for x in path[1:-1])
+    path_len = sum(len(node2seq[x]) for x in path[1:-1])
 
     # Don't take ends whne compute var_cov 
     return (sum(node2cov[node]["all"] for node in path[1:-1]) / path_len,
