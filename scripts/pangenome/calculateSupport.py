@@ -142,13 +142,13 @@ def main(alignment,pangenome,output):
 
             #Update global table
             for node in matchesPerNode:
-                if not node in realSupportPerNode:
+                if node not in realSupportPerNode:
                     realSupportPerNode[node] = (0,0)
                 oldSupportNumber = realSupportPerNode[node][0]
                 oldMatchNumber = realSupportPerNode[node][1]
                 realSupportPerNode[node] = (
-                    oldSupportNumber +1,
-                    oldMatchNumber +matchesPerNode[node]
+                    oldSupportNumber + (matchesPerNode[node] > 0),
+                    oldMatchNumber + matchesPerNode[node]
                 )
 
 
