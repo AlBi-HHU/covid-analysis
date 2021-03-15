@@ -34,7 +34,7 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
             variant.INFO["MULTIPLE"] = True
 
         #Check for Real Support
-        nodeIDs = variant.INFO["VARPATH"]
+        nodeIDs = eval(variant.INFO["VARPATH"])
         supportVals = []
         for nodeID in nodeIDs:
             supportFraction = (nodeSupport[nodeID] / coverage)
