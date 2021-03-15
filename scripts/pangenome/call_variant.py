@@ -131,7 +131,7 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
                 prev = node
 
         for var_path in var_paths:
-            (var_cov, var_covf, var_covr) = path_coverage(var_path, edge2cov, node2cov)
+            (var_cov, var_covf, var_covr) = path_coverage(var_path, edge2cov, node2cov,node2seq)
 
             var_seq = "".join(node2seq[node] for node in var_path)
 
