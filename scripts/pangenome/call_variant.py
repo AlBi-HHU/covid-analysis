@@ -183,6 +183,7 @@ def vcf_header(fh, ref_name, length):
     print("##INFO=<ID=VCOVF,Number=1,Type=Float,Description=\"Coverage of variant path forward strand\">", file=fh)
     print("##INFO=<ID=VCOVR,Number=1,Type=Float,Description=\"Coverage of variant path reverse strand\">", file=fh)
     print("##INFO=<ID=BUBBLEID,Number=1,Type=Integer,Description=\"Id of bubble in pangenome\">", file=fh)
+    print("##INFO=<ID=VARPATH,Number=1,Type=String,Description=\"Ids of nodes that make up the var path\">", file=fh)
     print("##contig=<ID={},length={}>".format(ref_name, length), file=fh)
     print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT", file=fh)
 
