@@ -73,10 +73,19 @@ rule decomposeBlockSubs:
         '../envs/vt.yaml'
     shell:
         'vt decompose_blocksub -a {input} -o {output}'
-        
-rule filter_same_pos_variant:
+
+rule calculateRealNodeCoverages:
     input:
-        "data/auxiliary/pangenome_vc/{run}/{barcode}/decomposed.vcf"
+        alignment = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
+        pangenome = "data/auxiliary/pangenome/pangenome.gfa",
+    output:
+        'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.tsv'
+    script:
+        '../scripts/pangenome/calculateSupport.py'
+
+rule cleanVariants:
+    input:
+        vcf = "data/auxiliary/pangenome_vc/{run}/{barcode}/decomposed.vcf",
     output:
         "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
     params:

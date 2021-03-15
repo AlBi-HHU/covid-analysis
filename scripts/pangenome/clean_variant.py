@@ -1,8 +1,13 @@
 import vcfpy
 
+##We do two things here: We remove duplicates and also check if the alignments actually support the variants on a nucleotide basis
+
 from collections import defaultdict
 
 def main(in_vcf, min_cov, out_vcf):
+
+
+
     reader = vcfpy.Reader.from_path(in_vcf)
 
     header = reader.header
@@ -30,8 +35,8 @@ def main(in_vcf, min_cov, out_vcf):
 
 
 if "snakemake" in locals():
-    main(snakemake.input[0], snakemake.params["min_cov"], snakemake.output[0])
+    main(snakemake.input['vcf'],snakemake.input['alignment'], snakemake.input['pangenome'],snakemake.params["min_cov"], snakemake.output[0])
 else:
     import sys
     
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    main(sys.argv[1], sys.argv[2], sys.argv[3],sys.argv[4],sys.arg[5])
