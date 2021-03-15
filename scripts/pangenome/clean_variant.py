@@ -18,7 +18,7 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
         coverage = record.INFO["VCOV"] + record.INFO["RCOV"]
         pos2var[(record.POS, tuple(record.REF), tuple(record.ALT))].append((coverage, record, record.INFO["VCOV"]))
 
-    header.add_filter_line(vcfpy.OrderedDict([('ID', 'LRS'), ('Description', 'Real support below  {} percent'.format(snakemake.config['pagenomeCutoffRealSupport']))]))
+    header.add_filter_line(vcfpy.OrderedDict([('ID', 'LRS'), ('Description', 'Real support below {} percent'.format(snakemake.config['pagenomeCutoffRealSupport']))]))
     header.add_info_line({"ID": "MULTIPLE", "Type": "Flag", "Number": "1", "Description": "Pangenome found multiple variant at this position"})
     header.add_info_line({"ID": "REALSUPPORT", "Type": "String", "Number": "1", "Description": "Reads that have at least one Match on the Node they support"})
     writer = vcfpy.Writer.from_path(out_vcf, reader.header)

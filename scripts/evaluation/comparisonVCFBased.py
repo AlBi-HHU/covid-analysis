@@ -73,7 +73,7 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 		ivarPseudoVCF = pd.read_csv(ivarPseudoVCF, sep='\t')
 		#ivarPseudoVCF = ivarPseudoVCF[ivarPseudoVCF.PASS != False]  # Filter passed vars only
 
-		pancovVCF = vcfpy.Reader.from_path(next(data))
+		pancovVCF = vcfpy.Reader.from_path(next(data),record_checks=['INFO','FORMAT'])
 
 		illuminapileup = parsePileupStrandAwareLight(next(data))
 		nanoporepileup = parsePileupStrandAwareLight(next(data))
