@@ -37,7 +37,7 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
         nodeIDs = eval(variant.INFO["VARPATH"])
         supportVals = []
         for nodeID in nodeIDs:
-            supportFraction = (nodeSupport[nodeID] / coverage)
+            supportFraction = (nodeSupport[nodeID][0] / coverage)
             supportVals.append(supportFraction)
             if  supportFraction < snakemake.config['pagenomeCutoffRealSupport']:
                 variant.PASS = False
