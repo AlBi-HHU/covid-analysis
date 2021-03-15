@@ -42,7 +42,7 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
             if  supportFraction < snakemake.config['pagenomeCutoffRealSupport']:
                 variant.PASS = False
 
-        record.INFO["REALSUPPORT"] = '/'.join(str(x) for x in supportVals)
+        variant.INFO["REALSUPPORT"] = '/'.join(str(x) for x in supportVals)
 
         if coverage > min_cov:
             writer.write_record(variant)
