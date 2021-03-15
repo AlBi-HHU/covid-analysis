@@ -43,10 +43,10 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
         for nodeID in nodeIDs:
             supportFraction = (nodeSupport[nodeID][0] / vcov)
             supportVals.append(supportFraction)
-            if  supportFraction < snakemake.config['pagenomeCutoffRealSupport']:
+            if supportFraction < snakemake.config['pagenomeCutoffRealSupport']:
                 variant.add_filter('LRS')
 
-        variant.INFO["REALSUPPORT"] = '/'.join(str(x) for x in supportVals)
+        variant.INFO["REALSUPPORT"] = 'undetermined' if len(nodeIDs) == 0 else  '/'.join(str(x) for x in supportVals)
 
         if coverage > min_cov:
             writer.write_record(variant)
