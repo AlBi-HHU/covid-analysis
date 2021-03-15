@@ -144,9 +144,11 @@ def main(alignment,pangenome,output):
             for node in matchesPerNode:
                 if not node in realSupportPerNode:
                     realSupportPerNode[node] = (0,0)
+                oldSupportNumber = realSupportPerNode[node][0]
+                oldMatchNumber = realSupportPerNode[node][1]
                 realSupportPerNode[node] = (
-                    realSupportPerNode[node][0] +1,
-                    realSupportPerNode[node][1] +matchesPerNode[node]
+                    oldSupportNumber +1,
+                    oldMatchNumber +matchesPerNode[node]
                 )
 
 
