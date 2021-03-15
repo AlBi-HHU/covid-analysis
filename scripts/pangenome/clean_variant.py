@@ -7,6 +7,8 @@ from collections import defaultdict
 
 def main(in_vcf, supportFile, min_cov, out_vcf):
 
+    nodeSupport = json.load(open(supportFile,'r'))
+
     reader = vcfpy.Reader.from_path(in_vcf)
 
     header = reader.header
@@ -17,7 +19,7 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
         pos2var[(record.POS, tuple(record.REF), tuple(record.ALT))].append((coverage, record))
 
     header.add_info_line({"ID": "MULTIPLE", "Type": "Flag", "Number": "1", "Description": "Pangenome found multiple variant at this position"})
-    header.add_info_line({"ID": "REAL SUPPORT", "Type": "Integer", "Number": "1", "Description": "Reads that have at least one Match on the Node they support"})
+    header.add_info_line({"ID": "REALSUPPORT", "Type": "String", "Number": "1", "Description": "Reads that have at least one Match on the Node they support"})
     writer = vcfpy.Writer.from_path(out_vcf, reader.header)
 
     for key, values in pos2var.items():
@@ -33,8 +35,14 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
             variant.INFO["MULTIPLE"] = True
 
         #Check for Real Support
-        nodeID =
-
+        nodeIDs = variant.INFO["VARPATH"]
+        supportVals = []
+        for nodeID in nodeIDs:
+            supportFraction = (nodeSupport[nodeID] / coverage)
+            supportVals.append(supportFraction)
+            if  supportFraction < snakemake.config['pagenomeCutoffRealSupport']:
+                variant.PASS = False
+        record.INFO["REALSUPPORT"] = '/'.join(supportVals)
         if coverage > min_cov:
             writer.write_record(variant)
 
