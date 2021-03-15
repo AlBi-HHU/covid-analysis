@@ -90,8 +90,6 @@ rule cleanVariants:
         vcf = "data/auxiliary/pangenome_vc/{run}/{barcode}/decomposed.vcf",
     output:
         "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
-    params:
-        min_cov = config["pangenomeVarMinCov"]
     conda:
         '../envs/freebayes.yaml',
     script:

@@ -47,6 +47,7 @@ pangenomeRVTThreshold: 0.1
 pangenomeMinCovFactor: 0.5
 pangenomeMinEndsCovBubble: 10
 pangenomeVarMinCov: 15
+pagenomeCutoffRealSupport: 0.95 #At least 95% of support for a node needs to contain matches
 
 # Illumina variant calling
 illuminaAlleleFreqCutoff: 0.05

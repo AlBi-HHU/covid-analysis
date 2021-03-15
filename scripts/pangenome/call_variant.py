@@ -132,9 +132,10 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
 
         for var_path in var_paths:
             (var_cov, var_covf, var_covr) = path_coverage(var_path, edge2cov, node2cov)
+
             var_seq = "".join(node2seq[node] for node in var_path)
 
-            variants.append((ref_seq, var_seq, node2pos[ref_path[0]], ref_cov, ref_covf, ref_covr,  var_cov, var_covf, var_covr, b_id))
+            variants.append((ref_seq, var_seq, node2pos[ref_path[0]], ref_cov, ref_covf, ref_covr,  var_cov, var_covf, var_covr, b_id,var_path))
 
     # set data required by vcf format
     ref_name = "MN908947.3"
@@ -144,10 +145,10 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
     with open(output_path, "w") as fh:
         vcf_header(fh, ref_name, ref_length)
 
-        for (r_seq, v_seq, pos, ref_cov, ref_covf, ref_covr,  var_cov, var_covf, var_covr, bubble_id) in variants:
+        for (r_seq, v_seq, pos, ref_cov, ref_covf, ref_covr,  var_cov, var_covf, var_covr, bubble_id,var_path) in variants:
             rvt = var_cov / (ref_cov + var_cov)
             if rvt >= rvt_threshold:
-                print("{}\t{}\t.\t{}\t{}\t.\t.\tRCOV={:.4f};RCOVF={:.4f};RCOVR={:.4f};VCOV={:.4f};VCOVF={:.4f};VCOVR={:.4f};BUBBLEID={}".format(ref_name, pos + 1, r_seq, v_seq, ref_cov, ref_covf, ref_covr, var_cov, var_covf, var_covr, bubble_id), file=fh)
+                print("{}\t{}\t.\t{}\t{}\t.\t.\tRCOV={:.4f};RCOVF={:.4f};RCOVR={:.4f};VCOV={:.4f};VCOVF={:.4f};VCOVR={:.4f};BUBBLEID={};VARPATH={}".format(ref_name, pos + 1, r_seq, v_seq, ref_cov, ref_covf, ref_covr, var_cov, var_covf, var_covr, bubble_id,var_path), file=fh)
 
 
 def path_coverage(path, edge2cov, node2cov):
