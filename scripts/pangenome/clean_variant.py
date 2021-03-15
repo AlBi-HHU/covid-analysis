@@ -24,11 +24,10 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
 
     for key, values in pos2var.items():
 
-        coverage = 0
+        coverage = values[0][0]
+        variant = values[0][1]
 
-        if len(values) == 1:
-            coverage = values[0][0]
-        else:
+        if len(values) != 1:
             values.sort(key=lambda x: x[0], reverse=True)
             coverage = values[0][0]
             variant = values[0][1]
@@ -42,7 +41,9 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
             supportVals.append(supportFraction)
             if  supportFraction < snakemake.config['pagenomeCutoffRealSupport']:
                 variant.PASS = False
+
         record.INFO["REALSUPPORT"] = '/'.join(supportVals)
+
         if coverage > min_cov:
             writer.write_record(variant)
 
