@@ -55,7 +55,7 @@ cnt_falseHomozygous = 0 #
 dataTuples = []
 
 #Keep Output files open
-with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filter'],'w') as filterfile:
+with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filter'],'w') as filterfile,open(snakemake.log[0],'w') as logfile:
 
 	#Read required input
 	reference = SeqIO.read(snakemake.input['ref'],'fasta')
@@ -83,7 +83,7 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 
 		recordsNanopore = {}
 		recordsIllumina = {}
-
+		logfile.write('processing {}'.format(fid))
 		for record in pancovVCF:
 			relevantPositions.add(record.POS)
 			recordsNanopore[record.POS] = record
