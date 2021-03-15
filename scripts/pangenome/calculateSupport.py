@@ -150,7 +150,7 @@ def main(alignment,pangenome,output):
                 # print('No problems processing this read!')
 
     json.dump(outFile,matchesPerNode)
-    
+
 if "snakemake" in locals():
     main(snakemake.input['alignment'], snakemake.input['pangenome'],snakemake.output[0])
 

@@ -79,7 +79,7 @@ rule calculateRealNodeCoverages:
         alignment = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
         pangenome = "data/auxiliary/pangenome/pangenome.gfa",
     output:
-        'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.tsv'
+        'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json'
     script:
         '../scripts/pangenome/calculateSupport.py'
 
