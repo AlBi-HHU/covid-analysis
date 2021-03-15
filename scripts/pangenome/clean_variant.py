@@ -16,7 +16,7 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
     pos2var = defaultdict(list)
     for record in reader:
         coverage = record.INFO["VCOV"] + record.INFO["RCOV"]
-        pos2var[(record.POS, tuple(record.REF), tuple(record.ALT))].append((coverage, record))
+        pos2var[(record.POS, tuple(record.REF), tuple(record.ALT))].append((coverage, record, record.INFO["VCOV"]))
 
     header.add_filter_line(vcfpy.OrderedDict([('ID', 'LRS'), ('Description', 'Real Support below < {}'.format(snakemake.config['pagenomeCutoffRealSupport']))]))
     header.add_info_line({"ID": "MULTIPLE", "Type": "Flag", "Number": "1", "Description": "Pangenome found multiple variant at this position"})
@@ -27,6 +27,7 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
 
         coverage = values[0][0]
         variant = values[0][1]
+        vcov = values[0][2]
 
         if len(values) != 1:
             values.sort(key=lambda x: x[0], reverse=True)
@@ -40,7 +41,7 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
         variant.INFO["VARPATH"] = nodeIDs #? hmmm
         supportVals = []
         for nodeID in nodeIDs:
-            supportFraction = (nodeSupport[nodeID][0] / coverage)
+            supportFraction = (nodeSupport[nodeID][0] / vcov)
             supportVals.append(supportFraction)
             if  supportFraction < snakemake.config['pagenomeCutoffRealSupport']:
                 variant.add_filter('LRS')
