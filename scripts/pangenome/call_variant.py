@@ -109,7 +109,7 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
         else:
             ref_path = sorted(ref_path, key=lambda x: len(x), reverse=True)[0]
         ref_seq = "".join(node2seq[node] for node in ref_path)
-        (ref_cov, ref_covf, ref_covr) = path_coverage(ref_path, edge2cov, node2cov)
+        (ref_cov, ref_covf, ref_covr) = path_coverage(ref_path, edge2cov, node2cov,node2len)
 
         # Clean not covered node and edge
         subgraph.remove_nodes_from(not_cov_nodes)
@@ -151,7 +151,7 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
                 print("{}\t{}\t.\t{}\t{}\t.\t.\tRCOV={:.4f};RCOVF={:.4f};RCOVR={:.4f};VCOV={:.4f};VCOVF={:.4f};VCOVR={:.4f};BUBBLEID={};VARPATH={}".format(ref_name, pos + 1, r_seq, v_seq, ref_cov, ref_covf, ref_covr, var_cov, var_covf, var_covr, bubble_id,var_path), file=fh)
 
 
-def path_coverage(path, edge2cov, node2cov):
+def path_coverage(path, edge2cov, node2cov,node2len):
     if len(path) < 2:
         return (0, 0, 0)
     elif len(path) == 2:
@@ -160,10 +160,12 @@ def path_coverage(path, edge2cov, node2cov):
         else:
             return (0, 0, 0)
 
+    path_len = sum(node2len(x) for x in path[1:-1])
+
     # Don't take ends whne compute var_cov 
-    return (sum(node2cov[node]["all"] for node in path[1:-1]) / len(path),
-            sum(node2cov[node][True] for node in path[1:-1]) / len(path),
-            sum(node2cov[node][False] for node in path[1:-1]) / len(path))
+    return (sum(node2cov[node]["all"] for node in path[1:-1]) / path_len,
+            sum(node2cov[node][True] for node in path[1:-1]) / path_len,
+            sum(node2cov[node][False] for node in path[1:-1]) / path_len)
 
 
 def get_paths(graph, ends):
