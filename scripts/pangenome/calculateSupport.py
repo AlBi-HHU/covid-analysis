@@ -19,7 +19,7 @@ def main(alignment,pangenome,output):
 
         return node2seq
 
-    matchesPerNode = defaultdict(int)
+    realSupportPerNode = {}
 
     # get the sequence associate to node
     node2seq = get_node2seq(pangenome)
@@ -28,6 +28,9 @@ def main(alignment,pangenome,output):
     with open(alignment, 'r') as alignmentFile, open(snakemake.log[0],'w') as logFile, open(output,'w') as outFile:
         # For each line in the alignment file
         for line in alignmentFile.read().splitlines()[1:]:
+
+            matchesPerNode = defaultdict(int)
+
             # We split based on whitespace
             data = line.split()
 
@@ -105,7 +108,7 @@ def main(alignment,pangenome,output):
                 for cigarCounter in range(cigarLength):  # do x times where x is the cigar instruction count
 
                     # The info we want to have, how many Ms fit to a node
-                    matchesPerNode[currentNode] += (cigarInstruction[-1] == 'M')
+                    supportPerNode[currentNode] += (cigarInstruction[-1] == 'M')
 
                     if cigarInstruction[-1] != 'I':  # don't move on insertion
                         positionOnPath += 1
@@ -148,7 +151,17 @@ def main(alignment,pangenome,output):
                 pass
                 # print('No problems processing this read!')
 
-        json.dump(matchesPerNode,outFile)
+            #Update global table
+            for node in matchesPerNode:
+                if not node in realSupportPerNode:
+                    realSupportPerNode[node] = (0,0)
+                realSupportPerNode[node] = (
+                    realSupportPerNode[node][0] +1,
+                    realSupportPerNode[node][1] +matchesPerNode[node]
+                )
+
+
+        json.dump(realSupportPerNode,outFile)
 
 if "snakemake" in locals():
     main(snakemake.input['alignment'], snakemake.input['pangenome'],snakemake.output[0])
