@@ -1,23 +1,12 @@
+import sys
 sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
 from shared import get_node2seq
-import csv
 import re
 from collections import defaultdict
 import json
 
 def main(alignment,pangenome,output):
 
-
-    def get_node2seq(graph_path):
-        node2seq = dict()
-
-        with open(graph_path) as graph_fh:
-            reader = csv.reader(graph_fh, delimiter='\t')
-            for row in reader:
-                if row[0] == "S" and row[1]:
-                    node2seq[row[1]] = row[2]
-
-        return node2seq
 
     realSupportPerNode = {}
 
@@ -108,7 +97,7 @@ def main(alignment,pangenome,output):
                 for cigarCounter in range(cigarLength):  # do x times where x is the cigar instruction count
 
                     # The info we want to have, how many Ms fit to a node
-                    supportPerNode[currentNode] += (cigarInstruction[-1] == 'M')
+                    matchesPerNode[currentNode] += (cigarInstruction[-1] == 'M')
 
                     if cigarInstruction[-1] != 'I':  # don't move on insertion
                         positionOnPath += 1
