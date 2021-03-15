@@ -135,7 +135,7 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
 
             var_seq = "".join(node2seq[node] for node in var_path)
 
-            variants.append((ref_seq, var_seq, node2pos[ref_path[0]], ref_cov, ref_covf, ref_covr,  var_cov, var_covf, var_covr, b_id,var_path))
+            variants.append((ref_seq, var_seq, node2pos[ref_path[0]], ref_cov, ref_covf, ref_covr,  var_cov, var_covf, var_covr, b_id,var_path[1:-1]))
 
     # set data required by vcf format
     ref_name = "MN908947.3"
