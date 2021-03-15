@@ -36,6 +36,9 @@ writer = vcfpy.Writer.from_path(snakemake.output['vcf'], header )
 for record in reader:
     logging.debug('Processing record: {}'.format(record))
 
+    if 'LRS' in record.FILTER:
+        continue
+
     #We only have single variants
     ref = record.REF
     alt = record.ALT[0].value #therefore picking the first one picks the only existing variant
