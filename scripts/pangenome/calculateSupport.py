@@ -1,6 +1,5 @@
-from shared import get_node2seq
 sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
-from shared import * #TODO: import only required modules
+from shared import get_node2seq
 import csv
 import re
 from collections import defaultdict
