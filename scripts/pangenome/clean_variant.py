@@ -48,7 +48,7 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
 
 
 if "snakemake" in locals():
-    main(snakemake.input['vcf'],snakemake.params['support'],snakemake.config["pangenomeVarMinCov"], snakemake.output[0])
+    main(snakemake.input['vcf'],snakemake.input['support'],snakemake.config["pangenomeVarMinCov"], snakemake.output[0])
 else:
     import sys
     
