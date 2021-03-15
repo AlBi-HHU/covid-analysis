@@ -80,6 +80,8 @@ rule calculateRealNodeCoverages:
         pangenome = "data/auxiliary/pangenome/pangenome.gfa",
     output:
         'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json'
+    log:
+        'logs/pangenome_vc/{run}/{barcode}/nodeSupport.txt'
     script:
         '../scripts/pangenome/calculateSupport.py'
 
