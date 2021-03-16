@@ -190,3 +190,12 @@ rule found_bubble:
         "../envs/bubblegun.yaml"
     shell:
         "BubbleGun -g {input}  bchains --bubble_json {output}"
+
+        
+rule compute_node2len:
+    input:
+        graph = "data/auxiliary/pangenome/pangenome.gfa"
+    output:
+        data = "data/auxiliary/pangenome/node2len.csv"
+    script:
+        "../script/pangenome/node2len.py"

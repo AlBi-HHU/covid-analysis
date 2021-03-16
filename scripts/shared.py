@@ -27,11 +27,13 @@ ambiguityLetters = {
 #An inversion of the map above to allow for quick reverse lookups
 ambiguityLetters_inverted = {v: k for k, v in ambiguityLetters.items()}
 
+
 def ambiguousBase(frozenset):
     if frozenset in ambiguityLetters:
         return ambiguityLetters[frozenset]
     else:
         return None
+
 
 def isAmbiguous(base):
     if base in ['N','A','C','G','T']:
@@ -40,8 +42,8 @@ def isAmbiguous(base):
         return True
     return None
 
-######## Graph Aligner Helper Functions
 
+######## Graph Aligner Helper Functions
 def get_node2seq(graph_path):
     node2seq = dict()
 
@@ -63,6 +65,7 @@ def compute_entropy(seq):
 
     return entropy * -1
 
+
 #TODO: Move vals to cfg
 def alexSBFilter(cov, abs, fq):
     if cov <= 10:
@@ -80,6 +83,7 @@ def alexSBFilter(cov, abs, fq):
         if fq < 0.1:
             return True
     return False
+
 
 def parse_gaf(path, storage, node2base=None, edge2cov=None, node2seq=None):
     with open(path) as fh:
@@ -116,7 +120,6 @@ def parse_gaf(path, storage, node2base=None, edge2cov=None, node2seq=None):
             storage[tuple(nodes)].append(row[0])
 
 
-
 def parseKmers(kmers,sequence,k):
     if len(sequence) < k:
         return
@@ -134,6 +137,7 @@ def squashStrandedness(sign):
     else:
         return sign.upper()
 
+
 #Parse pileup analysis file to a pythonesque structure
 def parsePileup(pileupfile):
     pileupAnalysis = {}
@@ -149,6 +153,7 @@ def parsePileup(pileupfile):
                 spreadDict[squashStrandedness(entry[0])] = int(entry[1])
             pileupAnalysis[pos] = spreadDict
     return pileupAnalysis
+
 
 #Parse pileup analysis file to a pythonesque structure
 def parsePileupStrandAware(pileupfile):
@@ -227,9 +232,12 @@ def parsePileupPosition(f,pos):
 
             return bias,sum(spreadDict.values())
         raise Exception('Can\'t find an entry for position {} in file {}'.format(pos,f))
-complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'} 
+
+
 def rev_comp(seq):
+    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
     return "".join(reversed([complement[n] for n in seq]))
+
 
 def getStrandBias(pileupForPosition,altallele):
     altallele = '(' if altallele == '-' else altallele
@@ -242,6 +250,7 @@ def getStrandBias(pileupForPosition,altallele):
             total += count
     return plus/total if total != 0 else 0
 
+
 def getCoverage(pileupForPosition,altallele):
     altallele = '(' if altallele == '-' else altallele
     total = 0
@@ -250,8 +259,10 @@ def getCoverage(pileupForPosition,altallele):
             total += count
     return total
 
+
 def getTotalCoverage(pileupForPosition):
     return sum(pileupForPosition.values());
+
 
 def getMinorStrandAbs(pileupForPosition,altallele):
     altallele = '(' if altallele == '-' else altallele
@@ -261,9 +272,11 @@ def getMinorStrandAbs(pileupForPosition,altallele):
             total += count
     return total
 
+
 def getMinorStrandFrequency(pileupForPosition,altallele):
     sb = getStrandBias(pileupForPosition,altallele)
     return min(1-sb,sb)
+
 
 def getAlleleFrequency(pileupForPosition,altallele):
     altallele = '(' if altallele == '-' else altallele
