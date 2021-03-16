@@ -346,7 +346,7 @@ def gfa2networkx(gfa_path):
 
 
 if "snakemake" in locals():
-    rvt = float(snakemake.config["pangenomeRVTThreshold"])
+    rvt = float(snakemake.config["pangenomeRVTTPath"])
     min_cov_factor = float(snakemake.config["pangenomeMinCovFactor"])
     min_ends_cov = int(snakemake.config["pangenomeMinEndsCovBubble"])
     main(

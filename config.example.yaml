@@ -14,6 +14,7 @@ bam_suffix : primertrimmed.rg.sorted.bam
 #fraction (between 0 and 0.5) of reads that need to support a variant for it to be labeled homozygous
 thresholdHomCall : 0.2 #This is used for consensus creation
 
+
 performQualityControl: True
 
 
@@ -42,18 +43,19 @@ pangenomeAdditionalVCFs: ['data/input/th_vars_all.vcf'] #relative to the snakema
 articMethods : ['medaka','nanopolish'] #which artic variant callers are used as input for pangenome graph creation
 
 # Pangenome variant calling
+medakaQualityThreshold: 7.0
 pangenomeVariantCalling: True
-pangenomeRVTThreshold: 0.1
-pangenomeMinCovFactor: 0.5
+pangenomeRVTTPath: 0.5
+pangenomeRVTTSupport: 0.5
+pangenomeMinCovFactor: 0.1
 pangenomeMinEndsCovBubble: 10
 pangenomeVarMinCov: 15
-pagenomeCutoffRealSupport: 0.95 #At least 95% of support for a node needs to contain matches
 
 # Illumina variant calling
-illuminaAlleleFreqCutoff: 0.05
+illuminaAlleleFreqCutoff: 0.8
 
 # Illumina cutoff for evaluation
-illuminaCoverageCutoff: 50 #TODO: Check if this is used?
+illuminaCoverageCutoff: 20
 nanoporeCoverageCutoff: 20
 
 # Consensus section
@@ -68,9 +70,9 @@ VarAnnotSnpEff: True
 
 
 #if True, only use the given subset of run folders
-useSubsetOfRuns: True
-#runs: ['20200715', '20200729','20200805','20200817','20200909','20200930','20201005','03_11', '26_37' ,'38_66' ]
-runs : ['b117outbreak']
+useSubsetOfRuns: False
+runs: ['20200715', '20200729','20200805','20200817','20200909','20200930','20201005','03_11', '26_37' ,'38_66' ]
+#runs : ['b117outbreak']
 #if True only use the given subset of barcodes
 useSubsetOfBarcodes: False
 

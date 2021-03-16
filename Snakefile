@@ -106,7 +106,7 @@ def getInput(wildcards):
         inputList += ['data/output/evaluation/vcfbased/concordance_medaka.html']
         inputList += ['data/output/evaluation/vcfbased/concordance_nanopolish.html']
         inputList += ['data/output/evaluation/heterozygosity']
-        inputList += ['data/output/evaluation/toplevelStats_pancov_'+str(config['pangenomeMinCovFactor'])+'_'+str(config['pangenomeRVTThreshold'])+'.eval']
+        inputList += ['data/output/evaluation/toplevelStats_pancov_'+str(config['pangenomeMinCovFactor'])+'_'+str(config['pangenomeRVTTPath'])+'.eval']
         for barcode in barcodes[run]:
 
 

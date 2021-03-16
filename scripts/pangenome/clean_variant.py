@@ -81,6 +81,9 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, out_vcf):
         vsup = compute_support(variant.INFO["VARPATH"])
         rsup = compute_support(variant.INFO["REFPATH"])
 
+        variant.INFO["VSUP"] = vsup
+        variant.INFO["RSUP"] = rsup
+
         coverage = vsup + rsup
 
         if coverage > min_cov and (vsup / (vsup + rsup)) > rvt:
@@ -105,7 +108,7 @@ if "snakemake" in locals():
         snakemake.input["support"],
         snakemake.input["node2len"],
         snakemake.config["pangenomeVarMinCov"],
-        snakemake.config["pangenomeRVTThreshold"],
+        snakemake.config["pangenomeRVTTSupport"],
         snakemake.output[0],
     )
 else:
