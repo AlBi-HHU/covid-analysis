@@ -62,7 +62,7 @@ def read_node2len(path):
     with open(path) as fh:
         reader = csv.DictReader(fh)
         for row in reader:
-            node2len[row["node"]] = row["length"]
+            node2len[row["node"]] = int(row["length"])
 
     return node2len
 

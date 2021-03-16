@@ -18,7 +18,7 @@ def main(gfa, output):
 
 if "snakemake" in locals():
     main(
-        snakemake.input["vcf"],
+        snakemake.input["graph"],
         snakemake.output["data"],
     )
 else:

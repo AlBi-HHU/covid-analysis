@@ -78,8 +78,8 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, out_vcf):
             variant = values[0][1]
             variant.INFO["MULTIPLE"] = True
 
-        vsup = compute_support(variant.INFO["VARPATH"])
-        rsup = compute_support(variant.INFO["REFPATH"])
+        vsup = compute_support(variant.INFO["VARPATH"][1:-1], node2len, nodeSupport)
+        rsup = compute_support(variant.INFO["REFPATH"][1:-1], node2len, nodeSupport)
 
         variant.INFO["VSUP"] = vsup
         variant.INFO["RSUP"] = rsup
@@ -91,12 +91,19 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, out_vcf):
 
 
 def compute_support(nodes, node2len, node_support):
-    nodes = nodes.spilt(",")
+    if not nodes:
+        return 0.0
+
+    nodes = nodes.split(",")
     all_supports = 0
     path_len = 0
 
     for node in nodes:
-        all_supports += node_support[node][1]
+        if node in node_support:
+            all_supports += node_support[node][1]
+        else:
+            all_supports += 0
+
         path_len += node2len[node]
 
     return all_supports / path_len

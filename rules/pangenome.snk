@@ -198,4 +198,4 @@ rule compute_node2len:
     output:
         data = "data/auxiliary/pangenome/node2len.csv"
     script:
-        "../script/pangenome/node2len.py"
+        "../scripts/pangenome/node2len.py"
