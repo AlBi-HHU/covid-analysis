@@ -50,6 +50,9 @@ pangenomeRVTTSupport: 0.5
 pangenomeMinCovFactor: 0.1
 pangenomeMinEndsCovBubble: 10
 pangenomeVarMinCov: 15
+pangenomeStrandBiais: 0.1
+pangenomePValCoverage: 40 #Variants with less coverage than this value are evaluated for strand bias using a p-val instead of a ratio
+pangenomePValCutoff: 0.005
 
 # Illumina variant calling
 illuminaAlleleFreqCutoff: 0.8
@@ -60,9 +63,6 @@ nanoporeCoverageCutoff: 20
 
 # Consensus section
 consensusMinCov: 20
-consensusStrandBiais: 0.1
-consensusPValCoverage: 40 #Variants with less coverage than this value are evaluated for strand bias using a p-val instead of a ratio
-consensusPValCutoff: 0.005
 
 # VariantAnotation
 VarAnnotSnpEff: True

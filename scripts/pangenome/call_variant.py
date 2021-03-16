@@ -168,8 +168,8 @@ def main(
                     var_covf,
                     var_covr,
                     b_id,
-                    ref_path[1:-1],
-                    var_path[1:-1],
+                    ref_path,
+                    var_path,
                 )
             )
 
@@ -210,8 +210,8 @@ def main(
                         var_covf,
                         var_covr,
                         bubble_id,
-                        ",".join(ref_path),
-                        ",".join(var_path),
+                        "_".join(ref_path),
+                        "_".join(var_path),
                     ),
                     file=fh,
                 )

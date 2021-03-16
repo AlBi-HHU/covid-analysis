@@ -9,10 +9,7 @@ import logging
 logging.basicConfig(filename=snakemake.log[0], level=logging.DEBUG)
 
 #Reassign parameters from snakemake config for better readability and type casting (?)
-th_sbiais = float(snakemake.config["consensusStrandBiais"])
-th_cov = int(snakemake.config["consensusMinCov"])
-th_sb_cov = int(snakemake.config['consensusPValCoverage'])
-th_sb_pval = float(snakemake.config['consensusPValCutoff'])
+th_cov = int(snakemake.config["consensusMinCov"]);
 th_het = float(snakemake.config["thresholdHomCall"])
 
 #See shared.py
@@ -36,7 +33,7 @@ writer = vcfpy.Writer.from_path(snakemake.output['vcf'], header )
 for record in reader:
     logging.debug('Processing record: {}'.format(record))
 
-    if 'LRS' in record.FILTER:
+    if record.FILTER != ["PASS"]:
         continue
 
     #We only have single variants
@@ -48,27 +45,7 @@ for record in reader:
 
     rcov = float(record.INFO["RCOV"])
     vcov = float(record.INFO["VCOV"])
-    vcov_forward = float(record.INFO["VCOVF"])
-    vcov_reverse = float(record.INFO["VCOVR"])
     tcov = rcov + vcov
-
-    if vcov < th_cov:
-        continue
-    elif vcov < th_sb_cov: #use pVal
-        pval = binom.pmf(vcov_forward, vcov,0.5)
-        if pval > th_sb_pval:
-            pass
-        else:
-            continue # discard the record
-    else: #ratio test
-        ratio = min(vcov_forward, vcov_reverse) / tcov
-        if ratio > th_sbiais:
-            pass
-        else:
-            continue # discard the record
-
-    if vcov <= 0 or rcov + vcov <= 0:
-        continue
 
     varRatio = vcov / tcov
 
