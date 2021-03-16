@@ -53,7 +53,7 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
                     comment = " illumina coverage for component {} too low: {}".format(allele, cov)
                     break
                 elif (
-                        min(1 - sb, sb) < snakemake.config["consensusStrandBiais"]
+                        min(1 - sb, sb) < snakemake.config["pangenomeStrandBiais"]
                 ):
                     status = "Rejected"
                     comment = "strand bias for component {} too extreme: {}".format(allele, sb)
