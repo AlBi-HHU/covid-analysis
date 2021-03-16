@@ -83,7 +83,6 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, th_sbiais, th_sb_cov,
 
     for key, values in pos2var.items():
         variant = values[0][1]
-        record = values[1]
 
         if len(values) != 1:
             values.sort(key=lambda x: x[0], reverse=True)
@@ -103,7 +102,7 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, th_sbiais, th_sb_cov,
         if coverage < min_cov:
             filters.append("Coverage")
 
-        if strand_biais(record, th_sbiais, th_sb_cov, th_sb_pval):
+        if strand_biais(variant, th_sbiais, th_sb_cov, th_sb_pval):
             filters.append("StrandBiais")
 
         if vsup != float("nan") and rsup != float("nan") and (vsup / (vsup + rsup)) < rvt:
