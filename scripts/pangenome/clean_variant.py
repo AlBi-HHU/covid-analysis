@@ -90,13 +90,14 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, th_sbiais, th_sb_cov,
             variant = values[0][1]
             variant.INFO["MULTIPLE"] = True
 
-        vsup = compute_support(variant.INFO["VARPATH"][1:-1], node2len, nodeSupport)
-        rsup = compute_support(variant.INFO["REFPATH"][1:-1], node2len, nodeSupport)
+        vsup = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport)
+        rsup = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport)
 
         variant.INFO["VSUP"] = vsup
         variant.INFO["RSUP"] = rsup
 
-        coverage = vsup + rsup
+        if vsup != float("nan") and rsup != float("nan"):
+            coverage = vsup + rsup
 
         filters = list()
         if coverage < min_cov:
@@ -121,10 +122,11 @@ def compute_support(nodes, node2len, node_support):
 
     if len(nodes) <= 2:
         return float("nan")
+
     all_supports = 0
     path_len = 0
 
-    for node in nodes:
+    for node in nodes[1:-1]:
         if node in node_support:
             all_supports += node_support[node][1]
         else:
