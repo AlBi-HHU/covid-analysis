@@ -88,7 +88,8 @@ rule calculateRealNodeCoverages:
 rule cleanVariants:
     input:
         vcf = "data/auxiliary/pangenome_vc/{run}/{barcode}/decomposed.vcf",
-        support = 'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json'
+        support = 'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json',
+        node2len = 'data/auxiliary/pangenome/node2len.csv'
     output:
         "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
     conda:

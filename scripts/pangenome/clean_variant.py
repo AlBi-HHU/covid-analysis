@@ -5,29 +5,72 @@ import json
 
 from collections import defaultdict
 
-def main(in_vcf, supportFile, min_cov, out_vcf):
+import sys
 
-    nodeSupport = json.load(open(supportFile,'r'))
+sys.path.append(
+    "scripts"
+)  # Hackfix but results in a more readable scripts folder structure
+from shared import read_node2len
+
+
+def main(in_vcf, supportFile, node2len_path, min_cov, rvt, out_vcf):
+
+    nodeSupport = json.load(open(supportFile, "r"))
+    node2len = read_node2len(node2len_path)
 
     reader = vcfpy.Reader.from_path(in_vcf)
 
     header = reader.header
-    
+
     pos2var = defaultdict(list)
     for record in reader:
         coverage = record.INFO["VCOV"] + record.INFO["RCOV"]
-        pos2var[(record.POS, tuple(record.REF), tuple(record.ALT))].append((coverage, record, record.INFO["VCOV"]))
+        pos2var[(record.POS, tuple(record.REF), tuple(record.ALT))].append(
+            (coverage, record, record.INFO["VCOV"])
+        )
 
-    header.add_filter_line(vcfpy.OrderedDict([('ID', 'LRS'), ('Description', 'Real support below {} percent'.format(snakemake.config['pagenomeCutoffRealSupport']))]))
-    header.add_info_line({"ID": "MULTIPLE", "Type": "Flag", "Number": "1", "Description": "Pangenome found multiple variant at this position"})
-    header.add_info_line({"ID": "REALSUPPORT", "Type": "String", "Number": "1", "Description": "Reads that have at least one Match on the Node they support"})
+    header.add_filter_line(
+        vcfpy.OrderedDict(
+            [
+                ("ID", "LRS"),
+                (
+                    "Description",
+                    "Real support below {} percent".format(
+                        snakemake.config["pagenomeCutoffRealSupport"]
+                    ),
+                ),
+            ]
+        )
+    )
+    header.add_info_line(
+        {
+            "ID": "MULTIPLE",
+            "Type": "Flag",
+            "Number": "1",
+            "Description": "Pangenome found multiple variant at this position",
+        }
+    )
+    header.add_info_line(
+        {
+            "ID": "VSUP",
+            "Type": "String",
+            "Number": "1",
+            "Description": "Variant support",
+        }
+    )
+    header.add_info_line(
+        {
+            "ID": "RSUP",
+            "Type": "String",
+            "Number": "1",
+            "Description": "Reference support",
+        }
+    )
     writer = vcfpy.Writer.from_path(out_vcf, reader.header)
 
     for key, values in pos2var.items():
 
-        coverage = values[0][0]
         variant = values[0][1]
-        vcov = values[0][2]
 
         if len(values) != 1:
             values.sort(key=lambda x: x[0], reverse=True)
@@ -35,26 +78,37 @@ def main(in_vcf, supportFile, min_cov, out_vcf):
             variant = values[0][1]
             variant.INFO["MULTIPLE"] = True
 
-        #Check for Real Support
-        varpath_raw = variant.INFO["VARPATH"]
-        nodeIDs = eval(varpath_raw)
-        variant.INFO["VARPATH"] = nodeIDs #? hmmm
-        supportVals = []
-        for nodeID in nodeIDs:
-            supportFraction = (nodeSupport[nodeID][0] / vcov)
-            supportVals.append(supportFraction)
-            if supportFraction < snakemake.config['pagenomeCutoffRealSupport']:
-                variant.add_filter('LRS')
+        vsup = compute_support(variant.INFO["VARPATH"])
+        rsup = compute_support(variant.INFO["REFPATH"])
 
-        variant.INFO["REALSUPPORT"] = 'undetermined' if len(nodeIDs) == 0 else  '/'.join(str(x) for x in supportVals)
+        coverage = vsup + rsup
 
-        if coverage > min_cov:
+        if coverage > min_cov and (vsup / (vsup + rsup)) > rvt:
             writer.write_record(variant)
 
 
+def compute_support(nodes, node2len, node_support):
+    nodes = nodes.spilt(",")
+    all_supports = 0
+    path_len = 0
+
+    for node in nodes:
+        all_supports += node_support[node][1]
+        path_len += node2len[node]
+
+    return all_supports / path_len
+
+
 if "snakemake" in locals():
-    main(snakemake.input['vcf'],snakemake.input['support'],snakemake.config["pangenomeVarMinCov"], snakemake.output[0])
+    main(
+        snakemake.input["vcf"],
+        snakemake.input["support"],
+        snakemake.input["node2len"],
+        snakemake.config["pangenomeVarMinCov"],
+        snakemake.config["pangenomeRVTThreshold"],
+        snakemake.output[0],
+    )
 else:
     import sys
-    
-    main(sys.argv[1], sys.argv[2], sys.argv[3],sys.argv[4])
+
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

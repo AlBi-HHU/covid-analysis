@@ -3,10 +3,23 @@ import json
 import networkx
 import sys
 from collections import defaultdict, Counter
-sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
-from shared import * #TODO: import only required modules
 
-def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshold, min_cov_factor, min_ends_cov, output_path):
+sys.path.append(
+    "scripts"
+)  # Hackfix but results in a more readable scripts folder structure
+from shared import *  # TODO: import only required modules
+
+
+def main(
+    pangenome_path,
+    bubble_path,
+    reads_mapping,
+    node2pos_path,
+    rvt_threshold,
+    min_cov_factor,
+    min_ends_cov,
+    output_path,
+):
 
     # Get ref information
     node2pos = dict()
@@ -23,7 +36,7 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
             ref_path.append(row[0])
 
     ref_nodes = set(ref_path)
-    ref_edge = {(ref_path[i], ref_path[i+1]) for i in range(len(ref_path)-1)}
+    ref_edge = {(ref_path[i], ref_path[i + 1]) for i in range(len(ref_path) - 1)}
 
     # get the sequence associate to node
     node2seq = get_node2seq(pangenome_path)
@@ -101,15 +114,21 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
                 not_cov_edges.add(edge)
 
         # Found reference path in bubble
-        ref_path = get_paths(subgraph.subgraph((n for n in subgraph.nodes() if n in ref_nodes)), bubble["ends"])
+        ref_path = get_paths(
+            subgraph.subgraph((n for n in subgraph.nodes() if n in ref_nodes)),
+            bubble["ends"],
+        )
         if len(ref_path) == 0:
             continue
         elif len(ref_path) == 1:
             ref_path = ref_path[0]
         else:
             ref_path = sorted(ref_path, key=lambda x: len(x), reverse=True)[0]
+
         ref_seq = "".join(node2seq[node] for node in ref_path)
-        (ref_cov, ref_covf, ref_covr) = path_coverage(ref_path, edge2cov, node2cov,node2seq)
+        (ref_cov, ref_covf, ref_covr) = path_coverage(
+            ref_path, edge2cov, node2cov, node2seq
+        )
 
         # Clean not covered node and edge
         subgraph.remove_nodes_from(not_cov_nodes)
@@ -131,11 +150,28 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
                 prev = node
 
         for var_path in var_paths:
-            (var_cov, var_covf, var_covr) = path_coverage(var_path, edge2cov, node2cov,node2seq)
+            (var_cov, var_covf, var_covr) = path_coverage(
+                var_path, edge2cov, node2cov, node2seq
+            )
 
             var_seq = "".join(node2seq[node] for node in var_path)
 
-            variants.append((ref_seq, var_seq, node2pos[ref_path[0]], ref_cov, ref_covf, ref_covr,  var_cov, var_covf, var_covr, b_id,var_path[1:-1]))
+            variants.append(
+                (
+                    ref_seq,
+                    var_seq,
+                    node2pos[ref_path[0]],
+                    ref_cov,
+                    ref_covf,
+                    ref_covr,
+                    var_cov,
+                    var_covf,
+                    var_covr,
+                    b_id,
+                    ref_path[1:-1],
+                    var_path[1:-1],
+                )
+            )
 
     # set data required by vcf format
     ref_name = "MN908947.3"
@@ -145,27 +181,63 @@ def main(pangenome_path, bubble_path, reads_mapping, node2pos_path, rvt_threshol
     with open(output_path, "w") as fh:
         vcf_header(fh, ref_name, ref_length)
 
-        for (r_seq, v_seq, pos, ref_cov, ref_covf, ref_covr,  var_cov, var_covf, var_covr, bubble_id,var_path) in variants:
+        for (
+            r_seq,
+            v_seq,
+            pos,
+            ref_cov,
+            ref_covf,
+            ref_covr,
+            var_cov,
+            var_covf,
+            var_covr,
+            bubble_id,
+            ref_path,
+            var_path,
+        ) in variants:
             rvt = var_cov / (ref_cov + var_cov)
             if rvt >= rvt_threshold:
-                print("{}\t{}\t.\t{}\t{}\t.\t.\tRCOV={:.4f};RCOVF={:.4f};RCOVR={:.4f};VCOV={:.4f};VCOVF={:.4f};VCOVR={:.4f};BUBBLEID={};VARPATH={}".format(ref_name, pos + 1, r_seq, v_seq, ref_cov, ref_covf, ref_covr, var_cov, var_covf, var_covr, bubble_id,var_path), file=fh)
+                print(
+                    "{}\t{}\t.\t{}\t{}\t.\t.\tRCOV={:.4f};RCOVF={:.4f};RCOVR={:.4f};VCOV={:.4f};VCOVF={:.4f};VCOVR={:.4f};BUBBLEID={};REALPATH={};VARPATH={}".format(
+                        ref_name,
+                        pos + 1,
+                        r_seq,
+                        v_seq,
+                        ref_cov,
+                        ref_covf,
+                        ref_covr,
+                        var_cov,
+                        var_covf,
+                        var_covr,
+                        bubble_id,
+                        ",".join(ref_path),
+                        ",".join(var_path),
+                    ),
+                    file=fh,
+                )
 
 
-def path_coverage(path, edge2cov, node2cov,node2seq):
+def path_coverage(path, edge2cov, node2cov, node2seq):
     if len(path) < 2:
         return (0, 0, 0)
     elif len(path) == 2:
         if frozenset(path) in edge2cov:
-            return (edge2cov[frozenset(path)], edge2cov[frozenset(path)], edge2cov[frozenset(path)])
+            return (
+                edge2cov[frozenset(path)],
+                edge2cov[frozenset(path)],
+                edge2cov[frozenset(path)],
+            )
         else:
             return (0, 0, 0)
 
     path_len = sum(len(node2seq[x]) for x in path[1:-1])
 
-    # Don't take ends whne compute var_cov 
-    return (sum(node2cov[node]["all"] for node in path[1:-1]) / path_len,
-            sum(node2cov[node][True] for node in path[1:-1]) / path_len,
-            sum(node2cov[node][False] for node in path[1:-1]) / path_len)
+    # Don't take ends whne compute var_cov
+    return (
+        sum(node2cov[node]["all"] for node in path[1:-1]) / path_len,
+        sum(node2cov[node][True] for node in path[1:-1]) / path_len,
+        sum(node2cov[node][False] for node in path[1:-1]) / path_len,
+    )
 
 
 def get_paths(graph, ends):
@@ -178,14 +250,42 @@ def get_paths(graph, ends):
 
 def vcf_header(fh, ref_name, length):
     print("##fileformat=VCFv4.2", file=fh)
-    print("##INFO=<ID=RCOV,Number=1,Type=Float,Description=\"Coverage of reference path\">", file=fh)
-    print("##INFO=<ID=RCOVF,Number=1,Type=Float,Description=\"Coverage of reference path forward strand\">", file=fh)
-    print("##INFO=<ID=RCOVR,Number=1,Type=Float,Description=\"Coverage of reference path reverse strand \">", file=fh)
-    print("##INFO=<ID=VCOV,Number=1,Type=Float,Description=\"Coverage of variant path\">", file=fh)
-    print("##INFO=<ID=VCOVF,Number=1,Type=Float,Description=\"Coverage of variant path forward strand\">", file=fh)
-    print("##INFO=<ID=VCOVR,Number=1,Type=Float,Description=\"Coverage of variant path reverse strand\">", file=fh)
-    print("##INFO=<ID=BUBBLEID,Number=1,Type=Integer,Description=\"Id of bubble in pangenome\">", file=fh)
-    print("##INFO=<ID=VARPATH,Number=1,Type=String,Description=\"Ids of nodes that make up the var path\">", file=fh)
+    print(
+        '##INFO=<ID=RCOV,Number=1,Type=Float,Description="Coverage of reference path">',
+        file=fh,
+    )
+    print(
+        '##INFO=<ID=RCOVF,Number=1,Type=Float,Description="Coverage of reference path forward strand">',
+        file=fh,
+    )
+    print(
+        '##INFO=<ID=RCOVR,Number=1,Type=Float,Description="Coverage of reference path reverse strand ">',
+        file=fh,
+    )
+    print(
+        '##INFO=<ID=VCOV,Number=1,Type=Float,Description="Coverage of variant path">',
+        file=fh,
+    )
+    print(
+        '##INFO=<ID=VCOVF,Number=1,Type=Float,Description="Coverage of variant path forward strand">',
+        file=fh,
+    )
+    print(
+        '##INFO=<ID=VCOVR,Number=1,Type=Float,Description="Coverage of variant path reverse strand">',
+        file=fh,
+    )
+    print(
+        '##INFO=<ID=BUBBLEID,Number=1,Type=Integer,Description="Id of bubble in pangenome">',
+        file=fh,
+    )
+    print(
+        '##INFO=<ID=REFPATH,Number=1,Type=String,Description="Ids of nodes that make up the reference path">',
+        file=fh,
+    )
+    print(
+        '##INFO=<ID=VARPATH,Number=1,Type=String,Description="Ids of nodes that make up the variant path">',
+        file=fh,
+    )
     print("##contig=<ID={},length={}>".format(ref_name, length), file=fh)
     print("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT", file=fh)
 
@@ -210,7 +310,9 @@ def pos_of_diff(path, reference):
         index_ref = None
 
     ref_set = set(reference)
-    for i_not_ref in (index for (index, node) in enumerate(path) if node not in set(reference)):
+    for i_not_ref in (
+        index for (index, node) in enumerate(path) if node not in set(reference)
+    ):
         begin_break = None
         # found reference node before variant
         for i in range(i_not_ref, 0, -1):
@@ -247,15 +349,24 @@ if "snakemake" in locals():
     rvt = float(snakemake.config["pangenomeRVTThreshold"])
     min_cov_factor = float(snakemake.config["pangenomeMinCovFactor"])
     min_ends_cov = int(snakemake.config["pangenomeMinEndsCovBubble"])
-    main(snakemake.input["pangenome"],
-         snakemake.input["bubble"],
-         snakemake.input["reads"],
-         snakemake.input["node2pos"],
-         rvt,
-         min_cov_factor,
-         min_ends_cov,
-         snakemake.output["variant"])
+    main(
+        snakemake.input["pangenome"],
+        snakemake.input["bubble"],
+        snakemake.input["reads"],
+        snakemake.input["node2pos"],
+        rvt,
+        min_cov_factor,
+        min_ends_cov,
+        snakemake.output["variant"],
+    )
 else:
     import sys
 
-    main(sys.argv[1], sys.argv[2], sys.argv[3], float(sys.argv[4]), float(sys.argv[5]), sys.argv[6])
+    main(
+        sys.argv[1],
+        sys.argv[2],
+        sys.argv[3],
+        float(sys.argv[4]),
+        float(sys.argv[5]),
+        sys.argv[6],
+    )

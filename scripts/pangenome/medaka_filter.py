@@ -21,12 +21,14 @@ def main(inputs, output):
 
     for record in reader:
         key = (
-            str(record.POS)
-            + record.REF
-            + "".join([a.serialize() for a in record.ALT])
+            str(record.POS) + record.REF + "".join([a.serialize() for a in record.ALT])
         )
 
-        if any([alt.type == "DEL" for alt in record.ALT]) and nano_var is not None and key not in nano_var:
+        if (
+            any([alt.type == "DEL" for alt in record.ALT])
+            and nano_var is not None
+            and key not in nano_var
+        ):
             continue
 
         if record.INFO["AQ"] < snakemake.config["medakaQualityThreshold"]:

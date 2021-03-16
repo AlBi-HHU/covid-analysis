@@ -1,16 +1,19 @@
 from collections import defaultdict
 
-sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
+sys.path.append(
+    "scripts"
+)  # Hackfix but results in a more readable scripts folder structure
 
 
-from shared import  parse_gaf, get_node2seq
+from shared import parse_gaf, get_node2seq
+
 
 def main(graph_path, reference_mapping, node2pos_path):
 
     ref_path = defaultdict(list)
     parse_gaf(reference_mapping, ref_path)
     ref_path = next(iter(ref_path.keys()))
-    
+
     # Get sequence of each node
     node2seq = get_node2seq(graph_path)
 
@@ -31,8 +34,12 @@ def main(graph_path, reference_mapping, node2pos_path):
 
 
 if "snakemake" in locals():
-    main(snakemake.input["graph"], snakemake.input["mappings"], snakemake.output["node_pos_on_ref"])
+    main(
+        snakemake.input["graph"],
+        snakemake.input["mappings"],
+        snakemake.output["node_pos_on_ref"],
+    )
 else:
     import sys
-    
+
     main(sys.argv[1], sys.argv[2], sys.argv[3])

@@ -56,8 +56,18 @@ def get_node2seq(graph_path):
     return node2seq
 
 
-####### Various
+def read_node2len(path):
+    node2len = dict()
 
+    with open(path) as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            node2len[row["node"]] = row["length"]
+
+    return node2len
+
+
+####### Various
 def compute_entropy(seq):
     entropy = 0
     for k, v in Counter(seq).items():
