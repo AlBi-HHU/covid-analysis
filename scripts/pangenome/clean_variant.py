@@ -185,7 +185,7 @@ def compute_support(nodes, node2len, node_support):
     return (all_supports_f / path_len, all_supports_r / path_len)
 
 
-def strand_biais(record, th_sb_cov, th_sb_pval, th_sbiais, text="COV"):
+def strand_biais(record, th_sbiais, th_sb_cov, th_sb_pval, text="COV"):
     rcov = float(record.INFO[f"R{text}"])
     vcov = float(record.INFO[f"V{text}"])
     vcov_forward = float(record.INFO[f"V{text}F"])
