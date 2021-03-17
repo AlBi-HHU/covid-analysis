@@ -127,11 +127,7 @@ def compute_support(nodes, node2len, node_support):
     path_len = 0
 
     for node in nodes[1:-1]:
-        if node in node_support:
-            all_supports += node_support[node][0]
-        else:
-            all_supports += 0
-
+        all_supports += max(node_support[node]["forward"]) + max(node_support[node]["reverse"])
         path_len += node2len[node]
 
     return all_supports / path_len
