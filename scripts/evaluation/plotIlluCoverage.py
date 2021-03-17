@@ -13,10 +13,10 @@ for f in snakemake.input:
             (f,int(pos),sum(emissions.values()))
         )
 
-df = pd.DataFrame(tuples,columns=['file','pos','cov'])
+df = pd.DataFrame(tuples,columns=['file','pos','cov']).groupby('pos').average()
 
-chart = alt.Chart(df).mark_rect().encode(
-    y = 'mean(cov):Q',
+chart = alt.Chart(df).mark_line().encode(
+    y = 'cov:Q',
     x = 'pos:O',
     tooltip = ['cov','pos']
 ).interactive()
