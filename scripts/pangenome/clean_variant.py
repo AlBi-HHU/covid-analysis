@@ -1,5 +1,6 @@
 import vcfpy
 import json
+import math
 
 ##We do two things here: We remove duplicates and also check if the alignments actually support the variants on a nucleotide basis
 
@@ -50,10 +51,42 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, th_sbiais, th_sb_cov,
     )
     header.add_info_line(
         {
+            "ID": "VSUPF",
+            "Type": "String",
+            "Number": "1",
+            "Description": "Variant support forward",
+        }
+    )
+    header.add_info_line(
+        {
+            "ID": "VSUPR",
+            "Type": "String",
+            "Number": "1",
+            "Description": "Variant support reverse",
+        }
+    )
+    header.add_info_line(
+        {
             "ID": "RSUP",
             "Type": "String",
             "Number": "1",
             "Description": "Reference support",
+        }
+    )
+    header.add_info_line(
+        {
+            "ID": "RSUPF",
+            "Type": "String",
+            "Number": "1",
+            "Description": "Reference support forward",
+        }
+    )
+    header.add_info_line(
+        {
+            "ID": "RSUPR",
+            "Type": "String",
+            "Number": "1",
+            "Description": "Reference support reverse",
         }
     )
 
@@ -79,6 +112,13 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, th_sbiais, th_sb_cov,
         }
     )
 
+    header.add_filter_line(
+        {
+            "ID": "StrandBiaisRealSupport",
+            "Description": "We notice a strand biais in coverage of this variant",
+        }
+    )
+
     writer = vcfpy.Writer.from_path(out_vcf, reader.header)
 
     for key, values in pos2var.items():
@@ -90,24 +130,34 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, th_sbiais, th_sb_cov,
             variant = values[0][1]
             variant.INFO["MULTIPLE"] = True
 
-        vsup = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport)
-        rsup = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport)
+        vsup_f, vsup_r = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport)
+        rsup_f, rsup_r = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport)
+        vsup = vsup_f + vsup_r
+        rsup = rsup_f + rsup_r
 
         variant.INFO["VSUP"] = vsup
         variant.INFO["RSUP"] = rsup
+        variant.INFO["VSUPF"] = vsup_f
+        variant.INFO["VSUPR"] = vsup_r
+        variant.INFO["RSUPF"] = rsup_f
+        variant.INFO["RSUPR"] = rsup_r
 
-        if vsup != float("nan") and rsup != float("nan"):
-            coverage = vsup + rsup
+        if vsup_f != float("nan") and rsup_f != float("nan"):
+            coverage = vsup_f + vsup_r + rsup_f + rsup_r
 
         filters = list()
         if coverage < min_cov:
             filters.append("Coverage")
 
-        if strand_biais(variant, th_sbiais, th_sb_cov, th_sb_pval):
+        if strand_biais(variant, th_sbiais, th_sb_cov, th_sb_pval, "COV"):
             filters.append("StrandBiais")
 
-        if vsup != float("nan") and rsup != float("nan") and (vsup / (vsup + rsup)) < rvt:
-            filters.append("NoRealSupport")
+        if not math.isnan(vsup):
+            if strand_biais(variant, th_sbiais, th_sb_cov, th_sb_pval, "SUP"):
+                filters.append("StrandBiaisRealSupport")
+
+            if (vsup / (vsup + rsup)) < rvt:
+                filters.append("NoRealSupport")
 
         if len(filters) == 0:
             filters.append("PASS")
@@ -121,23 +171,25 @@ def compute_support(nodes, node2len, node_support):
     nodes = nodes.split("_")
 
     if len(nodes) <= 2:
-        return float("nan")
+        return (float("nan"), float("nan"))
 
-    all_supports = 0
+    all_supports_f = 0
+    all_supports_r = 0
     path_len = 0
 
     for node in nodes[1:-1]:
-        all_supports += max(node_support[node]["forward"]) + max(node_support[node]["reverse"])
+        all_supports_f += max(node_support[node]["forward"])
+        all_supports_r += max(node_support[node]["reverse"])
         path_len += node2len[node]
 
-    return all_supports / path_len
+    return (all_supports_f / path_len, all_supports_r / path_len)
 
 
-def strand_biais(record, th_sb_cov, th_sb_pval, th_sbiais):
-    rcov = float(record.INFO["RCOV"])
-    vcov = float(record.INFO["VCOV"])
-    vcov_forward = float(record.INFO["VCOVF"])
-    vcov_reverse = float(record.INFO["VCOVR"])
+def strand_biais(record, th_sb_cov, th_sb_pval, th_sbiais, text="COV"):
+    rcov = float(record.INFO[f"R{text}"])
+    vcov = float(record.INFO[f"V{text}"])
+    vcov_forward = float(record.INFO[f"V{text}F"])
+    vcov_reverse = float(record.INFO[f"V{text}R"])
     tcov = rcov + vcov
 
     if vcov < th_sb_cov:
