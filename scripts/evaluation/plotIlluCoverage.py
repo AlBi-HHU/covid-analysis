@@ -1,7 +1,6 @@
 import sys
 sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
 from shared import *
-import altair as alt
 import pandas as pd
 
 tuples = []
@@ -14,11 +13,4 @@ for f in snakemake.input:
         )
 
 df = pd.DataFrame(tuples,columns=['file','pos','cov']).groupby('pos').mean()
-
-chart = alt.Chart(df).mark_line().encode(
-    y = 'cov:Q',
-    x = 'pos:O',
-    tooltip = ['cov','pos']
-).interactive()
-
-chart.save(snakemake.output[0])
+df.to_csv(snakemake.output[0])

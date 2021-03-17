@@ -51,7 +51,7 @@ rule coverageplot:
     input:
         getAllIlluminaPileups()
     output:
-        'data/output/illuminaCoveragePlot.html'
+        'data/output/illuminaCoveragePlot.csv'
     conda:
         '../envs/altair.yaml'
     script:
