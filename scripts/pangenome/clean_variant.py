@@ -128,7 +128,7 @@ def compute_support(nodes, node2len, node_support):
 
     for node in nodes[1:-1]:
         if node in node_support:
-            all_supports += node_support[node][1]
+            all_supports += node_support[node][0]
         else:
             all_supports += 0
 
