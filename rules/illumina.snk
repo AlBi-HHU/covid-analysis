@@ -47,13 +47,13 @@ rule ivar_consensus:
     shell:
         'samtools mpileup -aa -A -d 0 -B -Q 0 --reference {input.reference} {input.alignment} | ivar consensus -t {params.iac} -m 20 {input.alignment} -p {params.prefix}'
 
-rule coverageplot:
+rule calculateAverageIlluminaCoveragePerPosition:
     input:
         getAllIlluminaPileups()
     output:
-        'data/output/illuminaCoveragePlot.csv'
+        'data/auxiliary/illumina/averageCovPerPosition.csv'
     conda:
         '../envs/altair.yaml'
     script:
-        '../scripts/evaluation/plotIlluCoverage.py'
+        '../scripts/evaluation/calcAverageIlluCoverage.py'
 
