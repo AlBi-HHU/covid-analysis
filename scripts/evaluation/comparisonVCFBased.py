@@ -61,7 +61,10 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 	reference = SeqIO.read(snakemake.input['ref'],'fasta')
 
 	#Read Illumina Average Coverage Track
-	averageIlluminaCoverage = pd.read_csv(snakemake.input['cov'])
+	df = pd.read_csv(snakemake.input['cov'])
+	averageIlluminaCoverage = {}
+	for row in df.itertuples():
+		averageIlluminaCoverage[row.pos] = row.cov
 
 	#Input comes in blocks of fours
 	data = iter(snakemake.input['comparisonFiles'])
@@ -137,7 +140,7 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 
 
 
-			illuminaDropout = illuminaCoverage < (averageIlluminaCoverage[averageIlluminaCoverage['pos'] == 5]['cov'].values[0] * snakemake.config['illuminaCoverageCutoff'])
+			illuminaDropout = illuminaCoverage < (averageIlluminaCoverage[position] * snakemake.config['illuminaCoverageCutoff'])
 
 			# Check non-relevant positions
 			if position not in relevantPositions:
