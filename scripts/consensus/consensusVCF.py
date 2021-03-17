@@ -43,11 +43,11 @@ for record in reader:
 
     logging.debug('Corresponding pileup record: {}'.format(pileup[pos]))
 
-    rcov = float(record.INFO["RCOV"])
-    vcov = float(record.INFO["VCOV"])
-    tcov = rcov + vcov
+    rsup = float(record.INFO["RSUP"])
+    vsup = float(record.INFO["VSUP"])
+    tsup = rsup + vsup
 
-    varRatio = vcov / tcov
+    varRatio = vsup / tsup
 
     if th_het <= varRatio <= 1-th_het:
         #SNPs get the ambiguous base chars
