@@ -58,8 +58,8 @@ pangenomePValCutoff: 0.005
 illuminaAlleleFreqCutoff: 0.8
 
 # Illumina cutoff for evaluation
-illuminaCoverageCutoff: 20
-nanoporeCoverageCutoff: 20
+illuminaCoverageCutoff: 0.2 #Percentage Based
+nanoporeCoverageCutoff: 20 #Absolute Number
 
 # Consensus section
 consensusMinCov: 20

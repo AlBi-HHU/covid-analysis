@@ -60,6 +60,9 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 	#Read required input
 	reference = SeqIO.read(snakemake.input['ref'],'fasta')
 
+	#Read Illumina Average Coverage Track
+	averageIlluminaCoverage = pd.read_csv(snakemake.input['cov'])
+
 	#Input comes in blocks of fours
 	data = iter(snakemake.input['comparisonFiles'])
 	for ivarPseudoVCF in data:
@@ -128,9 +131,13 @@ with open(snakemake.output['text'],'w') as outfile, open(snakemake.output['filte
 			#Determine Nanopore and Illumina Coverage
 			nanoporeCoverage = getTotalCoverage(nanoporepileup[position]) if position in nanoporepileup else 0
 			illuminaCoverage = getTotalCoverage(illuminapileup[position]) if position in illuminapileup else 0
+
 			#Decide whether the position counts or not
 			nanoporeDropout = nanoporeCoverage < snakemake.config['nanoporeCoverageCutoff']
-			illuminaDropout = illuminaCoverage < snakemake.config['illuminaCoverageCutoff']
+
+
+
+			illuminaDropout = illuminaCoverage < (averageIlluminaCoverage[averageIlluminaCoverage['pos'] == 5]['cov'].values[0] * snakemake.config['illuminaCoverageCutoff'])
 
 			# Check non-relevant positions
 			if position not in relevantPositions:

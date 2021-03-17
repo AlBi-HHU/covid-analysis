@@ -341,6 +341,7 @@ rule aggregateOneFile:
 
 rule compareBasedOnVCF:
     input:
+        cov = 'data/auxiliary/illumina/averageCovPerPosition.csv',
         comparisonFiles = getAllVCFComparisonRequirements,
         ref = "data/input/nCoV-2019.reference.fasta",
     output:
