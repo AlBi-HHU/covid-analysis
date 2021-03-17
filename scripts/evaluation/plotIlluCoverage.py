@@ -16,10 +16,9 @@ for f in snakemake.input:
 df = pd.DataFrame(tuples,columns=['file','pos','cov'])
 
 chart = alt.Chart(df).mark_rect().encode(
-    y = 'cov:Q',
+    y = 'mean(cov):Q',
     x = 'pos:O',
-    color= 'file:N',
-    tooltip = ['cov','pos','file']
+    tooltip = ['cov','pos']
 ).interactive()
 
 chart.save(snakemake.output[0])
