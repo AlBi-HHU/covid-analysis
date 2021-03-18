@@ -33,7 +33,7 @@ def main(alignment, pangenome, output):
             )
 
             #7 -> Path Start, 8 -> Path End, 9 -> Path Length
-            path_start = int(data[7]) if (orientation == 'forward') else int(data[9]) - int(data[8]) + 1
+            path_start = int(data[7]) if (orientation == 'forward') else int(data[6]) - int(data[8]) + 1
 
 
             cigar = data[-1].split(":")[2]
