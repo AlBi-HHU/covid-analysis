@@ -156,7 +156,7 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, th_sbiais, th_sb_cov,
             if strand_biais(variant, th_sbiais, th_sb_cov, th_sb_pval, "SUP"):
                 filters.append("StrandBiaisRealSupport")
 
-            if (vsup / (vsup + rsup)) < rvt:
+            if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
                 filters.append("NoRealSupport")
 
         if len(filters) == 0:
