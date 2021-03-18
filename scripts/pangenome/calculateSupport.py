@@ -5,13 +5,11 @@ sys.path.append(
 )  # Hackfix but results in a more readable scripts folder structure
 from shared import get_node2seq
 import re
-from collections import defaultdict
 import json
 
 
 def main(alignment, pangenome, output):
 
-    realSupportPerNode = {}
 
     # get the sequence associate to node
     node2seq = get_node2seq(pangenome)
@@ -27,16 +25,16 @@ def main(alignment, pangenome, output):
             data = line.split()
 
             # Split Read, the first Symbol in path is only used as an indicator for the orientation
-            forward = "forward" if data[5][0] == "<" else "reverse"
+            orientation = "forward" if data[5][0] == ">" else "reverse"
             path = list(
-                data[5][1:].split("<")[::-1]
-                if forward == "forward"
-                else data[5][1:].split(">")
+                data[5][1:].split(">")[::-1]
+                if orientation == "forward"
+                else data[5][1:].split("<")
             )
 
             path_length = sum(len(node2seq[n_id]) for n_id in path)
             path_start = (
-                int(data[7]) if data[5][0] == ">" else path_length - int(data[8])
+                int(data[7]) if (orientation == 'forward') else path_length - int(data[8])
             )
 
             cigar = data[-1].split(":")[2]
@@ -54,25 +52,21 @@ def main(alignment, pangenome, output):
 
                 length = int("".join(length))
 
-                #print(instruction, length)
 
                 for _ in range(length):
                     if position_on_node >= current_node_len:
                         if len(path) == 0:
-                            print("Warning path is exhaust")
+                            print("Warning, path is exhausted!")
                             exit(59)
                         current_node = path.pop(0)
                         current_node_len = len(node2seq[current_node])
                         position_on_node = 0
 
                     if instruction == "M":
-                        node2base_cov[current_node][forward][position_on_node] += 1
-                    elif instruction == "I":
-                        position_on_node -= 1
-                    else:
-                        pass
+                        node2base_cov[current_node][orientation][position_on_node] += 1
 
-                    position_on_node += 1
+                    if instruction != "I":
+                        position_on_node += 1
 
                     #print(node2base_cov[current_node])
 
