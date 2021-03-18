@@ -68,7 +68,7 @@ def main(alignment, pangenome, output):
                             current_node = path.pop(0)
                             current_node_len = len(node2seq[current_node])
                             position_on_node = current_node_len - 1
-                            logFile.write(length, instruction)
+                            logFile.write('{},{}'.format(length, instruction))
                             logFile.write(path)
 
                     #print(current_node, len(node2base_cov[current_node][orientation]), position_on_node, posInInstruction, instruction, length, cigar, line)
