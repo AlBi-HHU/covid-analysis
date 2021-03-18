@@ -52,7 +52,6 @@ def main(alignment, pangenome, output):
 
                 length = int("".join(length))
 
-
                 for _ in range(length):
                     if position_on_node >= current_node_len:
                         if len(path) == 0:
@@ -67,8 +66,6 @@ def main(alignment, pangenome, output):
 
                     if instruction != "I":
                         position_on_node += 1
-
-                    #print(node2base_cov[current_node])
 
         json.dump(node2base_cov, outFile)
 

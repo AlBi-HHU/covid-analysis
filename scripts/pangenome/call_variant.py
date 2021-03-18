@@ -48,7 +48,6 @@ def main(
     paths = defaultdict(list)
 
     parse_gaf(reads_mapping, paths, node2base, edge2cov, node2seq)
-
     node2cov = defaultdict(lambda: Counter())
     for (node, base) in node2base.items():
         node2cov[node][True] = base[True] / len(node2seq[node])

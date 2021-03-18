@@ -99,7 +99,9 @@ def parse_gaf(path, storage, node2base=None, edge2cov=None, node2seq=None):
     with open(path) as fh:
         reader = csv.reader(fh, delimiter='\t')
         for row in reader:
-            nodes = re.findall(r"([<|>][^<>]+)", row[5])
+
+            nodes = re.findall(r"([<>][^<>]+)", row[5])
+
             begin_path = int(row[7])
             end_path = int(row[8])
             remain_base = end_path - begin_path
@@ -112,7 +114,7 @@ def parse_gaf(path, storage, node2base=None, edge2cov=None, node2seq=None):
                     if first:
                         first = False
                         node2base[node[1:]][forward] += node_len - begin_path
-                        remain_base -= node_len
+                        remain_base -= (node_len - begin_path)
                     elif remain_base > node_len:
                         node2base[node[1:]][forward] += node_len
                         remain_base -= node_len
