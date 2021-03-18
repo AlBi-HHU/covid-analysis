@@ -32,7 +32,7 @@ def main(alignment, pangenome, output):
                 else data[5][1:].split("<")[::-1]
             )
 
-            #7 -> Path Start, 8 -> Path End, 9 -> Path Length
+            #7 -> Path Start, 8 -> Path End, 6 -> Path Length
             path_start = int(data[7]) if (orientation == 'forward') else int(data[6]) - int(data[8])
 
 
@@ -47,7 +47,7 @@ def main(alignment, pangenome, output):
 
             current_node = path.pop(0)
             current_node_len = len(node2seq[current_node])
-            position_on_node = path_start
+            position_on_node = path_start if orientation == 'forward' else (current_node_len - path_start)
             logFile.write("Starting on node {} at position {}".format(current_node,position_on_node) + '\n')
 
             for (*length, instruction) in cigar:
