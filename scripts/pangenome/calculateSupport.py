@@ -55,7 +55,7 @@ def main(alignment, pangenome, output):
                     if orientation == 'forward':
                         if position_on_node >= current_node_len:
                             if len(path) == 0:
-                                print("Warning, path is exhausted!")
+                                logFile.write("Warning, path is exhausted!")
                                 exit(59)
                             current_node = path.pop(0)
                             current_node_len = len(node2seq[current_node])
@@ -63,13 +63,13 @@ def main(alignment, pangenome, output):
                     else:
                         if position_on_node < 0:
                             if len(path) == 0:
-                                print("Warning, path is exhausted!")
+                                logFile.write("Warning, path is exhausted!")
                                 exit(59)
                             current_node = path.pop(0)
                             current_node_len = len(node2seq[current_node])
                             position_on_node = current_node_len - 1
-                            print(length, instruction)
-                            print(path)
+                            logFile.write(length, instruction)
+                            logFile.write(path)
 
                     #print(current_node, len(node2base_cov[current_node][orientation]), position_on_node, posInInstruction, instruction, length, cigar, line)
 
