@@ -74,7 +74,7 @@ rule decomposeBlockSubs:
     shell:
         'vt decompose_blocksub -a {input} -o {output}'
 
-rule calculateRealNodeCoverages:
+rule calculateRealBaseSupport:
     input:
         alignment = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
         pangenome = "data/auxiliary/pangenome/pangenome.gfa",
