@@ -47,7 +47,7 @@ def main(alignment, pangenome, output):
             current_node_len = len(node2seq[current_node])
             position_on_node = path_start
 
-            logFile.write(','.join(cigar))
+            logFile.write(','.join(cigar)+'\n')
             for (*length, instruction) in cigar:
                 length = int("".join(length))
 
@@ -55,7 +55,8 @@ def main(alignment, pangenome, output):
                     if orientation == 'forward':
                         if position_on_node >= current_node_len:
                             if len(path) == 0:
-                                logFile.write("Warning, path is exhausted!")
+                                logFile.write("Warning, path is exhausted!"+'\n')
+                                logFile.write("ReadID: {}".format(data[0])+'\n')
                                 exit(59)
                             current_node = path.pop(0)
                             current_node_len = len(node2seq[current_node])
@@ -63,13 +64,14 @@ def main(alignment, pangenome, output):
                     else:
                         if position_on_node < 0:
                             if len(path) == 0:
-                                logFile.write("Warning, path is exhausted!")
+                                logFile.write("Warning, path is exhausted!"+'\n')
+                                logFile.write("ReadID: {}".format(data[0])+'\n')
                                 exit(59)
                             current_node = path.pop(0)
                             current_node_len = len(node2seq[current_node])
                             position_on_node = current_node_len - 1
-                            logFile.write('{},{}'.format(length, instruction))
-                            logFile.write(','.join(path))
+                            logFile.write('{},{}'.format(length, instruction)+'\n')
+                            logFile.write(','.join(path)+'\n')
 
                     #print(current_node, len(node2base_cov[current_node][orientation]), position_on_node, posInInstruction, instruction, length, cigar, line)
 
