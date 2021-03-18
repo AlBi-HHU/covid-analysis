@@ -39,6 +39,8 @@ def main(alignment, pangenome, output):
             cigar = data[-1].split(":")[2]
             cigar = re.findall("(\d+[MNDI])", cigar)
 
+            logFile.write(','.join(cigar)+'\n')
+
             # If the last instruction is an I, discard it, it has no information
             if (cigar[-1][-1] == "I"):
                 cigar = cigar[:-1]
@@ -46,8 +48,8 @@ def main(alignment, pangenome, output):
             current_node = path.pop(0)
             current_node_len = len(node2seq[current_node])
             position_on_node = path_start
+            logFile.write("Starting on node {} at position {}".format(current_node,position_on_node) + '\n')
 
-            logFile.write(','.join(cigar)+'\n')
             for (*length, instruction) in cigar:
                 length = int("".join(length))
 
