@@ -32,10 +32,9 @@ def main(alignment, pangenome, output):
                 else data[5][1:].split("<")[::-1]
             )
 
-            path_length = sum(len(node2seq[n_id]) for n_id in path)
-            path_start = (
-                int(data[7]) if (orientation == 'forward') else path_length - int(data[8])
-            )
+            #7 -> Path Start, 8 -> Path End, 9 -> Path Length
+            path_start = int(data[7]) if (orientation == 'forward') else int(data[9]) - int(data[8]) + 1
+
 
             cigar = data[-1].split(":")[2]
             cigar = re.findall("(\d+[MNDI])", cigar)
@@ -48,24 +47,40 @@ def main(alignment, pangenome, output):
             current_node_len = len(node2seq[current_node])
             position_on_node = path_start
 
+            print(cigar)
             for (*length, instruction) in cigar:
-
                 length = int("".join(length))
 
-                for _ in range(length):
-                    if position_on_node >= current_node_len:
-                        if len(path) == 0:
-                            print("Warning, path is exhausted!")
-                            exit(59)
-                        current_node = path.pop(0)
-                        current_node_len = len(node2seq[current_node])
-                        position_on_node = 0
+                for posInInstruction in range(length):
+                    if orientation == 'forward':
+                        if position_on_node >= current_node_len:
+                            if len(path) == 0:
+                                print("Warning, path is exhausted!")
+                                exit(59)
+                            current_node = path.pop(0)
+                            current_node_len = len(node2seq[current_node])
+                            position_on_node = 0
+                    else:
+                        if position_on_node < 0:
+                            if len(path) == 0:
+                                print("Warning, path is exhausted!")
+                                exit(59)
+                            current_node = path.pop(0)
+                            current_node_len = len(node2seq[current_node])
+                            position_on_node = current_node_len - 1
+                            print(length, instruction)
+                            print(path)
+
+                    #print(current_node, len(node2base_cov[current_node][orientation]), position_on_node, posInInstruction, instruction, length, cigar, line)
 
                     if instruction == "M":
                         node2base_cov[current_node][orientation][position_on_node] += 1
 
                     if instruction != "I":
-                        position_on_node += 1
+                        if orientation == 'forward':
+                            position_on_node += 1
+                        else:
+                            position_on_node -= 1
 
         json.dump(node2base_cov, outFile)
 
