@@ -27,9 +27,9 @@ def main(alignment, pangenome, output):
             # Split Read, the first Symbol in path is only used as an indicator for the orientation
             orientation = "forward" if data[5][0] == ">" else "reverse"
             path = list(
-                data[5][1:].split(">")[::-1]
+                data[5][1:].split(">")
                 if orientation == "forward"
-                else data[5][1:].split("<")
+                else data[5][1:].split("<")[::-1]
             )
 
             path_length = sum(len(node2seq[n_id]) for n_id in path)
