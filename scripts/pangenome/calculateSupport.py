@@ -47,7 +47,7 @@ def main(alignment, pangenome, output):
             current_node_len = len(node2seq[current_node])
             position_on_node = path_start
 
-            print(cigar)
+            logFile.write(','.join(cigar))
             for (*length, instruction) in cigar:
                 length = int("".join(length))
 
