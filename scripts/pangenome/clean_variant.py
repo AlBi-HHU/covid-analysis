@@ -89,6 +89,14 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, th_sbiais, th_sb_cov,
             "Description": "Reference support reverse",
         }
     )
+    header.add_info_line(
+        {
+            "ID": "CORHETRATIO",
+            "Type": "Float",
+            "Number": "1",
+            "Description": "Corrected heterozygote ratio",
+        }
+    )
 
     # Add filter line
     header.add_filter_line(
@@ -141,6 +149,8 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, th_sbiais, th_sb_cov,
         variant.INFO["VSUPR"] = vsup_r
         variant.INFO["RSUPF"] = rsup_f
         variant.INFO["RSUPR"] = rsup_r
+
+        variant.INFO["CORHETRATIO"] = (min(vsup_f, vsup_r) * 2) / (min(rsup_f, vsup_r) * 2)
 
         if vsup_f != float("nan") and rsup_f != float("nan"):
             coverage = vsup_f + vsup_r + rsup_f + rsup_r
