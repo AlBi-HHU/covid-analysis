@@ -124,11 +124,6 @@ def main(
         else:
             ref_path = sorted(ref_path, key=lambda x: len(x), reverse=True)[0]
 
-        ref_seq = "".join(node2seq[node] for node in ref_path)
-        (ref_cov, ref_covf, ref_covr) = path_coverage(
-            ref_path, edge2cov, node2cov, node2seq
-        )
-
         # Clean not covered node and edge
         subgraph.remove_nodes_from(not_cov_nodes)
         subgraph.remove_edges_from(not_cov_edges)
@@ -149,11 +144,22 @@ def main(
                 prev = node
 
         for var_path in var_paths:
+            # remove common nodes at extremity of each path
+            new_begin = index_of_last_common(ref_path, var_path)
+            new_end = index_of_last_common(reversed(ref_path), reversed(var_path))
+
+            local_ref = ref_path[new_begin:len(ref_path) - new_end]
+            local_var = ref_path[new_begin:len(var_path) - new_end]
+
+            (ref_cov, ref_covf, ref_covr) = path_coverage(
+                local_ref, edge2cov, node2cov, node2seq
+            )
             (var_cov, var_covf, var_covr) = path_coverage(
-                var_path, edge2cov, node2cov, node2seq
+                local_var, edge2cov, node2cov, node2seq
             )
 
-            var_seq = "".join(node2seq[node] for node in var_path)
+            ref_seq = "".join(node2seq[node] for node in local_ref)
+            var_seq = "".join(node2seq[node] for node in local_var)
 
             variants.append(
                 (
@@ -214,6 +220,16 @@ def main(
                     ),
                     file=fh,
                 )
+
+
+def index_of_last_common(ref_path, var_path):
+    new_begin = 0
+    for (index, (r_node, v_node)) in enumerate(zip(ref_path, var_path)):
+        if r_node != v_node:
+            break
+        new_begin = index
+
+    return new_begin
 
 
 def path_coverage(path, edge2cov, node2cov, node2seq):
