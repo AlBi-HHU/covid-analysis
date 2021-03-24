@@ -173,8 +173,8 @@ def main(
                     var_covf,
                     var_covr,
                     b_id,
-                    ref_path,
-                    var_path,
+                    local_ref,
+                    local_var,
                 )
             )
 
