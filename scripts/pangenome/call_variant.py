@@ -149,7 +149,7 @@ def main(
             new_end = index_of_last_common(reversed(ref_path), reversed(var_path))
 
             local_ref = ref_path[new_begin:len(ref_path) - new_end]
-            local_var = ref_path[new_begin:len(var_path) - new_end]
+            local_var = var_path[new_begin:len(var_path) - new_end]
 
             (ref_cov, ref_covf, ref_covr) = path_coverage(
                 local_ref, edge2cov, node2cov, node2seq
