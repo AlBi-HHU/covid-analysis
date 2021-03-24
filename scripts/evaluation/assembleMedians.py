@@ -1,6 +1,9 @@
 import statistics
 import sys
-sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
+
+sys.path.append(
+    "scripts"
+)  # Hackfix but results in a more readable scripts folder structure
 from shared import *
 import json
 
@@ -8,7 +11,7 @@ import json
 meanPileups = {}
 
 for f in snakemake.input:
-    print('processing pileups: {}'.format(f))
+    print("processing pileups: {}".format(f))
     fp = parsePileupStrandAware(f)
     for p in fp:
         if not p in meanPileups:
@@ -17,11 +20,11 @@ for f in snakemake.input:
         for k, v in fp[p][0].items():
             if not k in meanPileups[p]:
                 meanPileups[p][k] = []
-            meanPileups[p][k].append(v/total)
+            meanPileups[p][k].append(v / total)
 
 for p in meanPileups:
-    print('calculating median values ... (pos {})'.format(p))
+    print("calculating median values ... (pos {})".format(p))
     for k in meanPileups[p]:
-            meanPileups[p][k] = statistics.median(meanPileups[p][k])
+        meanPileups[p][k] = statistics.median(meanPileups[p][k])
 
-json.dump(meanPileups,open(snakemake.output[0],'w'))
+json.dump(meanPileups, open(snakemake.output[0], "w"))

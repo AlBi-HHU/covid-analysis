@@ -1,5 +1,8 @@
 import sys
-sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
+
+sys.path.append(
+    "scripts"
+)  # Hackfix but results in a more readable scripts folder structure
 from shared import *
 
 
@@ -37,26 +40,33 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
 
         if position not in illuminapileup or (
             position in illuminapileup
-            and sum(illuminapileup[position].values())< snakemake.config["illuminaCoverageCutoff"]
+            and sum(illuminapileup[position].values())
+            < snakemake.config["illuminaCoverageCutoff"]
         ):
             status = "IlluminaDropout"
             comment += "position not sufficiently covered by illumina reads (dropout?)"
         else:
-            #Check EACH component for ambiguity:
-            checklist = ambiguityLetters_inverted[altallele] if altallele in ambiguityLetters_inverted else [altallele]
+            # Check EACH component for ambiguity:
+            checklist = (
+                ambiguityLetters_inverted[altallele]
+                if altallele in ambiguityLetters_inverted
+                else [altallele]
+            )
             for allele in checklist:
                 sb = getStrandBias(illuminapileup[position], allele)
                 cov = getCoverage(illuminapileup[position], allele)
 
-                if (cov < snakemake.config["consensusMinCov"]):
+                if cov < snakemake.config["consensusMinCov"]:
                     status = "Rejected"
-                    comment = " illumina coverage for component {} too low: {}".format(allele, cov)
+                    comment = " illumina coverage for component {} too low: {}".format(
+                        allele, cov
+                    )
                     break
-                elif (
-                        min(1 - sb, sb) < snakemake.config["pangenomeStrandBiais"]
-                ):
+                elif min(1 - sb, sb) < snakemake.config["pangenomeStrandBiais"]:
                     status = "Rejected"
-                    comment = "strand bias for component {} too extreme: {}".format(allele, sb)
+                    comment = "strand bias for component {} too extreme: {}".format(
+                        allele, sb
+                    )
                     break
                 else:
                     status = "Verified"

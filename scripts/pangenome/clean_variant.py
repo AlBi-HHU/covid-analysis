@@ -16,7 +16,17 @@ sys.path.append(
 from shared import read_node2len
 
 
-def main(in_vcf, supportFile, node2len_path, min_cov, rvt, th_sbiais, th_sb_cov, th_sb_pval, out_vcf):
+def main(
+    in_vcf,
+    supportFile,
+    node2len_path,
+    min_cov,
+    rvt,
+    th_sbiais,
+    th_sb_cov,
+    th_sb_pval,
+    out_vcf,
+):
 
     nodeSupport = json.load(open(supportFile, "r"))
     node2len = read_node2len(node2len_path)
@@ -229,8 +239,8 @@ if "snakemake" in locals():
         snakemake.config["pangenomeVarMinCov"],
         snakemake.config["pangenomeRVTTSupport"],
         float(snakemake.config["pangenomeStrandBiais"]),
-        int(snakemake.config['pangenomePValCoverage']),
-        float(snakemake.config['pangenomePValCutoff']),
+        int(snakemake.config["pangenomePValCoverage"]),
+        float(snakemake.config["pangenomePValCutoff"]),
         snakemake.output[0],
     )
 else:

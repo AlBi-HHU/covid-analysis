@@ -2,7 +2,10 @@ import sys
 import altair as alt
 import pandas as pd
 import vcfpy
-sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
+
+sys.path.append(
+    "scripts"
+)  # Hackfix but results in a more readable scripts folder structure
 from shared import *
 import os
 from functools import reduce
@@ -71,9 +74,7 @@ for pancovF, ivarF, nanoporeF, pileupF in zip(
                 for tuple in filter(
                     lambda x: x[1] == pos and x[2] != "illumina", localtuples
                 ):
-                    difftuples.append(
-                        (tuple[0], tuple[2], tuple[3], af)
-                    )
+                    difftuples.append((tuple[0], tuple[2], tuple[3], af))
             else:
                 localtuples = list(filter(lambda x: x[1] != pos, localtuples))
         else:

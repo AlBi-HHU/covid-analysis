@@ -1,5 +1,8 @@
 import sys
-sys.path.append("scripts") #Hackfix but results in a more readable scripts folder structure
+
+sys.path.append(
+    "scripts"
+)  # Hackfix but results in a more readable scripts folder structure
 
 from shared import *
 
@@ -10,12 +13,14 @@ nanoporepileup = parsePileupStrandAwareLight(snakemake.input["nanoporePileup"])
 pancovInfoFile = open(snakemake.input["pancovInfo"], "r").read().splitlines()
 
 
-
-def determineRecoveryStatus(position,altallele):
+def determineRecoveryStatus(position, altallele):
     if position in illuminapileup:
 
-
-        components = ambiguityLetters_inverted[altallele] if altallele in ambiguityLetters_inverted else [altallele]
+        components = (
+            ambiguityLetters_inverted[altallele]
+            if altallele in ambiguityLetters_inverted
+            else [altallele]
+        )
 
         for component in components:
 
@@ -24,14 +29,20 @@ def determineRecoveryStatus(position,altallele):
             abs = getMinorStrandAbs(illuminapileup[position], component)
             fq = getMinorStrandFrequency(illuminapileup[position], component)
 
-            if alexSBFilter(cov,abs,fq):
-                return "Filtered","Alelle {} Filtered by Alex Filter".format(component)
+            if alexSBFilter(cov, abs, fq):
+                return "Filtered", "Alelle {} Filtered by Alex Filter".format(component)
 
             if position in nanoporepileup:
-                if sum(nanoporepileup[position].values()) < snakemake.config["nanoporeCoverageCutoff"]:
-                    return "NanoporeDropout","Below Threshold {}<{}".format(sum(nanoporepileup[position].values()),snakemake.config["nanoporeCoverageCutoff"])
+                if (
+                    sum(nanoporepileup[position].values())
+                    < snakemake.config["nanoporeCoverageCutoff"]
+                ):
+                    return "NanoporeDropout", "Below Threshold {}<{}".format(
+                        sum(nanoporepileup[position].values()),
+                        snakemake.config["nanoporeCoverageCutoff"],
+                    )
             else:
-                return "NanoporeDropout","Full Dropout"
+                return "NanoporeDropout", "Full Dropout"
 
             for l2 in pancovInfoFile:
                 lineData2 = l2.split()
@@ -39,13 +50,11 @@ def determineRecoveryStatus(position,altallele):
                 altallele2 = lineData2[2]
                 if position2 == position:
                     if altallele2 == altallele:
-                        return "Recovered",""
+                        return "Recovered", ""
                     else:
-                        return "Disagreement","Method called: {}".format(altallele2)
+                        return "Disagreement", "Method called: {}".format(altallele2)
 
-            return "Missed","Missed completely"
-
-
+            return "Missed", "Missed completely"
 
 
 with open(snakemake.output["diffFile"], "w") as outFile, open(
@@ -72,17 +81,18 @@ with open(snakemake.output["diffFile"], "w") as outFile, open(
         if altallele == "N":
             continue
 
-        recovered,comment = determineRecoveryStatus(position,altallele)
-
+        recovered, comment = determineRecoveryStatus(position, altallele)
 
         outFile.write(
             "{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
                 position,
                 reference,
                 altallele,
-                recovered, #the status of the allele
-                comment, #additional info
+                recovered,  # the status of the allele
+                comment,  # additional info
                 illuminapileup[position],
-                nanoporepileup[position] if position in nanoporepileup else "No nanopore pileup",
+                nanoporepileup[position]
+                if position in nanoporepileup
+                else "No nanopore pileup",
             )
         )
