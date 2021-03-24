@@ -165,7 +165,7 @@ def main(
                 (
                     ref_seq,
                     var_seq,
-                    node2pos[ref_path[0]],
+                    node2pos[local_ref[0]],
                     ref_cov,
                     ref_covf,
                     ref_covr,
