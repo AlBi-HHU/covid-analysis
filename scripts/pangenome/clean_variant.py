@@ -94,7 +94,7 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, th_sbiais, th_sb_cov,
             "ID": "CORHETRATIO",
             "Type": "Float",
             "Number": "1",
-            "Description": "Corrected heterozygote ratio",
+            "Description": "Corrected heterozygote ratio variant support divide by reference support",
         }
     )
 
@@ -150,7 +150,10 @@ def main(in_vcf, supportFile, node2len_path, min_cov, rvt, th_sbiais, th_sb_cov,
         variant.INFO["RSUPF"] = rsup_f
         variant.INFO["RSUPR"] = rsup_r
 
-        variant.INFO["CORHETRATIO"] = (min(vsup_f, vsup_r) * 2) / (min(rsup_f, vsup_r) * 2)
+        if min(rsup_f, rsup_r) == 0:
+            variant.INFO["CORHETRATIO"] = 1.0
+        else:
+            variant.INFO["CORHETRATIO"] = (min(vsup_f, vsup_r) * 2) / (min(rsup_f, rsup_r) * 2)
 
         if vsup_f != float("nan") and rsup_f != float("nan"):
             coverage = vsup_f + vsup_r + rsup_f + rsup_r
