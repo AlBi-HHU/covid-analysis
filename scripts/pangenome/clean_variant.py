@@ -17,14 +17,13 @@ from shared import read_node2len
 
 
 def main(
-        in_vcf,
-        supportFile,
-        node2len_path,
-        min_cov,
-        rvt,
-        th_sbiais,
-        mode,
-        out_vcf,
+    in_vcf,
+    supportFile,
+    node2len_path,
+    min_cov,
+    rvt,
+    th_sbiais,
+    out_vcf,
 ):
 
     nodeSupport = json.load(open(supportFile, "r"))
@@ -147,8 +146,8 @@ def main(
             variant = values[0][1]
             variant.INFO["MULTIPLE"] = True
 
-        vsup_f, vsup_r = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport, mode)
-        rsup_f, rsup_r = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport, mode)
+        vsup_f, vsup_r = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport)
+        rsup_f, rsup_r = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport)
         vsup = vsup_f + vsup_r
         rsup = rsup_f + rsup_r
 
@@ -189,7 +188,7 @@ def main(
         writer.write_record(variant)
 
 
-def compute_support(nodes, node2len, node_support, mode):
+def compute_support(nodes, node2len, node_support):
     nodes = nodes.split("_")
 
     if len(nodes) <= 2:
@@ -199,18 +198,12 @@ def compute_support(nodes, node2len, node_support, mode):
     all_supports_r = 0
     path_len = 0
 
-    if mode == "strict":
-        for node in nodes[1:-1]:
-            all_supports_f += max(node_support[node]["forward"])
-            all_supports_r += max(node_support[node]["reverse"])
-            path_len += node2len[node]
+    for node in nodes[1:-1]:
+        all_supports_f += max(node_support[node]["forward"])
+        all_supports_r += max(node_support[node]["reverse"])
+        path_len += node2len[node]
 
-            return (all_supports_f / path_len, all_supports_r / path_len)
-    else:
-        all_supports_f = min(min(node_support[node]["forward"]) for node in nodes[1:-1])
-        all_supports_r = min(min(node_support[node]["reverse"]) for node in nodes[1:-1])
-
-        return (all_supports_f, all_supports_r)
+    return (all_supports_f / path_len, all_supports_r / path_len)
 
 
 def strand_biais(record, th_sbiais, text="COV"):
@@ -233,7 +226,6 @@ if "snakemake" in locals():
         snakemake.config["pangenomeVarMinCov"],
         snakemake.config["pangenomeRVTTSupport"],
         float(snakemake.config["pangenomeStrandBiais"]),
-        snakemake.config["pangenomeMode"],
         snakemake.output[0],
     )
 else:
