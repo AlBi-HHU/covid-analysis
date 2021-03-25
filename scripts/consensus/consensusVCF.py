@@ -55,7 +55,8 @@ for record in reader:
     ].value  # therefore picking the first one picks the only existing variant
     pos = record.POS
 
-    logging.debug("Corresponding pileup record: {}".format(pileup[pos]))
+    if pos in pileup:
+        logging.debug("Corresponding pileup record: {}".format(pileup[pos]))
 
     varRatio = float(record.INFO["CORHETRATIO"])
 
