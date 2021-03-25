@@ -11,14 +11,15 @@ from shared import *  # TODO: import only required modules
 
 
 def main(
-    pangenome_path,
-    bubble_path,
-    reads_mapping,
-    node2pos_path,
-    rvt_threshold,
-    min_cov_factor,
-    min_ends_cov,
-    output_path,
+        pangenome_path,
+        bubble_path,
+        reads_mapping,
+        node2pos_path,
+        rvt_threshold,
+        min_cov_factor,
+        min_ends_cov,
+        mode,
+        output_path,
 ):
 
     # Get ref information
@@ -152,10 +153,10 @@ def main(
             local_var = var_path[new_begin : len(var_path) - new_end]
 
             (ref_cov, ref_covf, ref_covr) = path_coverage(
-                local_ref, edge2cov, node2cov, node2seq
+                local_ref, edge2cov, node2cov, node2seq, mode
             )
             (var_cov, var_covf, var_covr) = path_coverage(
-                local_var, edge2cov, node2cov, node2seq
+                local_var, edge2cov, node2cov, node2seq, mode
             )
 
             ref_seq = "".join(node2seq[node] for node in local_ref)
@@ -232,7 +233,7 @@ def index_of_last_common(ref_path, var_path):
     return new_begin
 
 
-def path_coverage(path, edge2cov, node2cov, node2seq):
+def path_coverage(path, edge2cov, node2cov, node2seq, mode):
     if len(path) < 2:
         return (0, 0, 0)
     elif len(path) == 2:
@@ -247,12 +248,19 @@ def path_coverage(path, edge2cov, node2cov, node2seq):
 
     path_len = sum(len(node2seq[x]) for x in path[1:-1])
 
-    # Don't take ends whne compute var_cov
-    return (
-        sum(node2cov[node]["all"] for node in path[1:-1]) / path_len,
-        sum(node2cov[node][True] for node in path[1:-1]) / path_len,
-        sum(node2cov[node][False] for node in path[1:-1]) / path_len,
-    )
+    # Don't take ends when compute var_cov
+    if mode == "strict":
+        return (
+            min(node2cov[node]["all"] for node in path[1:-1]),
+            min(node2cov[node][True] for node in path[1:-1]),
+            min(node2cov[node][False] for node in path[1:-1]),
+            )
+    else:
+        return (
+            sum(node2cov[node]["all"] for node in path[1:-1]) / path_len,
+            sum(node2cov[node][True] for node in path[1:-1]) / path_len,
+            sum(node2cov[node][False] for node in path[1:-1]) / path_len,
+        )
 
 
 def get_paths(graph, ends):
@@ -364,6 +372,7 @@ if "snakemake" in locals():
     rvt = float(snakemake.config["pangenomeRVTTPath"])
     min_cov_factor = float(snakemake.config["pangenomeMinCovFactor"])
     min_ends_cov = int(snakemake.config["pangenomeMinEndsCovBubble"])
+    mode = snakemake.config["pangenomeMode"]
     main(
         snakemake.input["pangenome"],
         snakemake.input["bubble"],
@@ -372,6 +381,7 @@ if "snakemake" in locals():
         rvt,
         min_cov_factor,
         min_ends_cov,
+        mode,
         snakemake.output["variant"],
     )
 else:

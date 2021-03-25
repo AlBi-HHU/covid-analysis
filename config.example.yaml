@@ -45,19 +45,20 @@ articMethods : ['medaka','nanopolish'] #which artic variant callers are used as 
 # Pangenome variant calling
 medakaQualityThreshold: 7.0
 pangenomeVariantCalling: True
-pangenomeRVTTPath: 0.5
+pangenomeRVTTPath: 0.3
 pangenomeRVTTSupport: 0.5
-pangenomeMinCovFactor: 0.1
+pangenomeMinCovFactor: 0.2
 pangenomeMinEndsCovBubble: 10
 pangenomeVarMinCov: 15
-pangenomeStrandBiais: 0.1
+pangenomeStrandBiais: 0.2
+pangenomeMode: "strict" # "sensible"
 
 # Illumina variant calling
 illuminaAlleleFreqCutoff: 0.8
 
 # Illumina cutoff for evaluation
-illuminaCoverageCutoff: 0.2 #Percentage Based
-nanoporeCoverageCutoff: 20 #Absolute Number
+illuminaCoverageCutoff: 0.2
+nanoporeCoverageCutoff: 20
 
 # Consensus section
 consensusMinCov: 20
