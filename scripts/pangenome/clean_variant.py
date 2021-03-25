@@ -23,8 +23,6 @@ def main(
     min_cov,
     rvt,
     th_sbiais,
-    th_sb_cov,
-    th_sb_pval,
     out_vcf,
 ):
 
@@ -173,12 +171,10 @@ def main(
         filters = list()
         if coverage < min_cov:
             filters.append("Coverage")
-
-        if strand_biais(variant, th_sbiais, th_sb_cov, th_sb_pval, "COV"):
+        elif strand_biais(variant, th_sbiais, "COV"):
             filters.append("StrandBiais")
-
-        if not math.isnan(vsup):
-            if strand_biais(variant, th_sbiais, th_sb_cov, th_sb_pval, "SUP"):
+        elif not math.isnan(vsup):
+            if strand_biais(variant, th_sbiais, "SUP"):
                 filters.append("StrandBiaisRealSupport")
 
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
@@ -210,25 +206,16 @@ def compute_support(nodes, node2len, node_support):
     return (all_supports_f / path_len, all_supports_r / path_len)
 
 
-def strand_biais(record, th_sbiais, th_sb_cov, th_sb_pval, text="COV"):
-    rcov = float(record.INFO[f"R{text}"])
+def strand_biais(record, th_sbiais, text="COV"):
     vcov = float(record.INFO[f"V{text}"])
     vcov_forward = float(record.INFO[f"V{text}F"])
     vcov_reverse = float(record.INFO[f"V{text}R"])
-    tcov = rcov + vcov
 
-    if vcov < th_sb_cov:
-        pval = binom.pmf(vcov_forward, vcov, 0.5)
-        if pval > th_sb_pval:
-            return False
-        else:
-            return True
+    ratio = min(vcov_forward, vcov_reverse) / vcov
+    if ratio > th_sbiais:
+        return False
     else:
-        ratio = min(vcov_forward, vcov_reverse) / tcov
-        if ratio > th_sbiais:
-            return False
-        else:
-            return True
+        return True
 
 
 if "snakemake" in locals():
@@ -239,8 +226,6 @@ if "snakemake" in locals():
         snakemake.config["pangenomeVarMinCov"],
         snakemake.config["pangenomeRVTTSupport"],
         float(snakemake.config["pangenomeStrandBiais"]),
-        int(snakemake.config["pangenomePValCoverage"]),
-        float(snakemake.config["pangenomePValCutoff"]),
         snakemake.output[0],
     )
 else:
