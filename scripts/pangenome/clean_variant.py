@@ -35,7 +35,7 @@ def main(
 
     pos2var = defaultdict(list)
     for record in reader:
-        coverage = record.INFO["VCOV"] + record.INFO["RCOV"]
+        coverage = record.INFO["VCOV"]
         pos2var[(record.POS, tuple(record.REF), tuple(record.ALT))].append(
             (coverage, record, record.INFO["VCOV"])
         )
@@ -166,7 +166,7 @@ def main(
             variant.INFO["CORHETRATIO"] = cor_vsup / (cor_vsup + cor_rsup)
 
         if vsup_f != float("nan") and rsup_f != float("nan"):
-            coverage = vsup_f + vsup_r + rsup_f + rsup_r
+            coverage = vsup_f + vsup_r
 
         filters = list()
         if coverage < min_cov:
