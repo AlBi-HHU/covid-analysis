@@ -352,13 +352,13 @@ with open(snakemake.output["text"], "w") as outfile, open(
                     bool_heterozygousIllu,
                     bool_heterozygousNano,
                     bool_concordance,
-                    (illuminapileup[position] for position in sorted(illuminapileup))
+                    list(illuminapileup[position] for position in sorted(illuminapileup))
                     if position in illuminapileup
                     else "Dropout",
-                     (nanoporepileup[position] for position in sorted(illuminapileup))
+                    list(nanoporepileup[position] for position in sorted(illuminapileup))
                     if position in nanoporepileup
                     else "Dropout",
-                    reference[position - 1-3:position-1+3+1], #3 preceding, 3 succeeding bases
+                    reference[position - 1-3:position-1+3+1].seq, #3 preceding, 3 succeeding bases
                 )
             )
 
