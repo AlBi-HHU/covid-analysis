@@ -355,7 +355,7 @@ with open(snakemake.output["text"], "w") as outfile, open(
                     list(illuminapileup[position] for position in sorted(illuminapileup))
                     if position in illuminapileup
                     else "Dropout",
-                    list(nanoporepileup[position] for position in sorted(illuminapileup))
+                    list(nanoporepileup[position] for position in sorted(nanoporepileup))
                     if position in nanoporepileup
                     else "Dropout",
                     reference[position - 1-3:position-1+3+1].seq, #3 preceding, 3 succeeding bases
