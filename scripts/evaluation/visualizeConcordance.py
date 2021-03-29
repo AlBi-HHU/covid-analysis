@@ -80,6 +80,7 @@ chart = (
             "concordance",
             "illuminaPileup",
             "nanoporePileup",
+            "referenceContext"
         ],
     )
     .transform_filter(selection_sm)

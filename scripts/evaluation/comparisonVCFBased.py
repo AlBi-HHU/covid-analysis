@@ -340,7 +340,7 @@ with open(snakemake.output["text"], "w") as outfile, open(
                 (
                     fid,
                     position,
-                    reference[int(position - 1)],
+                    reference[position - 1],
                     illuminaType,
                     illuminaValue,
                     nanoporeType,
@@ -352,12 +352,13 @@ with open(snakemake.output["text"], "w") as outfile, open(
                     bool_heterozygousIllu,
                     bool_heterozygousNano,
                     bool_concordance,
-                    illuminapileup[position]
+                    (illuminapileup[position] for position in sorted(illuminapileup))
                     if position in illuminapileup
                     else "Dropout",
-                    nanoporepileup[position]
+                     (nanoporepileup[position] for position in sorted(illuminapileup))
                     if position in nanoporepileup
                     else "Dropout",
+                    reference[position - 1-3:position-1+3+1], #3 preceding, 3 succeeding bases
                 )
             )
 
@@ -481,6 +482,7 @@ df = pd.DataFrame(
         "concordance",
         "illuminaPileup",
         "nanoporePileup",
+        "referenceContext"
     ],
 )
 

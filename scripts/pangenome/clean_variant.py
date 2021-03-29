@@ -199,6 +199,7 @@ def compute_support(nodes, node2len, node_support):
     path_len = 0
 
     for node in nodes[1:-1]:
+        #Take maximum of coverage across all positions
         all_supports_f += max(node_support[node]["forward"])
         all_supports_r += max(node_support[node]["reverse"])
         path_len += node2len[node]
