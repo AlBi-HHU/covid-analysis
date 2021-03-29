@@ -352,10 +352,10 @@ with open(snakemake.output["text"], "w") as outfile, open(
                     bool_heterozygousIllu,
                     bool_heterozygousNano,
                     bool_concordance,
-                    list(illuminapileup[position][allele] for allele in sorted(illuminapileup[position]))
+                    list('{}:{}'.format(allele,illuminapileup[position][allele]) for allele in sorted(illuminapileup[position]))
                     if position in illuminapileup
                     else "Dropout",
-                    list(nanoporepileup[position][allele] for allele in sorted(nanoporepileup[position]))
+                    list('{}:{}'.format(allele,nanoporepileup[position][allele]) for allele in sorted(nanoporepileup[position]))
                     if position in nanoporepileup
                     else "Dropout",
                     reference[position - 1-3:position-1+3+1].seq, #3 preceding, 3 succeeding bases
