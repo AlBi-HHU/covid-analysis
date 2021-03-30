@@ -98,22 +98,6 @@ def main(
         }
     )
 
-    header.add_info_line(
-        {
-            "ID": "STVSUPF",
-            "Type": "String",
-            "Number": "1",
-            "Description": "Strict Variant support forward",
-        }
-    )
-    header.add_info_line(
-        {
-            "ID": "STVSUPR",
-            "Type": "String",
-            "Number": "1",
-            "Description": "Strict Variant  support reverse",
-        }
-    )
 
     header.add_info_line(
         {
