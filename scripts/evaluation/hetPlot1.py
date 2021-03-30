@@ -30,9 +30,7 @@ for pancovF, ivarF, nanoporeF, pileupF in zip(
     reader = vcfpy.Reader.from_path(pancovF)
     for record in reader:
 
-        alleleFrequency = record.INFO["VCOV"] / (
-            record.INFO["VCOV"] + record.INFO["RCOV"]
-        )
+        alleleFrequency = record.INFO["CORHETRATIO"]
         localtuples.append(
             (pancovF, record.POS, "pancov", alleleFrequency, record.ALT[0].value)
         )
