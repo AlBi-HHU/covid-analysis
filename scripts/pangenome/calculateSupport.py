@@ -106,9 +106,9 @@ def main(alignment, pangenome, output):
                     lastPositions.pop(-1)
                     lastNodes.pop(-1)
 
-                    lastInstructions.push(instruction)
-                    lastPositions.push(position_on_node)
-                    lastNodes.push(current_node)
+                    lastInstructions.insert(0,instruction)
+                    lastPositions.insert(0,position_on_node)
+                    lastNodes.insert(0,current_node)
 
                     #if we have three matches, the middle match is REALLY supported
                     if lastInstructions[0] == lastInstructions[1] == lastInstructions[2] == 'M':
