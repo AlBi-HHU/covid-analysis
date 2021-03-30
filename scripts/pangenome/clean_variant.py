@@ -106,6 +106,15 @@ def main(
         }
     )
 
+    header.add_info_line(
+        {
+            "ID": "REFERENCESUPPORT",
+            "Type": "Flag",
+            "Number": "1",
+            "Description": "We trust the reference emissions at this position",
+        }
+    )
+
     # Add filter line
     header.add_filter_line(
         {
@@ -175,7 +184,7 @@ def main(
             filters.append("StrandBias")
         elif not math.isnan(vsup):
             if strand_bias(variant, th_sbiais, "SUP"):
-                filters.append("StrandBiasRealSupport")
+                variant.INFO['REFERENCESUPPORT'] = True
 
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
                 filters.append("NoRealSupport")

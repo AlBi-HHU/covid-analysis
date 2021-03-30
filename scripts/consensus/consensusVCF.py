@@ -45,11 +45,8 @@ writer = vcfpy.Writer.from_path(snakemake.output["vcf"], header)
 for record in reader:
     logging.debug("Processing record: {}".format(record))
 
-    if record.FILTER != ["PASS"]: #StrandBiasRealSupport is a special case
-        if record.FILTER == ["StrandBiasRealSupport"]:
-            pass
-        else:
-            continue
+    if record.FILTER != ["PASS"]:
+        continue
 
     # We only have single variants
     ref = record.REF
@@ -66,7 +63,7 @@ for record in reader:
     if th_het <= varRatio <= 1 - th_het:
 
         #Special Case: If we are only unsure about the reference content assume the pure variant
-        if record.FILTER == ["StrandBiasRealSupport"]:
+        if record.INFO['REFERENCESUPPORT'] == True:
             pass
         # SNPs get the ambiguous base characterss
         elif len(alt) == 1 and len(ref) == 1:
