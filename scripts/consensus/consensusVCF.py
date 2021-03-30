@@ -63,7 +63,7 @@ for record in reader:
     if th_het <= varRatio <= 1 - th_het:
 
         #Special Case: If we are only unsure about the reference content assume the pure variant
-        if record.INFO['REFERENCEUNSUPPORTED'] == True:
+        if 'REFERENCEUNSUPPORTED' in record.INFO:
             pass
         # SNPs get the ambiguous base characterss
         elif len(alt) == 1 and len(ref) == 1:

@@ -185,7 +185,7 @@ def main(
         elif not math.isnan(vsup):
             if strand_bias(variant, th_sbiais, "SUP"):
                 filters.append("StrandBiasRealSupport")
-                #variant.INFO['REFERENCESUPPORT'] = True
+                #variant.INFO['REFERENCEUNSUPPORTED'] = True
 
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
                 filters.append("NoRealSupport")
