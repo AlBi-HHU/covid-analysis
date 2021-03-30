@@ -13,13 +13,19 @@ def main(alignment, pangenome, output):
     # get the sequence associate to node
     node2seq = get_node2seq(pangenome)
 
-    node2base_cov = {
-        n_id: {
-            "forward": [{'strict' : 0, 'lenient' : 0}] * len(seq),
-            "reverse": [{'strict' : 0, 'lenient' : 0}] * len(seq)
+    node2base_cov = {}
+
+    for n_id, seq in node2seq.items():
+        node2base_cov[n_id] =  {
+            "forward": [] ,
+            "reverse": []
         }
-        for n_id, seq in node2seq.items()
-    }
+        for pos in range(len(seq)):
+            node2base_cov[n_id]["forward"][pos] = {'strict': 0, 'lenient': 0}
+            node2base_cov[n_id]["reverse"][pos] = {'strict': 0, 'lenient': 0}
+
+
+
 
     with open(alignment, "r") as alignmentFile, open(
         snakemake.log[0], "w"
