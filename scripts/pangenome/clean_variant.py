@@ -171,11 +171,11 @@ def main(
         filters = list()
         if coverage < min_cov:
             filters.append("Coverage")
-        elif strand_biais(variant, th_sbiais, "COV"):
-            filters.append("StrandBiais")
+        elif strand_bias(variant, th_sbiais, "COV"):
+            filters.append("StrandBias")
         elif not math.isnan(vsup):
-            if strand_biais(variant, th_sbiais, "SUP"):
-                filters.append("StrandBiaisRealSupport")
+            if strand_bias(variant, th_sbiais, "SUP"):
+                filters.append("StrandBiasRealSupport")
 
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
                 filters.append("NoRealSupport")
@@ -207,13 +207,13 @@ def compute_support(nodes, node2len, node_support):
     return (all_supports_f / path_len, all_supports_r / path_len)
 
 
-def strand_biais(record, th_sbiais, text="COV"):
+def strand_bias(record, th_sbias, text="COV"):
     vcov = float(record.INFO[f"V{text}"])
     vcov_forward = float(record.INFO[f"V{text}F"])
     vcov_reverse = float(record.INFO[f"V{text}R"])
 
     ratio = min(vcov_forward, vcov_reverse) / vcov
-    if ratio > th_sbiais:
+    if ratio > th_sbias:
         return False
     else:
         return True

@@ -45,8 +45,11 @@ writer = vcfpy.Writer.from_path(snakemake.output["vcf"], header)
 for record in reader:
     logging.debug("Processing record: {}".format(record))
 
-    if record.FILTER != ["PASS"]:
-        continue
+    if record.FILTER != ["PASS"]: #StrandBiasRealSupport is a special case
+        if record.FILTER == ["StrandBiasRealSupport"]:
+            pass
+        else:
+            continue
 
     # We only have single variants
     ref = record.REF
@@ -61,12 +64,17 @@ for record in reader:
     varRatio = float(record.INFO["CORHETRATIO"])
 
     if th_het <= varRatio <= 1 - th_het:
-        # SNPs get the ambiguous base chars
-        if len(alt) == 1 and len(ref) == 1:
+
+        #Special Case: If we are only unsure about the reference content assume the pure variant
+        if record.FILTER == ["StrandBiasRealSupport"]:
+            pass
+        # SNPs get the ambiguous base characterss
+        elif len(alt) == 1 and len(ref) == 1:
             record.ALT[0].value = ambiguityLetters[
                 frozenset({record.ALT[0].value, record.REF})
             ]
         else:
+        #Here, we have a heterozygous structural variant, since we can't really encode this in a linear consensus we just keep the information in the .vcf file
             record.INFO["HSV"] = True
 
     writer.write_record(record)
