@@ -5,7 +5,7 @@ import math
 ##We do two things here: We remove duplicates and also check if the alignments actually support the variants on a nucleotide basis
 
 from collections import defaultdict
-
+import statistics
 import sys
 
 from scipy.stats import binom
@@ -215,8 +215,8 @@ def compute_support(nodes, node2len, node_support,strict=False):
 
     for node in nodes[1:-1]:
         #Take maximum of coverage across all positions
-        all_supports_f += max(node_support[node]["forward"][pos][key] for pos in range(len(node_support[node]["forward"])))
-        all_supports_r += max(node_support[node]["reverse"][pos][key] for pos in range(len(node_support[node]["reverse"])))
+        all_supports_f += statistics.mean(node_support[node]["forward"][pos][key] for pos in range(len(node_support[node]["forward"])))
+        all_supports_r += statistics.mean(node_support[node]["reverse"][pos][key] for pos in range(len(node_support[node]["reverse"])))
         path_len += node2len[node]
 
     return (all_supports_f / path_len, all_supports_r / path_len)
