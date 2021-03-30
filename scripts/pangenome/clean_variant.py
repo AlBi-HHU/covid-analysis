@@ -4,7 +4,7 @@ import math
 
 ##We do two things here: We remove duplicates and also check if the alignments actually support the variants on a nucleotide basis
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 import statistics
 import sys
 
@@ -31,7 +31,7 @@ def main(
 
     reader = vcfpy.Reader.from_path(in_vcf)
 
-    header = reader.header
+    header = clean_header_info(reader.header)
 
     pos2var = defaultdict(list)
     for record in reader:
@@ -41,110 +41,10 @@ def main(
         )
 
     # Add info line
-    header.add_info_line(
-        {
-            "ID": "MULTIPLE",
-            "Type": "Flag",
-            "Number": "1",
-            "Description": "Pangenome found multiple variant at this position",
-        }
-    )
-    header.add_info_line(
-        {
-            "ID": "VSUP",
-            "Type": "String",
-            "Number": "1",
-            "Description": "Variant support",
-        }
-    )
-    header.add_info_line(
-        {
-            "ID": "VSUPF",
-            "Type": "String",
-            "Number": "1",
-            "Description": "Variant support forward",
-        }
-    )
-    header.add_info_line(
-        {
-            "ID": "VSUPR",
-            "Type": "String",
-            "Number": "1",
-            "Description": "Variant support reverse",
-        }
-    )
-    header.add_info_line(
-        {
-            "ID": "RSUP",
-            "Type": "String",
-            "Number": "1",
-            "Description": "Reference support",
-        }
-    )
-    header.add_info_line(
-        {
-            "ID": "RSUPF",
-            "Type": "String",
-            "Number": "1",
-            "Description": "Reference support forward",
-        }
-    )
-    header.add_info_line(
-        {
-            "ID": "RSUPR",
-            "Type": "String",
-            "Number": "1",
-            "Description": "Reference support reverse",
-        }
-    )
-
-
-    header.add_info_line(
-        {
-            "ID": "CORHETRATIO",
-            "Type": "Float",
-            "Number": "1",
-            "Description": "Corrected heterozygote ratio variant support divide by variant plus reference support",
-        }
-    )
-
-    header.add_info_line(
-        {
-            "ID": "REFERENCEUNSUPPORTED",
-            "Type": "Flag",
-            "Number": "1",
-            "Description": "We don't trust the reference emissions at this position",
-        }
-    )
+    add_header_info(header)
 
     # Add filter line
-    header.add_filter_line(
-        {
-            "ID": "Coverage",
-            "Description": "Total coverage is lower than minimal coverage",
-        }
-    )
-
-    header.add_filter_line(
-        {
-            "ID": "StrandBias",
-            "Description": "We notice a strand bias in coverage of this variant",
-        }
-    )
-
-    header.add_filter_line(
-        {
-            "ID": "NoRealSupport",
-            "Description": "This variant isn't realy support",
-        }
-    )
-
-    header.add_filter_line(
-        {
-            "ID": "StrandBiasRealSupport",
-            "Description": "We notice a strand bias in coverage of this variant",
-        }
-    )
+    add_header_filter(header)
 
     writer = vcfpy.Writer.from_path(out_vcf, reader.header)
 
@@ -155,7 +55,6 @@ def main(
             values.sort(key=lambda x: x[0], reverse=True)
             coverage = values[0][0]
             variant = values[0][1]
-            variant.INFO["MULTIPLE"] = True
 
         vsup_f, vsup_r = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport,strict=True)
         rsup_f, rsup_r = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport,strict=True)
@@ -188,7 +87,6 @@ def main(
         elif not math.isnan(vsup):
             if strand_bias(variant, th_sbiais, "SUP"):
                 filters.append("StrandBiasRealSupport")
-                #variant.INFO['REFERENCEUNSUPPORTED'] = True
 
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
                 filters.append("NoRealSupport")
@@ -198,7 +96,18 @@ def main(
 
         variant.FILTER = filters
 
+        variant = rebind_info(variant)
+
         writer.write_record(variant)
+
+
+def clean_header_info(header):
+    del_position = reversed([p for (p, line) in enumerate(header.lines) if isinstance(line, vcfpy.InfoHeaderLine)])
+
+    for pos in del_position:
+        del header.lines[pos]
+
+    return header
 
 
 def compute_support(nodes, node2len, node_support,strict=False):
@@ -222,7 +131,6 @@ def compute_support(nodes, node2len, node_support,strict=False):
     return (all_supports_f / path_len, all_supports_r / path_len)
 
 
-
 def strand_bias(record, th_sbias, text="COV"):
     vcov = float(record.INFO[f"V{text}"])
     vcov_forward = float(record.INFO[f"V{text}F"])
@@ -233,6 +141,131 @@ def strand_bias(record, th_sbias, text="COV"):
         return False
     else:
         return True
+
+
+def rebind_info(record):
+    old_info = record.INFO
+    new_info = OrderedDict()
+
+    new_info["BUBBLEID"] = str(old_info["BUBBLEID"])
+    new_info["RPATH"] = old_info["REFPATH"]
+    new_info["VPATH"] = old_info["VARPATH"]
+
+    new_info["RCOV"] = [old_info["RCOVF"], old_info["RCOVR"]]
+    new_info["VCOV"] = [old_info["VCOVF"], old_info["VCOVR"]]
+
+    new_info["RSUP"] = [old_info["RSUPF"], old_info["RSUPR"]]
+    new_info["VSUP"] = [old_info["VSUPF"], old_info["VSUPR"]]
+
+    new_info["CORHETRATIO"] = old_info["CORHETRATIO"]
+
+    record.INFO = new_info
+
+    return record
+
+
+def add_header_info(header):
+    header.add_info_line(
+        {
+            "ID": "BUBBLEID",
+            "Type": "String",
+            "Number": "1",
+            "Description": "Id of bubble in pangenome",
+        }
+    )
+
+    header.add_info_line(
+        {
+            "ID": "RPATH",
+            "Type": "String",
+            "Number": "1",
+            "Description": "Ids of nodes that make up the reference path (separate by _)",
+        }
+    )
+
+    header.add_info_line(
+        {
+            "ID": "VPATH",
+            "Type": "String",
+            "Number": "1",
+            "Description": "Ids of nodes that make up the variant path (separate by _)",
+        }
+    )
+
+    header.add_info_line(
+        {
+            "ID": "RCOV",
+            "Type": "Float",
+            "Number": "2",
+            "Description": "Reference coverage on each strand",
+        }
+    )
+
+    header.add_info_line(
+        {
+            "ID": "VCOV",
+            "Type": "Float",
+            "Number": "2",
+            "Description": "Variant support on each strand",
+        }
+    )
+
+    header.add_info_line(
+        {
+            "ID": "RSUP",
+            "Type": "Float",
+            "Number": "2",
+            "Description": "Reference support on each strand",
+        }
+    )
+
+    header.add_info_line(
+        {
+            "ID": "VSUP",
+            "Type": "Float",
+            "Number": "2",
+            "Description": "Variant support on each strand",
+        }
+    )
+
+    header.add_info_line(
+        {
+            "ID": "CORHETRATIO",
+            "Type": "Float",
+            "Number": "1",
+            "Description": "Corrected heterozygote ratio variant support divide by variant plus reference support",
+        }
+    )
+
+
+def add_header_filter(header):
+    header.add_filter_line(
+        {
+            "ID": "Coverage",
+            "Description": "Total coverage is lower than minimal coverage",
+        }
+    )
+
+    header.add_filter_line(
+        {
+            "ID": "StrandBias",
+            "Description": "We notice a strand bias in coverage of this variant",
+        }
+    )
+
+    header.add_filter_line(
+        {
+            "ID": "NoRealSupport",
+            "Description": "This variant isn't realy support",
+        }
+    )
+
+    header.add_filter_line(
+        {
+            "ID": "StrandBiasRealSupport",
+            "Description": "We notice a strand bias in coverage of this variant",
+        }
+    )
 
 
 if "snakemake" in locals():
