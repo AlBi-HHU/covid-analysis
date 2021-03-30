@@ -173,9 +173,8 @@ def main(
             variant = values[0][1]
             variant.INFO["MULTIPLE"] = True
 
-        vsup_f, vsup_r = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport)
-        vsup_fs, vsup_rs = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport,strict=True)
-        rsup_f, rsup_r = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport)
+        vsup_f, vsup_r = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport,strict=True)
+        rsup_f, rsup_r = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport,strict=True)
         vsup = vsup_f + vsup_r
         rsup = rsup_f + rsup_r
 
@@ -185,8 +184,7 @@ def main(
         variant.INFO["VSUPR"] = vsup_r
         variant.INFO["RSUPF"] = rsup_f
         variant.INFO["RSUPR"] = rsup_r
-        variant.INFO["STVSUPF"] = vsup_fs
-        variant.INFO["STVSUPR"] = vsup_rs
+
 
         if (min(rsup_f, rsup_r) + min(vsup_f, vsup_r)) == 0:
             variant.INFO["CORHETRATIO"] = -1.0
