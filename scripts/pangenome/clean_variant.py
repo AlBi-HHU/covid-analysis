@@ -108,10 +108,10 @@ def main(
 
     header.add_info_line(
         {
-            "ID": "REFERENCESUPPORT",
+            "ID": "REFERENCEUNSUPPORTED",
             "Type": "Flag",
             "Number": "1",
-            "Description": "We trust the reference emissions at this position",
+            "Description": "We don't trust the reference emissions at this position",
         }
     )
 
@@ -125,7 +125,7 @@ def main(
 
     header.add_filter_line(
         {
-            "ID": "StrandBiais",
+            "ID": "StrandBias",
             "Description": "We notice a strand biais in coverage of this variant",
         }
     )
@@ -139,7 +139,7 @@ def main(
 
     header.add_filter_line(
         {
-            "ID": "StrandBiaisRealSupport",
+            "ID": "StrandBiasRealSupport",
             "Description": "We notice a strand biais in coverage of this variant",
         }
     )
@@ -184,7 +184,8 @@ def main(
             filters.append("StrandBias")
         elif not math.isnan(vsup):
             if strand_bias(variant, th_sbiais, "SUP"):
-                variant.INFO['REFERENCESUPPORT'] = True
+                filters.append("StrandBiasRealSupport")
+                #variant.INFO['REFERENCESUPPORT'] = True
 
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
                 filters.append("NoRealSupport")
