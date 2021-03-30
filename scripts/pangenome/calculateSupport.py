@@ -14,7 +14,10 @@ def main(alignment, pangenome, output):
     node2seq = get_node2seq(pangenome)
 
     node2base_cov = {
-        n_id: {"forward": [0] * len(seq), "reverse": [0] * len(seq)}
+        n_id: {
+            "forward": [{'strict' : 0, 'lenient' : 0}] * len(seq),
+            "reverse": [{'strict' : 0, 'lenient' : 0}] * len(seq)
+        }
         for n_id, seq in node2seq.items()
     }
 
@@ -64,6 +67,11 @@ def main(alignment, pangenome, output):
                 + "\n"
             )
 
+            #Memoize previous CIGAR instructions for stricter values
+            lastInstructions = ['None','None','None']
+            lastPositions = [-1,-1,-1]
+            lastNodes = [-1,-1,-1]
+
             for (*length, instruction) in cigar:
                 length = int("".join(length))
 
@@ -92,7 +100,20 @@ def main(alignment, pangenome, output):
                     # print(current_node, len(node2base_cov[current_node][orientation]), position_on_node, posInInstruction, instruction, length, cigar, line)
 
                     if instruction == "M":
-                        node2base_cov[current_node][orientation][position_on_node] += 1
+                        node2base_cov[current_node][orientation][position_on_node]['lenient'] += 1
+
+                    lastInstructions.pop(-1)
+                    lastPositions.pop(-1)
+                    lastNodes.pop(-1)
+
+                    lastInstructions.push(instruction)
+                    lastPositions.push(position_on_node)
+                    lastNodes.push(current_node)
+
+                    #if we have three matches, the middle match is REALLY supported
+                    if lastInstructions[0] == lastInstructions[1] == lastInstructions[2] == 'M':
+                        node2base_cov[lastNodes[1]][orientation][lastPositions[1]]['strict'] += 1
+
 
                     if instruction != "I":
                         if orientation == "forward":

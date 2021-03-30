@@ -97,6 +97,24 @@ def main(
             "Description": "Reference support reverse",
         }
     )
+
+    header.add_info_line(
+        {
+            "ID": "STVSUPF",
+            "Type": "String",
+            "Number": "1",
+            "Description": "Strict Variant support forward",
+        }
+    )
+    header.add_info_line(
+        {
+            "ID": "STVSUPR",
+            "Type": "String",
+            "Number": "1",
+            "Description": "Strict Variant  support reverse",
+        }
+    )
+
     header.add_info_line(
         {
             "ID": "CORHETRATIO",
@@ -126,7 +144,7 @@ def main(
     header.add_filter_line(
         {
             "ID": "StrandBias",
-            "Description": "We notice a strand biais in coverage of this variant",
+            "Description": "We notice a strand bias in coverage of this variant",
         }
     )
 
@@ -140,7 +158,7 @@ def main(
     header.add_filter_line(
         {
             "ID": "StrandBiasRealSupport",
-            "Description": "We notice a strand biais in coverage of this variant",
+            "Description": "We notice a strand bias in coverage of this variant",
         }
     )
 
@@ -156,6 +174,7 @@ def main(
             variant.INFO["MULTIPLE"] = True
 
         vsup_f, vsup_r = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport)
+        vsup_fs, vsup_rs = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport,strict=True)
         rsup_f, rsup_r = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport)
         vsup = vsup_f + vsup_r
         rsup = rsup_f + rsup_r
@@ -166,6 +185,8 @@ def main(
         variant.INFO["VSUPR"] = vsup_r
         variant.INFO["RSUPF"] = rsup_f
         variant.INFO["RSUPR"] = rsup_r
+        variant.INFO["STVSUPF"] = vsup_fs
+        variant.INFO["STVSUPR"] = vsup_rs
 
         if (min(rsup_f, rsup_r) + min(vsup_f, vsup_r)) == 0:
             variant.INFO["CORHETRATIO"] = -1.0
@@ -198,7 +219,7 @@ def main(
         writer.write_record(variant)
 
 
-def compute_support(nodes, node2len, node_support):
+def compute_support(nodes, node2len, node_support,strict=False):
     nodes = nodes.split("_")
 
     if len(nodes) <= 2:
@@ -208,13 +229,16 @@ def compute_support(nodes, node2len, node_support):
     all_supports_r = 0
     path_len = 0
 
+    key = 'strict' if strict else 'lenient'
+
     for node in nodes[1:-1]:
         #Take maximum of coverage across all positions
-        all_supports_f += max(node_support[node]["forward"])
-        all_supports_r += max(node_support[node]["reverse"])
+        all_supports_f += max(node_support[node]["forward"][key])
+        all_supports_r += max(node_support[node]["reverse"][key])
         path_len += node2len[node]
 
     return (all_supports_f / path_len, all_supports_r / path_len)
+
 
 
 def strand_bias(record, th_sbias, text="COV"):
