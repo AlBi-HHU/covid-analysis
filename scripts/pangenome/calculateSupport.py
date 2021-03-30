@@ -21,8 +21,8 @@ def main(alignment, pangenome, output):
             "reverse": []
         }
         for pos in range(len(seq)):
-            node2base_cov[n_id]["forward"][pos] = {'strict': 0, 'lenient': 0}
-            node2base_cov[n_id]["reverse"][pos] = {'strict': 0, 'lenient': 0}
+            node2base_cov[n_id]["forward"].append( {'strict': 0, 'lenient': 0})
+            node2base_cov[n_id]["reverse"].append({'strict': 0, 'lenient': 0})
 
 
 
