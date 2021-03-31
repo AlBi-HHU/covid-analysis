@@ -91,7 +91,6 @@ def getInput(wildcards):
             inputList += expand('data/auxiliary/pangenome_vc/'+run+'/{barcode}/filter.annoted.vcf', barcode=barcodes[run])
 
         ### REMOVE LATER (THIS SECTION IS ONLY USED FOR EVALUATION OF THE PIPELINE AND IRRELEVANT FOR PRODUCTIVE USE)
-
         inputList += ['data/output/evaluation/comparisonFastaBased/nanopolish.eval']
         inputList += ['data/output/evaluation/comparisonFastaBased/medaka.eval']
         inputList += ['data/output/evaluation/comparisonFastaBased/illumina.eval']
@@ -101,15 +100,15 @@ def getInput(wildcards):
         inputList += ['data/output/evaluation/illumina_recovery_pancov.html']
         inputList += ['data/output/evaluation/illumina_recovery_medaka.html']
         inputList += ['data/output/evaluation/illumina_recovery_nanopolish.html']
+
         #VCF Based
         inputList += ['data/output/evaluation/vcfbased/concordance_pancov.html']
         inputList += ['data/output/evaluation/vcfbased/concordance_medaka.html']
         inputList += ['data/output/evaluation/vcfbased/concordance_nanopolish.html']
         inputList += ['data/output/evaluation/heterozygosity']
-        inputList += ['data/output/evaluation/toplevelStats_pancov_'+str(config['pangenomeMinCovFactor'])+'_'+str(config['pangenomeRVTTPath'])+'.eval']
+        inputList += ['data/output/evaluation/toplevelStats_pancov.eval']
+
         for barcode in barcodes[run]:
-
-
             if run in illuminaMapping and barcode in illuminaMapping[run]:
                 pass
             else:
