@@ -29,6 +29,10 @@ def main(
     support = json.load(open(supportFile, "r"))
     nodeSupport = support["nodes"]
 
+    edgeSupport = defaultdict(int)
+    for key, value in support["edges"].items():
+        edgeSupport[frozenset(key.split("_"))] = value
+
     node2len = read_node2len(node2len_path)
 
     reader = vcfpy.Reader.from_path(in_vcf)
@@ -58,8 +62,8 @@ def main(
             coverage = values[0][0]
             variant = values[0][1]
 
-        vsup_f, vsup_r = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport,strict=True)
-        rsup_f, rsup_r = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport,strict=True)
+        vsup_f, vsup_r = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport, edgeSupport, strict=True)
+        rsup_f, rsup_r = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport, edgeSupport, strict=True)
         vsup = vsup_f + vsup_r
         rsup = rsup_f + rsup_r
 
@@ -110,11 +114,11 @@ def clean_header_info(header):
     return header
 
 
-def compute_support(nodes, node2len, node_support,strict=False):
+def compute_support(nodes, node2len, node_support, edge_support, strict=False):
     nodes = nodes.split("_")
 
     if len(nodes) <= 2:
-        return (float("nan"), float("nan"))
+        return (edge_support[frozenset(nodes)], edge_support[frozenset(nodes)])
 
     all_supports_f = 0
     all_supports_r = 0
