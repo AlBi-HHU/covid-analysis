@@ -479,16 +479,16 @@ with open(snakemake.output["text"], "w") as outfile, open(
             cnt_concordance_HOM, cnt_comparablePositions
         )
     )
-    outfile.write("FP:{} \n".format(cnt_falsePositives_HOM))
-    outfile.write("FN:{} \n".format(cnt_falseNegatives_HOM))
+    outfile.write("HOM FP:{} \n".format(cnt_falsePositives_HOM))
+    outfile.write("HOM FN:{} \n".format(cnt_falseNegatives_HOM))
 
     outfile.write(
         "HET Concordance:{} of {} comparable positions \n".format(
             cnt_concordance_HET, cnt_comparablePositions
         )
     )
-    outfile.write("FP:{} \n".format(cnt_falsePositives_HET))
-    outfile.write("FN:{} \n".format(cnt_falseNegatives_HET))
+    outfile.write("HET FP (Note: Each Allele counts separately) :{} \n".format(cnt_falsePositives_HET))
+    outfile.write("HET FN (Note: Each Allele counts separately) :{} \n".format(cnt_falseNegatives_HET))
 
     outfile.write(
         "Discordance: {} of {} comparable positions \n".format(
@@ -496,7 +496,7 @@ with open(snakemake.output["text"], "w") as outfile, open(
         )
     )
     outfile.write(
-        "Possible unfair comparisons for method != pancov (HET was not found or only as HOM): {} \n".format(
+        "Possible unfair comparisons for methods that don't detect HET (HET was not found or only as HOM): {} \n".format(
             cnt_unfairComparisons
         )
     )
