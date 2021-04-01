@@ -281,7 +281,7 @@ with open(snakemake.output["text"], "w") as outfile, open(
                             cnt_detectedHETSNPs += 1
                             altval = recordsNanopore[position].ALT[0].value
                             refval = recordsNanopore[position].REF
-                            illuminaValue = ambiguityLetters[
+                            nanoporeValue = ambiguityLetters[
                                 frozenset((altval, refval))
                             ]
 
