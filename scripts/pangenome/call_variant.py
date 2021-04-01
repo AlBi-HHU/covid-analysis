@@ -210,7 +210,7 @@ def main(
             rvt = var_cov / (ref_cov + var_cov)
             if rvt >= rvt_threshold:
                 print(
-                    "{}\t{}\t.\t{}\t{}\t.\t.\tRCOV={:.4f};RCOVF={:.4f};RCOVR={:.4f};VCOV={:.4f};VCOVF={:.4f};VCOVR={:.4f};BUBBLEID={};REFPATH='{}';VARPATH='{}'".format(
+                    "{}\t{}\t.\t{}\t{}\t.\t.\tRCOV={:.4f};RCOVF={:.4f};RCOVR={:.4f};VCOV={:.4f};VCOVF={:.4f};VCOVR={:.4f};BUBBLEID={};REFPATH={};VARPATH={}".format(
                         ref_name,
                         pos + 1,
                         r_seq,
