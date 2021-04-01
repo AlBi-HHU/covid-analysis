@@ -2,6 +2,7 @@ import csv
 import json
 import networkx
 import sys
+import statistics
 from collections import defaultdict, Counter
 
 sys.path.append(
@@ -13,7 +14,7 @@ from shared import *  # TODO: import only required modules
 def main(
     pangenome_path,
     bubble_path,
-    reads_mapping,
+    support_path,
     node2pos_path,
     rvt_threshold,
     min_cov_factor,
@@ -43,16 +44,20 @@ def main(
     graph = gfa2networkx(pangenome_path)
 
     # Get node coverage
-    node2base = defaultdict(lambda: Counter())
-    edge2cov = Counter()
     paths = defaultdict(list)
 
-    parse_gaf(reads_mapping, paths, node2base, edge2cov, node2seq)
+    support = json.load(open(support_path, "r"))
+    node_support = support["nodes"]
+
     node2cov = defaultdict(lambda: Counter())
-    for (node, base) in node2base.items():
-        node2cov[node][True] = base[True] / len(node2seq[node])
-        node2cov[node][False] = base[False] / len(node2seq[node])
-        node2cov[node]["all"] = (base[True] + base[False]) / len(node2seq[node])
+    for (node, base) in node_support.items():
+        node2cov[node][True] = statistics.mean(node_support[node]["forward"][pos]["strict"] for pos in range(len(node_support[node]["forward"])))
+        node2cov[node][False] = statistics.mean(node_support[node]["reverse"][pos]["strict"] for pos in range(len(node_support[node]["reverse"])))
+        node2cov[node]["all"] = statistics.mean(node_support[node]["forward"][pos]["strict"] + node_support[node]["reverse"][pos]["strict"] for pos in range(len(node_support[node]["reverse"])))
+
+    edge2cov = defaultdict(int)
+    for key, value in support["edges"].items():
+        edge2cov[frozenset(key.split("_"))] = value
 
     # Read bubble
     simple_bubble = set()
@@ -367,7 +372,7 @@ if "snakemake" in locals():
     main(
         snakemake.input["pangenome"],
         snakemake.input["bubble"],
-        snakemake.input["reads"],
+        snakemake.input["support"],
         snakemake.input["node2pos"],
         rvt,
         min_cov_factor,

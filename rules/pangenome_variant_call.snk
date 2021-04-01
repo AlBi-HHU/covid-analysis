@@ -42,8 +42,8 @@ rule call_variant:
     input:
         pangenome = "data/auxiliary/pangenome/pangenome.gfa",
         bubble = "data/auxiliary/pangenome/bubble.json",
-        reads = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
         node2pos = "data/auxiliary/pangenome_vc/node2pos.csv",
+        support = "data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json",
     output:
         variant = "data/auxiliary/pangenome_vc/{run}/{barcode}/variant.vcf.ugly",
     log:
