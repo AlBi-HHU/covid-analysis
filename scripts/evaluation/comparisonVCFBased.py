@@ -279,6 +279,11 @@ with open(snakemake.output["text"], "w") as outfile, open(
                         ):
                             bool_heterozygousNano = True
                             cnt_detectedHETSNPs += 1
+                            altval = recordsNanopore[position]["ALT"].values[0]
+                            refval = recordsNanopore[position]["REF"].values[0]
+                            illuminaValue = ambiguityLetters[
+                                frozenset((altval, refval))
+                            ]
 
                 illuminaType = "Not Called"  # INS,DEL,SNP
                 illuminaValue = ""  # Length of Del / Alt Allele / Insertion Seq
