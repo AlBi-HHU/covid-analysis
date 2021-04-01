@@ -29,7 +29,7 @@ def main(
     support = json.load(open(supportFile, "r"))
     nodeSupport = support["nodes"]
 
-    edgeSupport = defaultdict(int)
+    edgeSupport = defaultdict(lambda defaultdict(int))
     for key, value in support["edges"].items():
         edgeSupport[frozenset(key.split("_"))] = value
 
