@@ -279,8 +279,8 @@ with open(snakemake.output["text"], "w") as outfile, open(
                         ):
                             bool_heterozygousNano = True
                             cnt_detectedHETSNPs += 1
-                            altval = recordsNanopore[position]["ALT"].values[0]
-                            refval = recordsNanopore[position]["REF"].values[0]
+                            altval = recordsNanopore[position].ALT[0].value
+                            refval = recordsNanopore[position].REF
                             illuminaValue = ambiguityLetters[
                                 frozenset((altval, refval))
                             ]
