@@ -123,7 +123,7 @@ def main(alignment, pangenome, output):
                     # test if we are at end of a node
                     if (orientation == "forward" and position_on_node == 0) or (orientation == "reverse" and position_on_node == current_node_len - 1):
                         if lastInstructions[0] == lastInstructions[1] == 'M':
-                            normalize_key = (lastNodes[0], lastNodes[1]) if lastNodes[0] < lastNodes[1] else (lastNodes[0], lastNodes[1])
+                            normalize_key = (lastNodes[0], lastNodes[1]) if lastNodes[0] < lastNodes[1] else (lastNodes[1], lastNodes[0])
                             edge2cov["_".join(normalize_key)] += 1
 
                     if instruction != "I":
