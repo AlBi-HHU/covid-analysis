@@ -43,8 +43,11 @@ cnt_realHETDEL = 0
 cnt_detectedHETDEL = 0
 
 cnt_concordance = 0  #
+cnt_concordance_HET = 0
 cnt_falsePositives = 0
+cnt_falsePositives_HET = 0
 cnt_falseNegatives = 0
+cnt_falseNegatives_HET = 0
 cnt_discordance = 0  #
 cnt_detectedVariants = 0  #
 cnt_relevantPositions = 0  #
@@ -300,9 +303,15 @@ with open(snakemake.output["text"], "w") as outfile, open(
                             ]
 
                 if not (illuminaDropout or nanoporeDropout):
-                    if (illuminaType == nanoporeType) and (
+                    if (
+                        illuminaType == nanoporeType
+                    ) and (
                         illuminaValue == nanoporeValue
+                    ) and (
+                        bool_heterozygousIllu == bool_heterozygousNano
                     ):
+                        if bool_heterozygousNano:
+                            cnt_concordance_HET += 2 #Both, alt and ref got called correctly
                         bool_concordance = True
                         cnt_concordance += 1
                     else:
@@ -317,6 +326,7 @@ with open(snakemake.output["text"], "w") as outfile, open(
                         ):
                             bool_falsePositive = True
                             cnt_falsePositives += 1
+
                         if bool_heterozygousIllu and not bool_heterozygousNano:
                             cnt_falseHomozygous += 1
                         if (
@@ -324,6 +334,36 @@ with open(snakemake.output["text"], "w") as outfile, open(
                             and snakemake.params["method"] != "pancov"
                         ):
                             cnt_unfairComparisons += 1
+
+                        #HET Stats
+                        #Case 1: It's a real HET but we don't find it at all
+                        if (position in recordsIllumina) and (position not in recordsNanopore) and bool_heterozygousIllu:
+                            cnt_falseNegatives_HET += 2
+                        #Case 2: It's a called HET but Illumina knows of no variant at this location
+                        if (position in recordsNanopore) and (position not in recordsIllumina) and bool_heterozygousNano:
+                            cnt_falsePositives_HET += 1
+                            cnt_concordance_HET += 1
+                        #Case 3: It's called in both cases but there is disagreement
+                        if (bool_heterozygousIllu) and (position in recordsNanopore):
+                            cnt_falseNegatives_HET += 1
+                            cnt_concordance_HET += 1
+                        #Case 3: It's called in both cases but there is disagreement
+                        if (bool_heterozygousIllu) and (position in recordsNanopore):
+                            if illuminaType == 'SNV':
+                                cnt_falseNegatives_HET += 1
+                                cnt_concordance_HET += 1
+                            else:
+                                if illuminaValue == nanoporeValue:
+                                    cnt_falseNegatives_HET += 1
+                                    cnt_concordance_HET += 1
+                        if (bool_heterozygousNano) and (position in recordsIllumina):
+                            if illuminaType == 'SNV':
+                                cnt_falsePositives_HET += 1
+                                cnt_concordance_HET += 1
+                            else:
+                                if illuminaValue == nanoporeValue:
+                                    cnt_falsePositives_HET += 1
+                                    cnt_concordance_HET += 1
 
             # Write Text Output
             outfile.write(
@@ -386,6 +426,8 @@ with open(snakemake.output["text"], "w") as outfile, open(
     outfile.write("Real (iVar) HET DEL:{} \n".format(cnt_realHETDEL))
     outfile.write("Detected HET DEL:{} \n".format(cnt_detectedHETDEL))
 
+    outfile.write("Detected HETs total : {} \n".format(cnt_detectedHETSNPs+cnt_detectedHETINS+cnt_detectedHETDEL))
+
     outfile.write(
         "Relevant Positions: {} (of which {} could not be evaluated)\n".format(
             cnt_relevantPositions, cnt_unscoredPositions
@@ -429,6 +471,16 @@ with open(snakemake.output["text"], "w") as outfile, open(
     outfile.write("Precision (Concordance / (Concordance+FP)): {}\n".format(precision))
     outfile.write("Recall (Concordance / (Concordance+FN)): {}\n".format(recall))
     outfile.write("F1 ( (2*Concordance)/(2*Concordance+FP+FN)): {}\n".format(f1))
+
+    # Calculate top level stats for HET
+    precision_HET = cnt_concordance_HET / (cnt_concordance_HET + cnt_falsePositives_HET)
+    recall_HET = cnt_concordance_HET / (cnt_concordance_HET + cnt_falseNegatives_HET)
+    f1_HET = (2 * cnt_concordance_HET) / (
+        2 * cnt_concordance_HET + cnt_falsePositives_HET + cnt_falseNegatives_HET
+    )
+    outfile.write("Precision HET Only (Concordance / (Concordance+FP)): {}\n".format(precision_HET))
+    outfile.write("Recall HET only (Concordance / (Concordance+FN)): {}\n".format(recall_HET))
+    outfile.write("F1 HET only ( (2*Concordance)/(2*Concordance+FP+FN)): {}\n".format(f1_HET))
 
     # Additional TLS
     accuracy = cnt_concordance / cnt_comparablePositions

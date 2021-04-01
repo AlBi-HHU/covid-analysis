@@ -82,11 +82,9 @@ def main(
         filters = list()
         if coverage < min_cov:
             filters.append("Coverage")
-        elif strand_bias(variant, th_sbiais, "COV"):
-            filters.append("StrandBias")
         elif not math.isnan(vsup):
             if strand_bias(variant, th_sbiais, "SUP"):
-                filters.append("StrandBiasRealSupport")
+                filters.append("StrandBias")
 
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
                 filters.append("NoRealSupport")
@@ -257,13 +255,6 @@ def add_header_filter(header):
         {
             "ID": "NoRealSupport",
             "Description": "This variant isn't realy support",
-        }
-    )
-
-    header.add_filter_line(
-        {
-            "ID": "StrandBiasRealSupport",
-            "Description": "We notice a strand bias in coverage of this variant",
         }
     )
 

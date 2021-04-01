@@ -45,7 +45,6 @@ articMethods : ['medaka','nanopolish'] #which artic variant callers are used as 
 # Pangenome variant calling
 medakaQualityThreshold: 7.0
 pangenomeVariantCalling: True
-pangenomeRVTTPath: 0.5
 pangenomeRVTTSupport: 0.5
 pangenomeMinCovFactor: 0.1
 pangenomeMinEndsCovBubble: 10
