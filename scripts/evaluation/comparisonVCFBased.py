@@ -482,6 +482,8 @@ with open(snakemake.output["text"], "w") as outfile, open(
     outfile.write("Recall HET only (Concordance / (Concordance+FN)): {}\n".format(recall_HET))
     outfile.write("F1 HET only ( (2*Concordance)/(2*Concordance+FP+FN)): {}\n".format(f1_HET))
 
+    outfile.write("F1 Macro 1/2(F1+F1_HET): {}\n".format((f1_HET+f1)/2))
+
     # Additional TLS
     accuracy = cnt_concordance / cnt_comparablePositions
     outfile.write("Accuracy (Concordance/Comparable Positions): {}\n".format(accuracy))
