@@ -95,7 +95,7 @@ def alexSBFilter(cov, abs, fq):
     return False
 
 
-def parse_gaf(path, storage, node2base=None, edge2cov=None, node2seq=None):
+def parse_gaf(path, storage):
     with open(path) as fh:
         reader = csv.reader(fh, delimiter="\t")
         for row in reader:
@@ -104,27 +104,6 @@ def parse_gaf(path, storage, node2base=None, edge2cov=None, node2seq=None):
 
             begin_path = int(row[7])
             end_path = int(row[8])
-            remain_base = end_path - begin_path
-
-            if node2base is not None:
-                first = True
-                for node in nodes:
-                    forward = node[0] == ">"
-                    node_len = len(node2seq[node[1:]])
-                    if first:
-                        first = False
-                        node2base[node[1:]][forward] += node_len - begin_path
-                        remain_base -= node_len - begin_path
-                    elif remain_base > node_len:
-                        node2base[node[1:]][forward] += node_len
-                        remain_base -= node_len
-                    else:
-                        node2base[node[1:]][forward] += remain_base
-                        break
-
-            if edge2cov is not None:
-                for i in range(0, len(nodes) - 1):
-                    edge2cov[frozenset((nodes[i][1:], nodes[i + 1][1:]))] += 1
 
             storage[tuple(nodes)].append(row[0])
 

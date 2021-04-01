@@ -1,3 +1,6 @@
+import re
+import csv
+
 from collections import defaultdict
 
 sys.path.append(
@@ -5,14 +8,12 @@ sys.path.append(
 )  # Hackfix but results in a more readable scripts folder structure
 
 
-from shared import parse_gaf, get_node2seq
+from shared import get_node2seq
 
 
 def main(graph_path, reference_mapping, node2pos_path):
 
-    ref_path = defaultdict(list)
-    parse_gaf(reference_mapping, ref_path)
-    ref_path = next(iter(ref_path.keys()))
+    ref_path = list(get_ref_path(reference_mapping))
 
     # Get sequence of each node
     node2seq = get_node2seq(graph_path)
@@ -31,6 +32,17 @@ def main(graph_path, reference_mapping, node2pos_path):
         print("node,pos,ori", file=csv_fh)
         for node, pos in sorted(node2ref_pos.items(), key=lambda x: x[1]):
             print("{},{},{}".format(node, pos, node2ori[node]), file=csv_fh)
+
+
+def get_ref_path(path):
+    with open(path) as fh:
+        reader = csv.reader(fh, delimiter="\t")
+        for row in reader:
+            nodes = re.findall(r"([<>][^<>]+)", row[5])
+
+            for n in nodes:
+                yield n
+
 
 
 if "snakemake" in locals():
