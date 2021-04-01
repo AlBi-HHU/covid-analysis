@@ -26,7 +26,9 @@ def main(
     out_vcf,
 ):
 
-    nodeSupport = json.load(open(supportFile, "r"))
+    support = json.load(open(supportFile, "r"))
+    nodeSupport = support["nodes"]
+
     node2len = read_node2len(node2len_path)
 
     reader = vcfpy.Reader.from_path(in_vcf)

@@ -7,6 +7,7 @@ from shared import get_node2seq
 import re
 import json
 
+from collections import defaultdict
 
 def main(alignment, pangenome, output):
 
@@ -24,8 +25,7 @@ def main(alignment, pangenome, output):
             node2base_cov[n_id]["forward"].append( {'strict': 0, 'lenient': 0})
             node2base_cov[n_id]["reverse"].append({'strict': 0, 'lenient': 0})
 
-
-
+    edge2cov = defaultdict(int)
 
     with open(alignment, "r") as alignmentFile, open(
         snakemake.log[0], "w"
@@ -120,6 +120,11 @@ def main(alignment, pangenome, output):
                     if lastInstructions[0] == lastInstructions[1] == lastInstructions[2] == 'M':
                         node2base_cov[lastNodes[1]][orientation][lastPositions[1]]['strict'] += 1
 
+                    # test if we are at end of a node
+                    if (orientation == "forward" and position_on_node == 0) or (orientation == "reverse" and position_on_node == current_node_len - 1):
+                        if lastInstructions[0] == lastInstructions[1] == 'M':
+                            normalize_key = (lastNodes[0], lastNodes[1]) if lastNodes[0] < lastNodes[1] else (lastNodes[0], lastNodes[1])
+                            edge2cov["_".join(normalize_key)] += 1
 
                     if instruction != "I":
                         if orientation == "forward":
@@ -127,7 +132,7 @@ def main(alignment, pangenome, output):
                         else:
                             position_on_node -= 1
 
-        json.dump(node2base_cov, outFile)
+        json.dump({"nodes": node2base_cov, "edges": edge2cov}, outFile)
 
 
 if "snakemake" in locals():
