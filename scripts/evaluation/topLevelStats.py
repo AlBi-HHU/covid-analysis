@@ -24,6 +24,6 @@ with open(snakemake.input["verification"], "r") as verFile, open(
     square_diff = het["square_diff"].mean()
 
     print(
-        f"{snakemake.config['pangenomeMinCovFactor']},{snakemake.config['pangenomeRVTTPath']},{precision},{recall},{f1},{square_diff}",
+        f"{snakemake.config['pangenomeMinCovFactor']},{snakemake.config['pangenomeRVTTSupport']},{precision},{recall},{f1},{square_diff}",
         file=outfile,
     )
