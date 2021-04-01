@@ -118,7 +118,7 @@ def compute_support(nodes, node2len, node_support, edge_support, strict=False):
     nodes = nodes.split("_")
 
     if len(nodes) <= 2:
-        return (edge_support[frozenset(nodes)], edge_support[frozenset(nodes)])
+        return (edge_support[frozenset(nodes)]["forward"], edge_support[frozenset(nodes)]["reverse"])
 
     all_supports_f = 0
     all_supports_r = 0

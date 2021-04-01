@@ -25,7 +25,7 @@ def main(alignment, pangenome, output):
             node2base_cov[n_id]["forward"].append( {'strict': 0, 'lenient': 0})
             node2base_cov[n_id]["reverse"].append({'strict': 0, 'lenient': 0})
 
-    edge2cov = defaultdict(int)
+    edge2cov = defaultdict(lambda: defaultdict(int))
 
     with open(alignment, "r") as alignmentFile, open(
         snakemake.log[0], "w"
@@ -124,7 +124,7 @@ def main(alignment, pangenome, output):
                     if (orientation == "forward" and position_on_node == 0) or (orientation == "reverse" and position_on_node == current_node_len - 1):
                         if lastInstructions[0] == lastInstructions[1] == 'M':
                             normalize_key = (lastNodes[0], lastNodes[1]) if lastNodes[0] < lastNodes[1] else (lastNodes[1], lastNodes[0])
-                            edge2cov["_".join(normalize_key)] += 1
+                            edge2cov["_".join(normalize_key)][orientation] += 1
 
                     if instruction != "I":
                         if orientation == "forward":

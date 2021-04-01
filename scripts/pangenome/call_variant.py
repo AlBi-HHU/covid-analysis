@@ -55,9 +55,11 @@ def main(
         node2cov[node][False] = statistics.mean(node_support[node]["reverse"][pos]["strict"] for pos in range(len(node_support[node]["reverse"])))
         node2cov[node]["all"] = statistics.mean(node_support[node]["forward"][pos]["strict"] + node_support[node]["reverse"][pos]["strict"] for pos in range(len(node_support[node]["reverse"])))
 
-    edge2cov = defaultdict(int)
-    for key, value in support["edges"].items():
-        edge2cov[frozenset(key.split("_"))] = value
+    edge2cov = defaultdict(lambda: defaultdict(int))
+    for key in support["edges"].keys():
+        edge2cov[frozenset(key.split("_"))][True] = support["edges"][key]["forward"] if "forward" in support["edges"][key] else 0
+        edge2cov[frozenset(key.split("_"))][False] = support["edges"][key]["reverse"] if "reverse" in support["edges"][key] else 0
+        edge2cov[frozenset(key.split("_"))]["all"] = edge2cov[frozenset(key.split("_"))][True] + edge2cov[frozenset(key.split("_"))][False]
 
     # Read bubble
     simple_bubble = set()
@@ -114,7 +116,7 @@ def main(
 
         # Annotate edge
         for (edge, data) in subgraph.edges.items():
-            if edge2cov[frozenset(edge)] < ends_cov * min_cov_factor:
+            if edge2cov[frozenset(edge)]["all"] < ends_cov * min_cov_factor:
                 not_cov_edges.add(edge)
 
         # Found reference path in bubble
@@ -243,9 +245,9 @@ def path_coverage(path, edge2cov, node2cov, node2seq):
     elif len(path) == 2:
         if frozenset(path) in edge2cov:
             return (
-                edge2cov[frozenset(path)],
-                edge2cov[frozenset(path)],
-                edge2cov[frozenset(path)],
+                edge2cov[frozenset(path)]["all"],
+                edge2cov[frozenset(path)][True],
+                edge2cov[frozenset(path)][False],
             )
         else:
             return (0, 0, 0)
