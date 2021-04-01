@@ -42,13 +42,14 @@ cnt_detectedDEL = 0  #
 cnt_realHETDEL = 0
 cnt_detectedHETDEL = 0
 
-cnt_concordance = 0  #
+cnt_concordance_HOM = 0  #
 cnt_concordance_HET = 0
-cnt_falsePositives = 0
+cnt_falsePositives_HOM = 0
 cnt_falsePositives_HET = 0
-cnt_falseNegatives = 0
+cnt_falseNegatives_HOM = 0
 cnt_falseNegatives_HET = 0
 cnt_discordance = 0  #
+
 cnt_detectedVariants = 0  #
 cnt_relevantPositions = 0  #
 cnt_comparablePositions = 0  #
@@ -347,22 +348,24 @@ with open(snakemake.output["text"], "w") as outfile, open(
                     ) and (
                         bool_heterozygousIllu == bool_heterozygousNano
                     ):
+                        #if this is a het position
                         if bool_heterozygousNano:
                             cnt_concordance_HET += 2 #Both, alt and ref got called correctly
+                        else:
+                            cnt_concordance_HOM += 1
                         bool_concordance = True
-                        cnt_concordance += 1
                     else:
                         cnt_discordance += 1
                         if (position in recordsIllumina) and (
                             position not in recordsNanopore
-                        ):
+                        ) and (not bool_heterozygousIllu):
                             bool_falseNegative = True
-                            cnt_falseNegatives += 1
+                            cnt_falseNegatives_HOM += 1
                         if (position in recordsNanopore) and (
                             position not in recordsIllumina
-                        ):
+                        ) and (not bool_heterozygousNano):
                             bool_falsePositive = True
-                            cnt_falsePositives += 1
+                            cnt_falsePositives_HOM += 1
 
                         if bool_heterozygousIllu and not bool_heterozygousNano:
                             cnt_falseHomozygous += 1
@@ -470,13 +473,23 @@ with open(snakemake.output["text"], "w") as outfile, open(
             cnt_relevantPositions, cnt_unscoredPositions
         )
     )
+
     outfile.write(
-        "Concordance:{} of {} comparable positions \n".format(
-            cnt_concordance, cnt_comparablePositions
+        "HOM Concordance:{} of {} comparable positions \n".format(
+            cnt_concordance_HOM, cnt_comparablePositions
         )
     )
-    outfile.write("FP:{} \n".format(cnt_falsePositives))
-    outfile.write("FN:{} \n".format(cnt_falseNegatives))
+    outfile.write("FP:{} \n".format(cnt_falsePositives_HOM))
+    outfile.write("FN:{} \n".format(cnt_falseNegatives_HOM))
+
+    outfile.write(
+        "HET Concordance:{} of {} comparable positions \n".format(
+            cnt_concordance_HET, cnt_comparablePositions
+        )
+    )
+    outfile.write("FP:{} \n".format(cnt_falsePositives_HET))
+    outfile.write("FN:{} \n".format(cnt_falseNegatives_HET))
+
     outfile.write(
         "Discordance: {} of {} comparable positions \n".format(
             cnt_discordance, cnt_comparablePositions
@@ -500,10 +513,10 @@ with open(snakemake.output["text"], "w") as outfile, open(
     )
 
     # Calculate top level stats
-    precision = cnt_concordance / (cnt_concordance + cnt_falsePositives)
-    recall = cnt_concordance / (cnt_concordance + cnt_falseNegatives)
-    f1 = (2 * cnt_concordance) / (
-        2 * cnt_concordance + cnt_falsePositives + cnt_falseNegatives
+    precision = cnt_concordance_HOM / (cnt_concordance_HOM + cnt_falsePositives_HOM)
+    recall = cnt_concordance_HOM / (cnt_concordance_HOM + cnt_falseNegatives_HOM)
+    f1 = (2 * cnt_concordance_HOM) / (
+        2 * cnt_concordance_HOM + cnt_falsePositives_HOM + cnt_falseNegatives_HOM
     )
     outfile.write("Precision (Concordance / (Concordance+FP)): {}\n".format(precision))
     outfile.write("Recall (Concordance / (Concordance+FN)): {}\n".format(recall))
@@ -522,7 +535,7 @@ with open(snakemake.output["text"], "w") as outfile, open(
     outfile.write("F1 Macro 1/2(F1+F1_HET): {}\n".format((f1_HET+f1)/2))
 
     # Additional TLS
-    accuracy = cnt_concordance / cnt_comparablePositions
+    accuracy = cnt_concordance_HOM+cnt_concordance_HET / cnt_comparablePositions
     outfile.write("Accuracy (Concordance/Comparable Positions): {}\n".format(accuracy))
     outfile.write(
         "Additional Nanopore Dropouts without VCs in either method: {}\n".format(
@@ -539,13 +552,13 @@ with open(snakemake.output["text"], "w") as outfile, open(
     )
 
     # Calculate top level stats in a variation
-    precision_var = (cnt_concordance + cnt_implicit_agreement) / (
-        cnt_concordance + cnt_falsePositives + cnt_implicit_agreement
+    precision_var = (cnt_concordance_HOM+cnt_concordance_HET + cnt_implicit_agreement) / (
+        cnt_concordance_HOM+cnt_concordance_HET + cnt_falsePositives_HOM +cnt_falsePositives_HET + cnt_implicit_agreement
     )
     outfile.write(
         "Precision (Concordance+IA / (Concordance+FP+IA)): {}\n".format(precision)
     )
-    accuracy = (cnt_concordance + cnt_implicit_agreement) / (
+    accuracy = (cnt_concordance_HOM+cnt_concordance_HET  + cnt_implicit_agreement) / (
         cnt_comparablePositions + cnt_implicit_agreement
     )
     outfile.write(
