@@ -62,8 +62,8 @@ def main(
             coverage = values[0][0]
             variant = values[0][1]
 
-        vsup_f, vsup_r = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport, edgeSupport, strict=True)
-        rsup_f, rsup_r = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport, edgeSupport, strict=True)
+        vsup_f, vsup_r = compute_support(variant.INFO["VARPATH"][1:-1], node2len, nodeSupport, edgeSupport, strict=True)
+        rsup_f, rsup_r = compute_support(variant.INFO["REFPATH"][1:-1], node2len, nodeSupport, edgeSupport, strict=True)
         vsup = vsup_f + vsup_r
         rsup = rsup_f + rsup_r
 
