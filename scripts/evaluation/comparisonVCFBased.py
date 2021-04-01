@@ -227,6 +227,17 @@ with open(snakemake.output["text"], "w") as outfile, open(
                             bool_heterozygousNano = True
                             cnt_detectedHETINS += 1
                             nanoporeValue += "(HET)"
+                        elif(
+                            snakemake.params["method"] == "nanopolish"
+                            and (
+                                snakemake.config["thresholdHomCall"]
+                                <= recordsNanopore[position].INFO['SupportFraction']
+                                <= (1 - snakemake.config["thresholdHomCall"])
+                            )
+                        ):
+                            bool_heterozygousNano = True
+                            cnt_detectedHETINS += 1
+                            nanoporeValue += "(HET)"
                     elif nanoporeType == "DEL":
                         nanoporeValue = str(
                             len(recordsNanopore[position].REF) - 1
@@ -239,11 +250,32 @@ with open(snakemake.output["text"], "w") as outfile, open(
                             bool_heterozygousNano = True
                             cnt_detectedHETDEL += 1
                             nanoporeValue += "(HET)"
+                        elif(
+                            snakemake.params["method"] == "nanopolish"
+                            and (
+                                snakemake.config["thresholdHomCall"]
+                                <= recordsNanopore[position].INFO['SupportFraction']
+                                <= (1 - snakemake.config["thresholdHomCall"])
+                            )
+                        ):
+                            bool_heterozygousNano = True
+                            cnt_detectedHETDEL += 1
+                            nanoporeValue += "(HET)"
                     elif nanoporeType == "SNV":
                         nanoporeValue = recordsNanopore[position].ALT[0].value
                         cnt_detectedSNP += 1
                         if snakemake.params["method"] == "pancov" and isAmbiguous(
                             nanoporeValue
+                        ):
+                            bool_heterozygousNano = True
+                            cnt_detectedHETSNPs += 1
+                        elif(
+                            snakemake.params["method"] == "nanopolish"
+                            and (
+                                snakemake.config["thresholdHomCall"]
+                                <= recordsNanopore[position].INFO['SupportFraction']
+                                <= (1 - snakemake.config["thresholdHomCall"])
+                            )
                         ):
                             bool_heterozygousNano = True
                             cnt_detectedHETSNPs += 1
