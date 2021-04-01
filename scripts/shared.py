@@ -94,20 +94,6 @@ def alexSBFilter(cov, abs, fq):
             return True
     return False
 
-
-def parse_gaf(path, storage):
-    with open(path) as fh:
-        reader = csv.reader(fh, delimiter="\t")
-        for row in reader:
-
-            nodes = re.findall(r"([<>][^<>]+)", row[5])
-
-            begin_path = int(row[7])
-            end_path = int(row[8])
-
-            storage[tuple(nodes)].append(row[0])
-
-
 def parseKmers(kmers, sequence, k):
     if len(sequence) < k:
         return
