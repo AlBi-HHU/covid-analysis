@@ -482,16 +482,16 @@ with open(snakemake.output["text"], "w") as outfile, open(
     )
 
     outfile.write(
-        "HOM Concordance:{} of {} comparable positions \n".format(
-            cnt_concordance_HOM, cnt_comparablePositions
+        "HOM Concordance:{} \n".format(
+            cnt_concordance_HOM
         )
     )
     outfile.write("HOM FP:{} \n".format(cnt_falsePositives_HOM))
     outfile.write("HOM FN:{} \n".format(cnt_falseNegatives_HOM))
 
     outfile.write(
-        "HET Concordance:{} of {} comparable positions \n".format(
-            cnt_concordance_HET, cnt_comparablePositions
+        "HET Concordance:{} \n".format(
+            cnt_concordance_HET
         )
     )
     outfile.write("HET FP (Note: Each Allele counts separately) :{} \n".format(cnt_falsePositives_HET))
