@@ -27,8 +27,8 @@ def processData(file):
 
 
 
-with open(snakemake.input['method1'],'r') as meth1file,
-	 open(snakemake.input['method2'],'r') as meth2file,
+with open(snakemake.input['method1'],'r') as meth1file, \
+	 open(snakemake.input['method2'],'r') as meth2file, \
 	 open(snakemake.output[0],'w') as outfile:
 
 	meth1data = processData(meth1file)
