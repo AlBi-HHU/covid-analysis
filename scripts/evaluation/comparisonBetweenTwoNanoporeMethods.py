@@ -44,7 +44,7 @@ with open(snakemake.input['method1'],'r') as meth1file, \
 			outfile.write('Not found in {} \n'.format(snakemake.params['method2name']))
 			for k, v in meth1data[sample]:
 				outfile.write('{}\t{}\n'.format(k, v))
-		for k in set(meth1data[sample].keys()).union(set(meth2data[sample]).keys()):
+		for k in set(meth1data[sample].keys()).union(set(meth2data[sample].keys())):
 			if k not in meth1data[sample]:
 				outfile.write('{}\t{}\t{}\n'.format(k,'Not called',meth2data[sample][k]))
 			elif k not in meth2data[sample]:
