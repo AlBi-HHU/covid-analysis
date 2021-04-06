@@ -21,7 +21,7 @@ def processData(file):
 				if len(data) == 1: #This is another header for the next sample
 					break
 				else:
-					ret[sample][data[0]] = data[3] #key: position, value: nanopore variant call
+					ret[sample][data[0]] = (data[3],data[2]) #key: position, value: nanopore variant call
 					currentPosition += 1
 	return ret
 
@@ -35,19 +35,22 @@ with open(snakemake.input['method1'],'r') as meth1file, \
 	meth2data = processData(meth2file)
 	for sample in set(meth1data.keys()).union(meth2data.keys()):
 		outfile.write('Comparison: {} \n'.format(sample))
-		outfile.write('{}\t{}\t{}\n'.format('Position',snakemake.params['method1name'],snakemake.params['method2name']))
 		if sample not in meth1data:
 			outfile.write('Not found in {} \n'.format(snakemake.params['method1name']))
 			for k,v in meth2data[sample]:
 				outfile.write('{}\t{}\n'.format(k,v))
-		if sample not in meth2data:
+		elif sample not in meth2data:
 			outfile.write('Not found in {} \n'.format(snakemake.params['method2name']))
 			for k, v in meth1data[sample]:
 				outfile.write('{}\t{}\n'.format(k, v))
-		for k in set(meth1data[sample].keys()).union(set(meth2data[sample].keys())):
-			if k not in meth1data[sample]:
-				outfile.write('{}\t{}\t{}\n'.format(k,'Not called',meth2data[sample][k]))
-			elif k not in meth2data[sample]:
-				outfile.write('{}\t{}\t{}\n'.format(k, meth1data[sample][k], 'Not called'))
-			elif meth1data[sample][k] != meth2data[sample][k]:
-				outfile.write('{}\t{}\t{}\n'.format(k, meth1data[sample][k], meth2data[sample][k]))
+		else:
+			outfile.write(
+				'{}\t{}\t{}\t{}\n'.format('Position', snakemake.params['method1name'], snakemake.params['method2name'],'iVar')
+			)
+			for k in set(meth1data[sample].keys()).union(set(meth2data[sample].keys())):
+				if k not in meth1data[sample]:
+					outfile.write('{}\t{}\t{}\t{}\n'.format(k,'Not called',meth2data[sample][k][0],meth2data[sample][k][1]))
+				elif k not in meth2data[sample]:
+					outfile.write('{}\t{}\t{}\t{}\n'.format(k, meth1data[sample][k][0], 'Not called',meth1data[sample][k][1]))
+				elif meth1data[sample][k] != meth2data[sample][k]:
+					outfile.write('{}\t{}\t{}\t{}\n'.format(k, meth1data[sample][k][0], meth2data[sample][k][0],meth1data[sample][k][1]))
