@@ -379,29 +379,36 @@ with open(snakemake.output["text"], "w") as outfile, open(
                         #Case 1: It's a real HET but we don't find it at all
                         if (position in recordsIllumina) and (position not in recordsNanopore) and bool_heterozygousIllu:
                             cnt_falseNegatives_HET += 2
+                            bool_falseNegative = True
                         #Case 2: It's a called HET but Illumina knows of no variant at this location
                         if (position in recordsNanopore) and (position not in recordsIllumina) and bool_heterozygousNano:
                             cnt_falsePositives_HET += 1
+                            bool_falsePositive = True
                             cnt_concordance_HET += 1
                         #Case 3: It's called in both cases but there is disagreement
                         if (bool_heterozygousIllu) and (position in recordsNanopore):
                             cnt_falseNegatives_HET += 1
+                            bool_falseNegative = True
                             cnt_concordance_HET += 1
                         #Case 3: It's called in both cases but there is disagreement
                         if (bool_heterozygousIllu) and (position in recordsNanopore):
                             if illuminaType == 'SNV':
                                 cnt_falseNegatives_HET += 1
                                 cnt_concordance_HET += 1
+                                bool_falseNegative = True
                             else:
                                 if illuminaValue == nanoporeValue:
+                                    bool_falseNegative = True
                                     cnt_falseNegatives_HET += 1
                                     cnt_concordance_HET += 1
                         if (bool_heterozygousNano) and (position in recordsIllumina):
                             if illuminaType == 'SNV':
+                                bool_falsePositive = True
                                 cnt_falsePositives_HET += 1
                                 cnt_concordance_HET += 1
                             else:
                                 if illuminaValue == nanoporeValue:
+                                    bool_falsePositive = True
                                     cnt_falsePositives_HET += 1
                                     cnt_concordance_HET += 1
 
