@@ -415,3 +415,18 @@ rule concordanceVisualize:
         '../envs/altair.yaml'
     script:
         '../scripts/evaluation/visualizeConcordance.py'
+
+
+#Compare Nanopore Based Var Callers
+
+rule compareNanoporeCallers:
+    input:
+        method1 = 'data/output/evaluation/vcfbased/comparison_{method1}.tsv',
+        method2 = 'data/output/evaluation/vcfbased/comparison_{method2}.tsv'
+    params:
+        method1name = lambda wc : wc.method1,
+        method2name = lambda wc: wc.method2
+    output:
+        'data/output/evaluation/vcfbased/{method1}_vs_{method2}.tsv'
+    script:
+        '../scripts/evaluation/comparisonBetweenTwoNanoporeMethods.py'
