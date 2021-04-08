@@ -297,7 +297,7 @@ def vcf_header(fh, ref_name, length):
         file=fh,
     )
     print(
-        '##INFO=<ID=BUBBLEID,Number=1,Type=Integer,Description="Id of bubble in pangenome">',
+        '##INFO=<ID=BUBBLEID,Number=1,Type=String,Description="ID of the bubble in the pangenome">',
         file=fh,
     )
     print(
