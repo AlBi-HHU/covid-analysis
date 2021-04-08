@@ -77,7 +77,7 @@ def compute_entropy(seq):
 
 
 def strand_bias(record, text="COV",component="R"):
-    cov = float(record.INFO[f"{component}{text}"])
+    cov = float(record.INFO[f"{component}{text}F"])+float(record.INFO[f"{component}{text}R"])
     mincov = min(float(record.INFO[f"{component}{text}F"]),float(record.INFO[f"{component}{text}R"]))
     fq = mincov/cov
     minfq = min(1 - fq, fq)
