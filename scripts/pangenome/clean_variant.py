@@ -157,14 +157,7 @@ def rebind_info(record):
 
 
 def add_header_info(header):
-    header.add_info_line(
-        {
-            "ID": "BUBBLEID",
-            "Type": "String",
-            "Number": "1",
-            "Description": "Id of bubble in pangenome",
-        }
-    )
+
 
     header.add_info_line(
         {
@@ -184,23 +177,7 @@ def add_header_info(header):
         }
     )
 
-    header.add_info_line(
-        {
-            "ID": "RCOV",
-            "Type": "Float",
-            "Number": "2",
-            "Description": "Reference coverage on each strand",
-        }
-    )
 
-    header.add_info_line(
-        {
-            "ID": "VCOV",
-            "Type": "Float",
-            "Number": "2",
-            "Description": "Variant support on each strand",
-        }
-    )
 
     header.add_info_line(
         {
