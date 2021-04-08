@@ -65,12 +65,6 @@ def main(
         vsup = vsup_f + vsup_r
         rsup = rsup_f + rsup_r
 
-        variant.INFO["VSUP"] = vsup
-        variant.INFO["RSUP"] = rsup
-        variant.INFO["VSUPF"] = vsup_f
-        variant.INFO["VSUPR"] = vsup_r
-        variant.INFO["RSUPF"] = rsup_f
-        variant.INFO["RSUPR"] = rsup_r
 
 
         if (min(rsup_f, rsup_r) + min(vsup_f, vsup_r)) == 0:
@@ -87,7 +81,7 @@ def main(
         if coverage < min_cov:
             filters.append("Coverage")
         elif not math.isnan(vsup):
-            if strand_bias(variant,component="V", text="SUP"):
+            if strand_bias(variant,component="V"):
                 filters.append("StrandBias")
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
                 filters.append("NoRealSupport")
@@ -146,8 +140,6 @@ def rebind_info(record):
     new_info["RCOV"] = [old_info["RCOVF"], old_info["RCOVR"]]
     new_info["VCOV"] = [old_info["VCOVF"], old_info["VCOVR"]]
 
-    new_info["RSUP"] = [old_info["RSUPF"], old_info["RSUPR"]]
-    new_info["VSUP"] = [old_info["VSUPF"], old_info["VSUPR"]]
 
     new_info["CORHETRATIO"] = old_info["CORHETRATIO"]
 
@@ -178,25 +170,6 @@ def add_header_info(header):
     )
 
 
-
-    header.add_info_line(
-        {
-            "ID": "RSUP",
-            "Type": "Float",
-            "Number": "2",
-            "Description": "Reference support on each strand",
-        }
-    )
-
-    header.add_info_line(
-        {
-            "ID": "VSUP",
-            "Type": "Float",
-            "Number": "2",
-            "Description": "Variant support on each strand",
-        }
-    )
-
     header.add_info_line(
         {
             "ID": "CORHETRATIO",
@@ -221,11 +194,11 @@ def add_header_filter(header):
             "Description": "We notice a strand bias in coverage of this variant",
         }
     )
-
+    #TODO: Better descriptions for those filters and more intuitive names
     header.add_filter_line(
         {
             "ID": "NoRealSupport",
-            "Description": "This variant isn't realy support",
+            "Description": "This variant isn't really support",
         }
     )
 
