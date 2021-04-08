@@ -281,7 +281,7 @@ def vcf_header(fh, ref_name, length):
         file=fh,
     )
     print(
-        '##INFO=<ID=RCOVR,Number=1,Type=Float,Description="Coverage of reference path reverse strand ">',
+        '##INFO=<ID=RCOVR,Number=1,Type=Float,Description="Coverage of reference path reverse strand">',
         file=fh,
     )
     print(
