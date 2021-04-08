@@ -87,7 +87,7 @@ def main(
         if coverage < min_cov:
             filters.append("Coverage")
         elif not math.isnan(vsup):
-            if strand_bias(variant,"V", "SUP"):
+            if strand_bias(variant,component="V", text="SUP"):
                 filters.append("StrandBias")
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
                 filters.append("NoRealSupport")
