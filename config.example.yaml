@@ -49,7 +49,6 @@ pangenomeRVTTSupport: 0.5
 pangenomeMinCovFactor: 0.1
 pangenomeMinEndsCovBubble: 10
 pangenomeVarMinCov: 15
-pangenomeStrandBiais: 0.1
 
 # Illumina variant calling
 illuminaAlleleFreqCutoff: 0.8

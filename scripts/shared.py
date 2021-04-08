@@ -77,6 +77,7 @@ def compute_entropy(seq):
 
 
 # TODO: Move vals to cfg
+#returns true if the record should be filtered
 def alexSBFilter(cov, abs, fq):
     if cov <= 10:
         return True

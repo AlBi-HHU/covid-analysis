@@ -13,7 +13,7 @@ from scipy.stats import binom
 sys.path.append(
     "scripts"
 )  # Hackfix but results in a more readable scripts folder structure
-from shared import read_node2len
+from shared import read_node2len, alexSBFilter
 
 
 def main(
@@ -22,7 +22,6 @@ def main(
     node2len_path,
     min_cov,
     rvt,
-    th_sbiais,
     out_vcf,
 ):
 
@@ -89,7 +88,7 @@ def main(
         if coverage < min_cov:
             filters.append("Coverage")
         elif not math.isnan(vsup):
-            if strand_bias(variant, th_sbiais, "SUP"):
+            if strand_bias(variant, "SUP"):
                 filters.append("StrandBias")
 
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
@@ -137,16 +136,13 @@ def compute_support(nodes, node2len, node_support, edge_support, strict=False):
     return (all_supports_f / path_len, all_supports_r / path_len)
 
 
-def strand_bias(record, th_sbias, text="COV"):
-    vcov = float(record.INFO[f"V{text}"])
-    vcov_forward = float(record.INFO[f"V{text}F"])
-    vcov_reverse = float(record.INFO[f"V{text}R"])
+def strand_bias(record, text="COV"):
+    cov = float(record.INFO[f"V{text}"])
+    mincov = min(float(record.INFO[f"V{text}F"]),float(record.INFO[f"V{text}R"]))
+    fq = mincov/cov
+    minfq = min(1 - fq, fq)
 
-    ratio = min(vcov_forward, vcov_reverse) / vcov
-    if ratio > th_sbias:
-        return False
-    else:
-        return True
+    return alexSBFilter(cov,mincov,minfq)
 
 
 def rebind_info(record):
@@ -274,7 +270,6 @@ if "snakemake" in locals():
         snakemake.input["node2len"],
         snakemake.config["pangenomeVarMinCov"],
         snakemake.config["pangenomeRVTTSupport"],
-        float(snakemake.config["pangenomeStrandBiais"]),
         snakemake.output[0],
     )
 else:
