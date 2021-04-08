@@ -8,12 +8,11 @@ from collections import defaultdict, OrderedDict
 import statistics
 import sys
 
-from scipy.stats import binom
 
 sys.path.append(
     "scripts"
 )  # Hackfix but results in a more readable scripts folder structure
-from shared import read_node2len, alexSBFilter
+from shared import read_node2len,strand_bias
 
 
 def main(
@@ -88,9 +87,8 @@ def main(
         if coverage < min_cov:
             filters.append("Coverage")
         elif not math.isnan(vsup):
-            if strand_bias(variant, "SUP"):
+            if strand_bias(variant,"V", "SUP"):
                 filters.append("StrandBias")
-
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
                 filters.append("NoRealSupport")
 
@@ -135,14 +133,6 @@ def compute_support(nodes, node2len, node_support, edge_support, strict=False):
 
     return (all_supports_f / path_len, all_supports_r / path_len)
 
-
-def strand_bias(record, text="COV"):
-    cov = float(record.INFO[f"V{text}"])
-    mincov = min(float(record.INFO[f"V{text}F"]),float(record.INFO[f"V{text}R"]))
-    fq = mincov/cov
-    minfq = min(1 - fq, fq)
-
-    return alexSBFilter(cov,mincov,minfq)
 
 
 def rebind_info(record):

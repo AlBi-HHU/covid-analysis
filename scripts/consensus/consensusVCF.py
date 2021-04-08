@@ -31,6 +31,7 @@ header.add_info_line(
     }
 )
 
+
 # First of all we identify drop-out regions where our coverage is too low to make any calls, we will mask them with N letters
 with open(snakemake.output["nMask"], "w") as outfile:
     for pos in range(
@@ -62,11 +63,13 @@ for record in reader:
 
     if th_het <= varRatio <= 1 - th_het:
 
-        #Special Case: If we are only unsure about the reference content assume the pure variant
-        if 'REFERENCEUNSUPPORTED' in record.INFO:
+        sb_ref = strand_bias(record,"SUP","R") #True if there is a strand bias issue in the reference component of the HET call -> Assume a pure HOM call in this case
+        if sb_ref:
+            #Nothing needs to be done here: We will simply not substitute the matching ambiguity character, thus "keeping" the pure HOM call
             pass
         # SNPs get the ambiguous base characterss
         elif len(alt) == 1 and len(ref) == 1:
+
             record.ALT[0].value = ambiguityLetters[
                 frozenset({record.ALT[0].value, record.REF})
             ]
@@ -75,3 +78,5 @@ for record in reader:
             record.INFO["HSV"] = True
 
     writer.write_record(record)
+
+

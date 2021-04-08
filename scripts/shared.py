@@ -76,6 +76,14 @@ def compute_entropy(seq):
     return entropy * -1
 
 
+def strand_bias(record, text="COV",component="R"):
+    cov = float(record.INFO[f"{component}{text}"])
+    mincov = min(float(record.INFO[f"{component}{text}F"]),float(record.INFO[f"{component}{text}R"]))
+    fq = mincov/cov
+    minfq = min(1 - fq, fq)
+
+    return alexSBFilter(cov,mincov,minfq)
+
 # TODO: Move vals to cfg
 #returns true if the record should be filtered
 def alexSBFilter(cov, abs, fq):
