@@ -162,6 +162,24 @@ def add_header_info(header):
 
     header.add_info_line(
         {
+            "ID": "VCOV",
+            "Type": "Float",
+            "Number": "2",
+            "Description": "Coverage for the Variant Allele (Tuple Forward,Backward)",
+        }
+    )
+
+    header.add_info_line(
+        {
+            "ID": "RCOV",
+            "Type": "Float",
+            "Number": "2",
+            "Description": "Coverage for the Reference Allele (Tuple Forward,Backward)",
+        }
+    )
+
+    header.add_info_line(
+        {
             "ID": "VPATH",
             "Type": "String",
             "Number": "1",
