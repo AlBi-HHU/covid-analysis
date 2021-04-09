@@ -84,6 +84,14 @@ def strand_bias(record,component="R"):
 
     return alexSBFilter(cov,mincov,minfq)
 
+def get_vcf_strand_bias_filter(record,component="R"):
+    cov = float(record.INFO[f"{component}COV"][0]) + float(record.INFO[f"{component}COV"][1])
+    mincov = min(float(record.INFO[f"{component}COV"][0]),float(record.INFO[f"{component}COV"][1]))
+    fq = mincov/cov
+    minfq = min(1 - fq, fq)
+
+    return alexSBFilter(cov,mincov,minfq)
+
 # TODO: Move vals to cfg
 #returns true if the record should be filtered
 def alexSBFilter(cov, abs, fq):

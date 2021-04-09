@@ -1,11 +1,10 @@
-from scipy.stats import binom
 import vcfpy
 
 sys.path.append(
     "scripts"
 )  # Hackfix but results in a more readable scripts folder structure
 
-from shared import *
+from shared import get_vcf_strand_bias_filter,parsePileupStrandAwareLight,ambiguityLetters
 import logging
 
 # Enable logging
@@ -63,7 +62,7 @@ for record in reader:
 
     if th_het <= varRatio <= 1 - th_het:
 
-        sb_ref = strand_bias(record,"SUP","R") #True if there is a strand bias issue in the reference component of the HET call -> Assume a pure HOM call in this case
+        sb_ref = get_vcf_strand_bias_filter(record,"R") #True if there is a strand bias issue in the reference component of the HET call -> Assume a pure HOM call in this case
         if sb_ref:
             #Nothing needs to be done here: We will simply not substitute the matching ambiguity character, thus "keeping" the pure HOM call
             pass
