@@ -35,7 +35,6 @@ def main(
 
     reader = vcfpy.Reader.from_path(in_vcf)
 
-    header = clean_header_info(reader.header)
 
     pos2var = defaultdict(list)
     for record in reader:
@@ -45,7 +44,7 @@ def main(
         )
 
     # Add info line
-    add_header_info(header)
+    reader.header = create_header()
 
     # Add filter line
     add_header_filter(header)
@@ -96,13 +95,6 @@ def main(
         writer.write_record(variant)
 
 
-def clean_header_info(header):
-    del_position = reversed([p for (p, line) in enumerate(header.lines) if isinstance(line, vcfpy.InfoHeaderLine)])
-
-    for pos in del_position:
-        del header.lines[pos]
-
-    return header
 
 
 def compute_support(nodes, node2len, node_support, edge_support, strict=False):
@@ -148,8 +140,18 @@ def rebind_info(record):
     return record
 
 
-def add_header_info(header):
+def create_header():
 
+    header = vcfpy.Header()
+
+    header.add_info_line(
+        {
+            "ID": "BUBBLEID",
+            "Type": "String",
+            "Number": "1",
+            "Description": "ID of the bubble in the pangenome",
+        }
+    )
 
     header.add_info_line(
         {
@@ -197,6 +199,7 @@ def add_header_info(header):
         }
     )
 
+    return header
 
 def add_header_filter(header):
     header.add_filter_line(
