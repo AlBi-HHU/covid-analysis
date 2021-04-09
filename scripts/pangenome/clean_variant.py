@@ -44,7 +44,7 @@ def main(
         )
 
     # Add info line
-    reader.header = create_header()
+    header = create_header()
 
     # Add filter line
     add_header_filter(header)
