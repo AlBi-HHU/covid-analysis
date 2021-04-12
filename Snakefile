@@ -96,7 +96,6 @@ def getInput(wildcards):
         inputList += ['data/output/evaluation/vcfbased/concordance_pancov.html']
         inputList += ['data/output/evaluation/vcfbased/concordance_medaka.html']
         inputList += ['data/output/evaluation/vcfbased/concordance_nanopolish.html']
-        inputList += ['data/output/evaluation/toplevelStats_pancov.eval']
 
         for barcode in barcodes[run]:
             if run in illuminaMapping and barcode in illuminaMapping[run]:
