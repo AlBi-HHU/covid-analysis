@@ -91,16 +91,11 @@ def getInput(wildcards):
             inputList += expand('data/auxiliary/pangenome_vc/'+run+'/{barcode}/filter.annoted.vcf', barcode=barcodes[run])
 
         ### REMOVE LATER (THIS SECTION IS ONLY USED FOR EVALUATION OF THE PIPELINE AND IRRELEVANT FOR PRODUCTIVE USE)
-        inputList += ['data/output/evaluation/comparisonFastaBased/nanopolish.eval']
-        inputList += ['data/output/evaluation/comparisonFastaBased/medaka.eval']
-        inputList += ['data/output/evaluation/comparisonFastaBased/illumina.eval']
-
 
         #VCF Based
         inputList += ['data/output/evaluation/vcfbased/concordance_pancov.html']
         inputList += ['data/output/evaluation/vcfbased/concordance_medaka.html']
         inputList += ['data/output/evaluation/vcfbased/concordance_nanopolish.html']
-        inputList += ['data/output/evaluation/heterozygosity']
         inputList += ['data/output/evaluation/toplevelStats_pancov.eval']
 
         for barcode in barcodes[run]:
