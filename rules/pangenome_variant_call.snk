@@ -91,18 +91,8 @@ rule cleanVariants:
         support = 'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json',
         node2len = 'data/auxiliary/pangenome/node2len.csv'
     output:
-        "data/auxiliary/pangenome_vc/{run}/{barcode}/cleanedWithHeader.vcf"
+        "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
     conda:
         '../envs/freebayes.yaml',
     script:
         '../scripts/pangenome/clean_variant.py'
-
-rule removeHeader:
-    input:
-        "data/auxiliary/pangenome_vc/{run}/{barcode}/cleanedWithHeader.vcf"
-    output:
-        "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
-    conda:
-        '../envs/vt.yaml',
-    shell:
-        'vt rminfo {input} -t OLD_VARIANT,OLD_CLUMPED,RCOVT,RCOVF,RCOVR,VCOVT,VCOVF,VCOFR,REFPATH,VARPATH -o {output}'

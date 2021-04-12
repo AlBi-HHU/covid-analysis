@@ -140,7 +140,9 @@ def rebind_info(record):
     return record
 
 
-def create_header(header):
+def create_header():
+
+    header = vcfpy.Header()
 
     header.add_info_line(
         {
