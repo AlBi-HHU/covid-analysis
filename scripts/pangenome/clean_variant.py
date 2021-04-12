@@ -44,12 +44,12 @@ def main(
         )
 
     # Add info line
-    header = create_header()
+    header = create_header(reader.header)
 
     # Add filter line
     add_header_filter(header)
 
-    writer = vcfpy.Writer.from_path(out_vcf, reader.header)
+    variantsToWrite = []
 
     for key, values in pos2var.items():
         variant = values[0][1]
@@ -92,9 +92,15 @@ def main(
 
         variant = rebind_info(variant)
 
+        variantsToWrite.append(variant)
+
+    #drop additional fields
+    header = vcfpy.without_header_lines(
+        header, [('RCOVT', None),('VCOVT',None)])
+
+    writer = vcfpy.Writer.from_path(out_vcf, header)
+    for variant in variantsToWrite:
         writer.write_record(variant)
-
-
 
 
 def compute_support(nodes, node2len, node_support, edge_support, strict=False):
@@ -140,9 +146,7 @@ def rebind_info(record):
     return record
 
 
-def create_header():
-
-    header = vcfpy.Header()
+def create_header(header):
 
     header.add_info_line(
         {
