@@ -95,7 +95,7 @@ def main(
         variantsToWrite.append(variant)
 
     #drop additional fields
-    header = vcfpy.without_header_lines(
+    header = vcfpy.header_without_lines(
         header, [('RCOVT', None),('VCOVT',None)])
 
     writer = vcfpy.Writer.from_path(out_vcf, header)
