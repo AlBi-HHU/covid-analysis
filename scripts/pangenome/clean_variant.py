@@ -96,7 +96,18 @@ def main(
 
     #drop additional fields
     header = vcfpy.header_without_lines(
-        header, [('INFO', 'RCOVT'),('INFO','VCOVT')])
+        header, [
+            ('INFO','RCOVT'),
+            ('INFO','VCOVT'),
+            ('INFO','RCOVF'),
+            ('INFO', 'RCOVR'),
+            ('INFO', 'VCOVF'),
+            ('INFO', 'VCOVR'),
+            ('INFO', 'OLD_VARIANT'),
+            ('INFO', 'OLD_CLUMPED'),
+            ('INFO', 'VARPATH'),
+            ('INFO', 'REFPATH'),
+        ])
 
     writer = vcfpy.Writer.from_path(out_vcf, header)
     for variant in variantsToWrite:
