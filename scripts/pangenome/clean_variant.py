@@ -38,9 +38,9 @@ def main(
 
     pos2var = defaultdict(list)
     for record in reader:
-        coverage = record.INFO["VCOV"]
+        coverage = record.INFO["VCOVT"]
         pos2var[(record.POS, tuple(record.REF), tuple(record.ALT))].append(
-            (coverage, record, record.INFO["VCOV"])
+            (coverage, record, record.INFO["VCOVT"])
         )
 
     # Add info line
@@ -141,15 +141,6 @@ def rebind_info(record):
 
 
 def create_header(header):
-
-    header.add_info_line(
-        {
-            "ID": "BUBBLEID",
-            "Type": "String",
-            "Number": "1",
-            "Description": "ID of the bubble in the pangenome",
-        }
-    )
 
     header.add_info_line(
         {
