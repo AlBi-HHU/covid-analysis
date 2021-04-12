@@ -44,7 +44,7 @@ def main(
         )
 
     # Add info line
-    header = create_header()
+    header = create_header(reader.header)
 
     # Add filter line
     add_header_filter(header)
@@ -140,9 +140,7 @@ def rebind_info(record):
     return record
 
 
-def create_header():
-
-    header = vcfpy.Header()
+def create_header(header):
 
     header.add_info_line(
         {
