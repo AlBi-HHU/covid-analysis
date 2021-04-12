@@ -105,4 +105,4 @@ rule removeHeader:
     conda:
         '../envs/vt.yaml',
     shell:
-        'vt {input}-t OLD_VARIANT,OLD_CLUMPED,RCOVT,RCOVF,RCOVR,VCOVT,VCOVF,VCOFR,REFPATH,VARPATH -o {output}'
+        'vt rminfo {input} -t OLD_VARIANT,OLD_CLUMPED,RCOVT,RCOVF,RCOVR,VCOVT,VCOVF,VCOFR,REFPATH,VARPATH -o {output}'
