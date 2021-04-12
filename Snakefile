@@ -94,12 +94,7 @@ def getInput(wildcards):
         inputList += ['data/output/evaluation/comparisonFastaBased/nanopolish.eval']
         inputList += ['data/output/evaluation/comparisonFastaBased/medaka.eval']
         inputList += ['data/output/evaluation/comparisonFastaBased/illumina.eval']
-        inputList += ['data/output/evaluation/illumina_verification_pancov.html']
-        inputList += ['data/output/evaluation/illumina_verification_medaka.html']
-        inputList += ['data/output/evaluation/illumina_verification_nanopolish.html']
-        inputList += ['data/output/evaluation/illumina_recovery_pancov.html']
-        inputList += ['data/output/evaluation/illumina_recovery_medaka.html']
-        inputList += ['data/output/evaluation/illumina_recovery_nanopolish.html']
+
 
         #VCF Based
         inputList += ['data/output/evaluation/vcfbased/concordance_pancov.html']
