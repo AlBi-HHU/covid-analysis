@@ -160,7 +160,7 @@ with open(snakemake.output["text"], "w") as outfile, open(
 
             #Check for two cases:
             #Case 1: The only remaining component is REF
-            if len(components) == 1 and components[0] == record["REF"].values[0]:
+            if len(components) == 1 and list(components)[0] == record["REF"].values[0]:
                 pass
             #Case 2: All components got filtered by SB
             elif len(components) == 0:
