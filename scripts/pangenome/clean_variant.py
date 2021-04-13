@@ -81,7 +81,7 @@ def main(
         if coverage < min_cov:
             filters.append("Coverage")
         elif not math.isnan(vsup):
-            if strand_bias(variant, component="V"):
+            if strand_bias(variant, component="V", sb_max_threshold=float(snakemake.config["pangenomeMaxSB"])):
                 filters.append("StrandBias")
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
                 filters.append("NoRealSupport")

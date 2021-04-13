@@ -76,7 +76,7 @@ def compute_entropy(seq):
     return entropy * -1
 
 
-def strand_bias(record, component="R"):
+def strand_bias(record, component="R", sb_max_threshold=0.25):
     cov = float(record.INFO[f"{component}COVF"]) + float(
         record.INFO[f"{component}COVR"]
     )
@@ -86,7 +86,7 @@ def strand_bias(record, component="R"):
     fq = mincov / cov
     minfq = min(1 - fq, fq)
 
-    return alexSBFilterHard(cov, mincov, minfq)
+    return alexSBFilter(cov, mincov, minfq, sb_max_threshold)
 
 
 def get_vcf_strand_bias_filter(record, component="R"):
@@ -105,38 +105,20 @@ def get_vcf_strand_bias_filter(record, component="R"):
 
 # TODO: Move vals to cfg
 # returns true if the record should be filtered
-def alexSBFilter(cov, abs, fq):
+def alexSBFilter(cov, abs, fq, sb_max_threshold=0.25):
     if cov <= 10:
         return True
     elif cov <= 20:
         if abs < 5:
             return True
     elif cov <= 50:
-        if abs < 10 and fq < 0.25:
+        if abs < 10 and fq < sb_max_threshold:
             return True
     elif cov <= 100:
-        if abs < 15 and fq < 0.15:
+        if abs < 15 and fq < sb_max_threshold - 0.05:
             return True
     else:
-        if fq < 0.1:
-            return True
-    return False
-
-
-def alexSBFilterHard(cov, abs, fq):
-    if cov <= 10:
-        return True
-    elif cov <= 20:
-        if abs < 5:
-            return True
-    elif cov <= 50:
-        if abs < 10 and fq < 0.25:
-            return True
-    elif cov <= 100:
-        if abs < 15 and fq < 0.20:
-            return True
-    else:
-        if fq < 0.15:
+        if fq < sb_max_threshold - 0.1:
             return True
     return False
 
