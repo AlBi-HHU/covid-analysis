@@ -130,8 +130,8 @@ with open(snakemake.output["text"], "w") as outfile, open(
                 else [altallele]
             )
 
-            #We keep track of components that are either filtered or confirmed as true
-            #For example if we have Y we keep track of C and T separately and we might remove one component
+            # We keep track of components that are either filtered or confirmed as true
+            # For example if we have Y we keep track of C and T separately and we might remove one component
             filteredComponents = []
 
             for component in components:
@@ -155,21 +155,19 @@ with open(snakemake.output["text"], "w") as outfile, open(
                     )
                     filteredComponents.append(component)
 
-            #Remove the filtered Components
-            components = set(components)- set(filteredComponents)
+            # Remove the filtered Components
+            components = set(components) - set(filteredComponents)
 
-            #Check for two cases:
-            #Case 1: The only remaining component is REF
+            # Check for two cases:
+            # Case 1: The only remaining component is REF
             if len(components) == 1 and list(components)[0] == record["REF"].values[0]:
                 pass
-            #Case 2: All components got filtered by SB
+            # Case 2: All components got filtered by SB
             elif len(components) == 0:
                 pass
             else:
-                #Determine the new alt value depending on the filtering done before
-                record["ALT"].values[0] = ambiguityLetters[
-                    frozenset(components)
-                ]
+                # Determine the new alt value depending on the filtering done before
+                record["ALT"].values[0] = ambiguityLetters[frozenset(components)]
                 recordsIllumina[position] = record
                 relevantPositions.add(position)
 
@@ -247,13 +245,10 @@ with open(snakemake.output["text"], "w") as outfile, open(
                             bool_heterozygousNano = True
                             cnt_detectedHETINS += 1
                             nanoporeValue += "(HET)"
-                        elif(
-                            snakemake.params["method"] == "nanopolish"
-                            and (
-                                snakemake.config["thresholdHomCall"]
-                                <= recordsNanopore[position].INFO['SupportFraction']
-                                <= (1 - snakemake.config["thresholdHomCall"])
-                            )
+                        elif snakemake.params["method"] == "nanopolish" and (
+                            snakemake.config["thresholdHomCall"]
+                            <= recordsNanopore[position].INFO["SupportFraction"]
+                            <= (1 - snakemake.config["thresholdHomCall"])
                         ):
                             bool_heterozygousNano = True
                             cnt_detectedHETINS += 1
@@ -270,13 +265,10 @@ with open(snakemake.output["text"], "w") as outfile, open(
                             bool_heterozygousNano = True
                             cnt_detectedHETDEL += 1
                             nanoporeValue += "(HET)"
-                        elif(
-                            snakemake.params["method"] == "nanopolish"
-                            and (
-                                snakemake.config["thresholdHomCall"]
-                                <= recordsNanopore[position].INFO['SupportFraction']
-                                <= (1 - snakemake.config["thresholdHomCall"])
-                            )
+                        elif snakemake.params["method"] == "nanopolish" and (
+                            snakemake.config["thresholdHomCall"]
+                            <= recordsNanopore[position].INFO["SupportFraction"]
+                            <= (1 - snakemake.config["thresholdHomCall"])
                         ):
                             bool_heterozygousNano = True
                             cnt_detectedHETDEL += 1
@@ -289,13 +281,10 @@ with open(snakemake.output["text"], "w") as outfile, open(
                         ):
                             bool_heterozygousNano = True
                             cnt_detectedHETSNPs += 1
-                        elif(
-                            snakemake.params["method"] == "nanopolish"
-                            and (
-                                snakemake.config["thresholdHomCall"]
-                                <= recordsNanopore[position].INFO['SupportFraction']
-                                <= (1 - snakemake.config["thresholdHomCall"])
-                            )
+                        elif snakemake.params["method"] == "nanopolish" and (
+                            snakemake.config["thresholdHomCall"]
+                            <= recordsNanopore[position].INFO["SupportFraction"]
+                            <= (1 - snakemake.config["thresholdHomCall"])
                         ):
                             bool_heterozygousNano = True
                             cnt_detectedHETSNPs += 1
@@ -361,28 +350,32 @@ with open(snakemake.output["text"], "w") as outfile, open(
 
                 if not (illuminaDropout or nanoporeDropout):
                     if (
-                        illuminaType == nanoporeType
-                    ) and (
-                        illuminaValue == nanoporeValue
-                    ) and (
-                        bool_heterozygousIllu == bool_heterozygousNano
+                        (illuminaType == nanoporeType)
+                        and (illuminaValue == nanoporeValue)
+                        and (bool_heterozygousIllu == bool_heterozygousNano)
                     ):
-                        #if this is a het position
+                        # if this is a het position
                         if bool_heterozygousNano:
-                            cnt_concordance_HET += 2 #Both, alt and ref got called correctly
+                            cnt_concordance_HET += (
+                                2  # Both, alt and ref got called correctly
+                            )
                         else:
                             cnt_concordance_HOM += 1
                         bool_concordance = True
                     else:
                         cnt_discordance += 1
-                        if (position in recordsIllumina) and (
-                            position not in recordsNanopore
-                        ) and (not bool_heterozygousIllu):
+                        if (
+                            (position in recordsIllumina)
+                            and (position not in recordsNanopore)
+                            and (not bool_heterozygousIllu)
+                        ):
                             bool_falseNegative = True
                             cnt_falseNegatives_HOM += 1
-                        if (position in recordsNanopore) and (
-                            position not in recordsIllumina
-                        ) and (not bool_heterozygousNano):
+                        if (
+                            (position in recordsNanopore)
+                            and (position not in recordsIllumina)
+                            and (not bool_heterozygousNano)
+                        ):
                             bool_falsePositive = True
                             cnt_falsePositives_HOM += 1
 
@@ -394,24 +387,32 @@ with open(snakemake.output["text"], "w") as outfile, open(
                         ):
                             cnt_unfairComparisons += 1
 
-                        #HET Stats
-                        #Case 1: It's a real HET but we don't find it at all
-                        if (position in recordsIllumina) and (position not in recordsNanopore) and bool_heterozygousIllu:
+                        # HET Stats
+                        # Case 1: It's a real HET but we don't find it at all
+                        if (
+                            (position in recordsIllumina)
+                            and (position not in recordsNanopore)
+                            and bool_heterozygousIllu
+                        ):
                             cnt_falseNegatives_HET += 2
                             bool_falseNegative = True
-                        #Case 2: It's a called HET but Illumina knows of no variant at this location
-                        if (position in recordsNanopore) and (position not in recordsIllumina) and bool_heterozygousNano:
+                        # Case 2: It's a called HET but Illumina knows of no variant at this location
+                        if (
+                            (position in recordsNanopore)
+                            and (position not in recordsIllumina)
+                            and bool_heterozygousNano
+                        ):
                             cnt_falsePositives_HET += 1
                             bool_falsePositive = True
                             cnt_concordance_HET += 1
-                        #Case 3: It's called in both cases but there is disagreement
+                        # Case 3: It's called in both cases but there is disagreement
                         if (bool_heterozygousIllu) and (position in recordsNanopore):
                             cnt_falseNegatives_HET += 1
                             bool_falseNegative = True
                             cnt_concordance_HET += 1
-                        #Case 3: It's called in both cases but there is disagreement
+                        # Case 3: It's called in both cases but there is disagreement
                         if (bool_heterozygousIllu) and (position in recordsNanopore):
-                            if illuminaType == 'SNV':
+                            if illuminaType == "SNV":
                                 cnt_falseNegatives_HET += 1
                                 cnt_concordance_HET += 1
                                 bool_falseNegative = True
@@ -421,7 +422,7 @@ with open(snakemake.output["text"], "w") as outfile, open(
                                     cnt_falseNegatives_HET += 1
                                     cnt_concordance_HET += 1
                         if (bool_heterozygousNano) and (position in recordsIllumina):
-                            if illuminaType == 'SNV':
+                            if illuminaType == "SNV":
                                 bool_falsePositive = True
                                 cnt_falsePositives_HET += 1
                                 cnt_concordance_HET += 1
@@ -458,13 +459,21 @@ with open(snakemake.output["text"], "w") as outfile, open(
                     bool_heterozygousIllu,
                     bool_heterozygousNano,
                     bool_concordance,
-                    list('{}:{}'.format(allele,illuminapileup[position][allele]) for allele in sorted(illuminapileup[position]))
+                    list(
+                        "{}:{}".format(allele, illuminapileup[position][allele])
+                        for allele in sorted(illuminapileup[position])
+                    )
                     if position in illuminapileup
                     else "Dropout",
-                    list('{}:{}'.format(allele,nanoporepileup[position][allele]) for allele in sorted(nanoporepileup[position]))
+                    list(
+                        "{}:{}".format(allele, nanoporepileup[position][allele])
+                        for allele in sorted(nanoporepileup[position])
+                    )
                     if position in nanoporepileup
                     else "Dropout",
-                    reference[position - 1-3:position-1+3+1].seq, #3 preceding, 3 succeeding bases
+                    reference[
+                        position - 1 - 3 : position - 1 + 3 + 1
+                    ].seq,  # 3 preceding, 3 succeeding bases
                 )
             )
 
@@ -492,7 +501,11 @@ with open(snakemake.output["text"], "w") as outfile, open(
     outfile.write("Real (iVar) HET DEL:{} \n".format(cnt_realHETDEL))
     outfile.write("Detected HET DEL:{} \n".format(cnt_detectedHETDEL))
 
-    outfile.write("Detected HETs total : {} \n".format(cnt_detectedHETSNPs+cnt_detectedHETINS+cnt_detectedHETDEL))
+    outfile.write(
+        "Detected HETs total : {} \n".format(
+            cnt_detectedHETSNPs + cnt_detectedHETINS + cnt_detectedHETDEL
+        )
+    )
 
     outfile.write(
         "Relevant Positions: {} (of which {} could not be evaluated)\n".format(
@@ -500,21 +513,21 @@ with open(snakemake.output["text"], "w") as outfile, open(
         )
     )
 
-    outfile.write(
-        "HOM Concordance:{} \n".format(
-            cnt_concordance_HOM
-        )
-    )
+    outfile.write("HOM Concordance:{} \n".format(cnt_concordance_HOM))
     outfile.write("HOM FP:{} \n".format(cnt_falsePositives_HOM))
     outfile.write("HOM FN:{} \n".format(cnt_falseNegatives_HOM))
 
+    outfile.write("HET Concordance:{} \n".format(cnt_concordance_HET))
     outfile.write(
-        "HET Concordance:{} \n".format(
-            cnt_concordance_HET
+        "HET FP (Note: Each Allele counts separately) :{} \n".format(
+            cnt_falsePositives_HET
         )
     )
-    outfile.write("HET FP (Note: Each Allele counts separately) :{} \n".format(cnt_falsePositives_HET))
-    outfile.write("HET FN (Note: Each Allele counts separately) :{} \n".format(cnt_falseNegatives_HET))
+    outfile.write(
+        "HET FN (Note: Each Allele counts separately) :{} \n".format(
+            cnt_falseNegatives_HET
+        )
+    )
 
     outfile.write(
         "Discordance: {} of {} comparable positions \n".format(
@@ -554,14 +567,22 @@ with open(snakemake.output["text"], "w") as outfile, open(
     f1_HET = (2 * cnt_concordance_HET) / (
         2 * cnt_concordance_HET + cnt_falsePositives_HET + cnt_falseNegatives_HET
     )
-    outfile.write("Precision HET Only (Concordance / (Concordance+FP)): {}\n".format(precision_HET))
-    outfile.write("Recall HET only (Concordance / (Concordance+FN)): {}\n".format(recall_HET))
-    outfile.write("F1 HET only ( (2*Concordance)/(2*Concordance+FP+FN)): {}\n".format(f1_HET))
+    outfile.write(
+        "Precision HET Only (Concordance / (Concordance+FP)): {}\n".format(
+            precision_HET
+        )
+    )
+    outfile.write(
+        "Recall HET only (Concordance / (Concordance+FN)): {}\n".format(recall_HET)
+    )
+    outfile.write(
+        "F1 HET only ( (2*Concordance)/(2*Concordance+FP+FN)): {}\n".format(f1_HET)
+    )
 
-    outfile.write("F1 Macro 1/2(F1+F1_HET): {}\n".format((f1_HET+f1)/2))
+    outfile.write("F1 Macro 1/2(F1+F1_HET): {}\n".format((f1_HET + f1) / 2))
 
     # Additional TLS
-    accuracy = cnt_concordance_HOM+cnt_concordance_HET / cnt_comparablePositions
+    accuracy = cnt_concordance_HOM + cnt_concordance_HET / cnt_comparablePositions
     outfile.write("Accuracy (Concordance/Comparable Positions): {}\n".format(accuracy))
     outfile.write(
         "Additional Nanopore Dropouts without VCs in either method: {}\n".format(
@@ -578,13 +599,19 @@ with open(snakemake.output["text"], "w") as outfile, open(
     )
 
     # Calculate top level stats in a variation
-    precision_var = (cnt_concordance_HOM+cnt_concordance_HET + cnt_implicit_agreement) / (
-        cnt_concordance_HOM+cnt_concordance_HET + cnt_falsePositives_HOM +cnt_falsePositives_HET + cnt_implicit_agreement
+    precision_var = (
+        cnt_concordance_HOM + cnt_concordance_HET + cnt_implicit_agreement
+    ) / (
+        cnt_concordance_HOM
+        + cnt_concordance_HET
+        + cnt_falsePositives_HOM
+        + cnt_falsePositives_HET
+        + cnt_implicit_agreement
     )
     outfile.write(
         "Precision (Concordance+IA / (Concordance+FP+IA)): {}\n".format(precision)
     )
-    accuracy = (cnt_concordance_HOM+cnt_concordance_HET  + cnt_implicit_agreement) / (
+    accuracy = (cnt_concordance_HOM + cnt_concordance_HET + cnt_implicit_agreement) / (
         cnt_comparablePositions + cnt_implicit_agreement
     )
     outfile.write(
@@ -612,7 +639,7 @@ df = pd.DataFrame(
         "concordance",
         "illuminaPileup",
         "nanoporePileup",
-        "referenceContext"
+        "referenceContext",
     ],
 )
 

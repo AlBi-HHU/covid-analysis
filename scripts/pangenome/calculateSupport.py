@@ -9,6 +9,7 @@ import json
 
 from collections import defaultdict
 
+
 def main(alignment, pangenome, output):
 
     # get the sequence associate to node
@@ -17,13 +18,10 @@ def main(alignment, pangenome, output):
     node2base_cov = {}
 
     for n_id, seq in node2seq.items():
-        node2base_cov[n_id] =  {
-            "forward": [] ,
-            "reverse": []
-        }
+        node2base_cov[n_id] = {"forward": [], "reverse": []}
         for pos in range(len(seq)):
-            node2base_cov[n_id]["forward"].append( {'strict': 0, 'lenient': 0})
-            node2base_cov[n_id]["reverse"].append({'strict': 0, 'lenient': 0})
+            node2base_cov[n_id]["forward"].append({"strict": 0, "lenient": 0})
+            node2base_cov[n_id]["reverse"].append({"strict": 0, "lenient": 0})
 
     edge2cov = defaultdict(lambda: defaultdict(int))
 
@@ -73,10 +71,10 @@ def main(alignment, pangenome, output):
                 + "\n"
             )
 
-            #Memoize previous CIGAR instructions for stricter values
-            lastInstructions = ['None','None','None']
-            lastPositions = [-1,-1,-1]
-            lastNodes = [-1,-1,-1]
+            # Memoize previous CIGAR instructions for stricter values
+            lastInstructions = ["None", "None", "None"]
+            lastPositions = [-1, -1, -1]
+            lastNodes = [-1, -1, -1]
 
             for (*length, instruction) in cigar:
                 length = int("".join(length))
@@ -106,24 +104,40 @@ def main(alignment, pangenome, output):
                     # print(current_node, len(node2base_cov[current_node][orientation]), position_on_node, posInInstruction, instruction, length, cigar, line)
 
                     if instruction == "M":
-                        node2base_cov[current_node][orientation][position_on_node]['lenient'] += 1
+                        node2base_cov[current_node][orientation][position_on_node][
+                            "lenient"
+                        ] += 1
 
                     lastInstructions.pop(-1)
                     lastPositions.pop(-1)
                     lastNodes.pop(-1)
 
-                    lastInstructions.insert(0,instruction)
-                    lastPositions.insert(0,position_on_node)
-                    lastNodes.insert(0,current_node)
+                    lastInstructions.insert(0, instruction)
+                    lastPositions.insert(0, position_on_node)
+                    lastNodes.insert(0, current_node)
 
-                    #if we have three matches, the middle match is REALLY supported
-                    if lastInstructions[0] == lastInstructions[1] == lastInstructions[2] == 'M':
-                        node2base_cov[lastNodes[1]][orientation][lastPositions[1]]['strict'] += 1
+                    # if we have three matches, the middle match is REALLY supported
+                    if (
+                        lastInstructions[0]
+                        == lastInstructions[1]
+                        == lastInstructions[2]
+                        == "M"
+                    ):
+                        node2base_cov[lastNodes[1]][orientation][lastPositions[1]][
+                            "strict"
+                        ] += 1
 
                     # test if we are at end of a node
-                    if (orientation == "forward" and position_on_node == 0) or (orientation == "reverse" and position_on_node == current_node_len - 1):
-                        if lastInstructions[0] == lastInstructions[1] == 'M':
-                            normalize_key = (lastNodes[0], lastNodes[1]) if lastNodes[0] < lastNodes[1] else (lastNodes[1], lastNodes[0])
+                    if (orientation == "forward" and position_on_node == 0) or (
+                        orientation == "reverse"
+                        and position_on_node == current_node_len - 1
+                    ):
+                        if lastInstructions[0] == lastInstructions[1] == "M":
+                            normalize_key = (
+                                (lastNodes[0], lastNodes[1])
+                                if lastNodes[0] < lastNodes[1]
+                                else (lastNodes[1], lastNodes[0])
+                            )
                             edge2cov["_".join(normalize_key)][orientation] += 1
 
                     if instruction != "I":

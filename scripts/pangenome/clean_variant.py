@@ -12,7 +12,7 @@ import sys
 sys.path.append(
     "scripts"
 )  # Hackfix but results in a more readable scripts folder structure
-from shared import read_node2len,strand_bias
+from shared import read_node2len, strand_bias
 
 
 def main(
@@ -34,7 +34,6 @@ def main(
     node2len = read_node2len(node2len_path)
 
     reader = vcfpy.Reader.from_path(in_vcf)
-
 
     pos2var = defaultdict(list)
     for record in reader:
@@ -59,12 +58,14 @@ def main(
             coverage = values[0][0]
             variant = values[0][1]
 
-        vsup_f, vsup_r = compute_support(variant.INFO["VARPATH"], node2len, nodeSupport, edgeSupport, strict=True)
-        rsup_f, rsup_r = compute_support(variant.INFO["REFPATH"], node2len, nodeSupport, edgeSupport, strict=True)
+        vsup_f, vsup_r = compute_support(
+            variant.INFO["VARPATH"], node2len, nodeSupport, edgeSupport, strict=True
+        )
+        rsup_f, rsup_r = compute_support(
+            variant.INFO["REFPATH"], node2len, nodeSupport, edgeSupport, strict=True
+        )
         vsup = vsup_f + vsup_r
         rsup = rsup_f + rsup_r
-
-
 
         if (min(rsup_f, rsup_r) + min(vsup_f, vsup_r)) == 0:
             variant.INFO["CORHETRATIO"] = -1.0
@@ -80,7 +81,7 @@ def main(
         if coverage < min_cov:
             filters.append("Coverage")
         elif not math.isnan(vsup):
-            if strand_bias(variant,component="V"):
+            if strand_bias(variant, component="V"):
                 filters.append("StrandBias")
             if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
                 filters.append("NoRealSupport")
@@ -94,20 +95,22 @@ def main(
 
         variantsToWrite.append(variant)
 
-    #drop additional fields
+    # drop additional fields
     header = vcfpy.header_without_lines(
-        header, [
-            ('INFO','RCOVT'),
-            ('INFO','VCOVT'),
-            ('INFO','RCOVF'),
-            ('INFO', 'RCOVR'),
-            ('INFO', 'VCOVF'),
-            ('INFO', 'VCOVR'),
-            ('INFO', 'OLD_VARIANT'),
-            ('INFO', 'OLD_CLUMPED'),
-            ('INFO', 'VARPATH'),
-            ('INFO', 'REFPATH'),
-        ])
+        header,
+        [
+            ("INFO", "RCOVT"),
+            ("INFO", "VCOVT"),
+            ("INFO", "RCOVF"),
+            ("INFO", "RCOVR"),
+            ("INFO", "VCOVF"),
+            ("INFO", "VCOVR"),
+            ("INFO", "OLD_VARIANT"),
+            ("INFO", "OLD_CLUMPED"),
+            ("INFO", "VARPATH"),
+            ("INFO", "REFPATH"),
+        ],
+    )
 
     writer = vcfpy.Writer.from_path(out_vcf, header)
     for variant in variantsToWrite:
@@ -118,24 +121,37 @@ def compute_support(nodes, node2len, node_support, edge_support, strict=False):
     nodes = nodes.split("_")
 
     if len(nodes) <= 2:
-        forward = edge_support[frozenset(nodes)]["forward"] if "forward" in edge_support[frozenset(nodes)] else 0
-        reverse = edge_support[frozenset(nodes)]["reverse"] if "reverse" in edge_support[frozenset(nodes)] else 0
+        forward = (
+            edge_support[frozenset(nodes)]["forward"]
+            if "forward" in edge_support[frozenset(nodes)]
+            else 0
+        )
+        reverse = (
+            edge_support[frozenset(nodes)]["reverse"]
+            if "reverse" in edge_support[frozenset(nodes)]
+            else 0
+        )
         return (forward, reverse)
 
     all_supports_f = 0
     all_supports_r = 0
     path_len = 0
 
-    key = 'strict' if strict else 'lenient'
+    key = "strict" if strict else "lenient"
 
     for node in nodes[1:-1]:
-        #Take maximum of coverage across all positions
-        all_supports_f += statistics.mean(node_support[node]["forward"][pos][key] for pos in range(len(node_support[node]["forward"])))
-        all_supports_r += statistics.mean(node_support[node]["reverse"][pos][key] for pos in range(len(node_support[node]["reverse"])))
+        # Take maximum of coverage across all positions
+        all_supports_f += statistics.mean(
+            node_support[node]["forward"][pos][key]
+            for pos in range(len(node_support[node]["forward"]))
+        )
+        all_supports_r += statistics.mean(
+            node_support[node]["reverse"][pos][key]
+            for pos in range(len(node_support[node]["reverse"]))
+        )
         path_len += node2len[node]
 
     return (all_supports_f / path_len, all_supports_r / path_len)
-
 
 
 def rebind_info(record):
@@ -148,7 +164,6 @@ def rebind_info(record):
 
     new_info["RCOV"] = [old_info["RCOVF"], old_info["RCOVR"]]
     new_info["VCOV"] = [old_info["VCOVF"], old_info["VCOVR"]]
-
 
     new_info["CORHETRATIO"] = old_info["CORHETRATIO"]
 
@@ -195,7 +210,6 @@ def create_header(header):
         }
     )
 
-
     header.add_info_line(
         {
             "ID": "CORHETRATIO",
@@ -206,6 +220,7 @@ def create_header(header):
     )
 
     return header
+
 
 def add_header_filter(header):
     header.add_filter_line(
@@ -221,7 +236,7 @@ def add_header_filter(header):
             "Description": "We notice a strand bias in coverage of this variant",
         }
     )
-    #TODO: Better descriptions for those filters and more intuitive names
+    # TODO: Better descriptions for those filters and more intuitive names
     header.add_filter_line(
         {
             "ID": "NoRealSupport",

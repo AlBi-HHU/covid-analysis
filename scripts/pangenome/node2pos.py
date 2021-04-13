@@ -44,7 +44,6 @@ def get_ref_path(path):
                 yield n
 
 
-
 if "snakemake" in locals():
     main(
         snakemake.input["graph"],

@@ -76,24 +76,35 @@ def compute_entropy(seq):
     return entropy * -1
 
 
-def strand_bias(record,component="R"):
-    cov = float(record.INFO[f"{component}COVF"])+float(record.INFO[f"{component}COVR"])
-    mincov = min(float(record.INFO[f"{component}COVF"]),float(record.INFO[f"{component}COVR"]))
-    fq = mincov/cov
+def strand_bias(record, component="R"):
+    cov = float(record.INFO[f"{component}COVF"]) + float(
+        record.INFO[f"{component}COVR"]
+    )
+    mincov = min(
+        float(record.INFO[f"{component}COVF"]), float(record.INFO[f"{component}COVR"])
+    )
+    fq = mincov / cov
     minfq = min(1 - fq, fq)
 
-    return alexSBFilter(cov,mincov,minfq)
+    return alexSBFilterHard(cov, mincov, minfq)
 
-def get_vcf_strand_bias_filter(record,component="R"):
-    cov = float(record.INFO[f"{component}COV"][0]) + float(record.INFO[f"{component}COV"][1])
-    mincov = min(float(record.INFO[f"{component}COV"][0]),float(record.INFO[f"{component}COV"][1]))
-    fq = mincov/cov
+
+def get_vcf_strand_bias_filter(record, component="R"):
+    cov = float(record.INFO[f"{component}COV"][0]) + float(
+        record.INFO[f"{component}COV"][1]
+    )
+    mincov = min(
+        float(record.INFO[f"{component}COV"][0]),
+        float(record.INFO[f"{component}COV"][1]),
+    )
+    fq = mincov / cov
     minfq = min(1 - fq, fq)
 
-    return alexSBFilter(cov,mincov,minfq)
+    return alexSBFilter(cov, mincov, minfq)
+
 
 # TODO: Move vals to cfg
-#returns true if the record should be filtered
+# returns true if the record should be filtered
 def alexSBFilter(cov, abs, fq):
     if cov <= 10:
         return True
@@ -110,6 +121,25 @@ def alexSBFilter(cov, abs, fq):
         if fq < 0.1:
             return True
     return False
+
+
+def alexSBFilterHard(cov, abs, fq):
+    if cov <= 10:
+        return True
+    elif cov <= 20:
+        if abs < 5:
+            return True
+    elif cov <= 50:
+        if abs < 10 and fq < 0.25:
+            return True
+    elif cov <= 100:
+        if abs < 15 and fq < 0.20:
+            return True
+    else:
+        if fq < 0.15:
+            return True
+    return False
+
 
 def parseKmers(kmers, sequence, k):
     if len(sequence) < k:

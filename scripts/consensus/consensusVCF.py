@@ -4,7 +4,11 @@ sys.path.append(
     "scripts"
 )  # Hackfix but results in a more readable scripts folder structure
 
-from shared import get_vcf_strand_bias_filter,parsePileupStrandAwareLight,ambiguityLetters
+from shared import (
+    get_vcf_strand_bias_filter,
+    parsePileupStrandAwareLight,
+    ambiguityLetters,
+)
 import logging
 
 # Enable logging
@@ -62,9 +66,11 @@ for record in reader:
 
     if th_het <= varRatio <= 1 - th_het:
 
-        sb_ref = get_vcf_strand_bias_filter(record,"R") #True if there is a strand bias issue in the reference component of the HET call -> Assume a pure HOM call in this case
+        sb_ref = get_vcf_strand_bias_filter(
+            record, "R"
+        )  # True if there is a strand bias issue in the reference component of the HET call -> Assume a pure HOM call in this case
         if sb_ref:
-            #Nothing needs to be done here: We will simply not substitute the matching ambiguity character, thus "keeping" the pure HOM call
+            # Nothing needs to be done here: We will simply not substitute the matching ambiguity character, thus "keeping" the pure HOM call
             pass
         # SNPs get the ambiguous base characterss
         elif len(alt) == 1 and len(ref) == 1:
@@ -73,9 +79,7 @@ for record in reader:
                 frozenset({record.ALT[0].value, record.REF})
             ]
         else:
-        #Here, we have a heterozygous structural variant, since we can't really encode this in a linear consensus we just keep the information in the .vcf file
+            # Here, we have a heterozygous structural variant, since we can't really encode this in a linear consensus we just keep the information in the .vcf file
             record.INFO["HSV"] = True
 
     writer.write_record(record)
-
-
