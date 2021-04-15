@@ -23,7 +23,7 @@ def main(vcf, entropy_th, ratio_ref_cov_th, out):
 
         entropy = compute_entropy(record.REF)
 
-        if (entropy < 0.001 or entropy > entropy_th) and ratio < ratio_ref_cov_th and not alexSBFilter(mincov, cov, minfq):
+        if (entropy < 0.001 or entropy > entropy_th) and ratio < ratio_ref_cov_th and not alexSBFilter(mincov, cov, minfq, sb_max_threshold=float(snakemake.config["freebayesMaxSB"])):
 
             writer.write_record(record)
 
