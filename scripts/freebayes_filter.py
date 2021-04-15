@@ -9,6 +9,11 @@ def main(vcf, entropy_th, ratio_ref_cov_th, out):
     writer = vcfpy.Writer.from_path(out, reader.header)
 
     for record in reader:
+        if record.QUAL is None:
+            continue
+        elif float(record.QUAL) < float(snakemake.config["freebayesMinQual"]):
+            continue
+
         coverage = record.INFO["DP"]
         ref_cov = record.INFO["RO"]
         ratio = ref_cov / coverage

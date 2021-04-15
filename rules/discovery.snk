@@ -38,7 +38,7 @@ rule freebayes_clean:
         output = 'data/auxiliary/discovery/freebayes/{run}/{k}/{barcode}.vcf.ugly',
     params:
         e_th = config["freebayesMaxEntropyTh"],
-        ratio_ref_cov = config["feebayesMaxRefCovRatio"]
+        ratio_ref_cov = config["freebayesMaxRefCovRatio"]
     conda:
         '../envs/freebayes.yaml'
     script:

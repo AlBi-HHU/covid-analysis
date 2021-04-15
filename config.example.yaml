@@ -34,8 +34,9 @@ correctionClip: False
 
 #FreeBayes Parameters
 freebayesMaxEntropyTh: 1.7
-feebayesMaxRefCovRatio: 0.8
+freebayesMaxRefCovRatio: 0.8
 freebayesMaxSB: 0.30
+freebayesMinQual: 15
 
 # Pangenome section
 pangenomeUseFreebayes: True
