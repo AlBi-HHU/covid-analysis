@@ -28,7 +28,7 @@ rule count_jellyfish:
     conda:
         '../envs/jellyfish.yaml',
     threads:
-        48        
+        config["max_thread_per_task"]
     log:
         'logs/jellyfish_count_{prefix}_k{k}.log',
     shell:
@@ -71,7 +71,7 @@ rule asm_select_kmer:
     log:
         'logs/corrections/graph_first_{run}_{k}_{barcode}.log'
     threads:
-        48
+        config["max_thread_per_task"]
     shell:
         'bcalm -in {input.kmerset} -abundance-min 0 -kmer-size {params.k} -repartition-type 1 -minimizer-type 1 -nb-cores {threads} -out {params.outprefix}'
 
@@ -104,7 +104,7 @@ rule correct_read:
     conda:
         '../envs/graphaligner.yaml'
     threads:
-        48
+        config["max_thread_per_task"]
     log:
         'logs/corrections/corrections_{run}_{k}_{barcode}.log'
     shell:

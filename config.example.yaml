@@ -1,18 +1,19 @@
 # Reference
 ## Reference Genome Length
-ref_genome_length : 29903
+ref_genome_length: 29903
 ## Reference Genome Chromosome ID
-ref_genome_chr : MN908947.3
+ref_genome_chr: MN908947.3
 
+max_thread_per_task: 8
 
 #Input 
 ## Suffix Definitions for Input Files
-vcf_suffix : pass.vcf
-bam_suffix : primertrimmed.rg.sorted.bam
+vcf_suffix: pass.vcf
+bam_suffix: primertrimmed.rg.sorted.bam
 
 
 #fraction (between 0 and 0.5) of reads that need to support a variant for it to be labeled homozygous
-thresholdHomCall : 0.2 #This is used for consensus creation
+thresholdHomCall: 0.2 #This is used for consensus creation
 
 
 performQualityControl: True

@@ -54,7 +54,7 @@ rule concatenate_vcf:
     conda:
         '../envs/freebayes.yaml',
     threads:
-        48
+        config["max_thread_per_task"]
     log:
         'logs/pangenome_concatenate_vcf.log'
     script:
@@ -161,7 +161,7 @@ rule pangenome:
         '../envs/vg.yaml',
 
     threads:
-        48
+        config["max_thread_per_task"]
 
     log:
         'logs/pangenome_build_pangenome.log'

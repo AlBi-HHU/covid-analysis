@@ -7,7 +7,7 @@ rule map_read_pangenome:
     conda:
         '../envs/graphaligner.yaml',
     threads:
-        48  #TODO: cfg?
+        config["max_thread_per_task"]
     log:
         'logs/pangenome_vc_read_mapping_{run}_{barcode}.log',
     shell:
@@ -23,7 +23,7 @@ rule map_ref_pangenome:
     conda:
         '../envs/graphaligner.yaml',
     threads:
-        48  #TODO: cfg?
+        config["max_thread_per_task"]
     log:
         'logs/pangenome_vc_reference_mapping.log',
     shell:
