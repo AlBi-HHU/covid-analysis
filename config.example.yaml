@@ -26,6 +26,7 @@ kmerFilterMin: 10                 # kmer lower than this threshold is discard
 kmerFilterFRMinRatio: 0.3         # if forward / (forward + reverse) is lower than this threshold is discard
 kmerFilterTrustAbundance: 50      # kmer with abundance lower than this threshold must pass guess coverage ratio
 kmerFilterGuessCoverageRatio: 0.7 # kmer with abundance lower than guess coverage times this threshold kmer is discard
+kmerFilterMaxEntropyTh: 1.5       # kmer with abundance lower than this value is ignore due to his low complexity
 
 correctionClip: False
 
@@ -45,23 +46,24 @@ articMethods : ['medaka','nanopolish'] #which artic variant callers are used as 
 # Pangenome variant calling
 medakaQualityThreshold: 7.0
 pangenomeVariantCalling: True
-pangenomeRVTTSupport: 0.5
-pangenomeMinCovFactor: 0.1
+pangenomeRVTTSupport: 0.25
+pangenomeMinCovFactor: 0.15
 pangenomeMinEndsCovBubble: 10
-pangenomeVarMinCov: 15
+pangenomeVarMinCov: 10
+pangenomeMaxSB: 0.30
 
 # Illumina variant calling
 illuminaAlleleFreqCutoff: 0.8
 
 # Illumina cutoff for evaluation
-illuminaCoverageCutoff: 0.2 #Percentage Based
-nanoporeCoverageCutoff: 20 #Absolute Number
+illuminaCoverageCutoff: 0.2
+nanoporeCoverageCutoff: 20
 
 # Consensus section
 consensusMinCov: 20
 
 # VariantAnotation
-VarAnnotSnpEff: True
+VarAnnotSnpEff: False
 
 
 

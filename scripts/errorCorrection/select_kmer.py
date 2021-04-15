@@ -86,7 +86,7 @@ def generate_untrust_kmer(reads_kmer, th_min, th_frmr, invalidDeletions):
 
     for kmer in list(reads_kmer.keys()):
         # Shannon Entropy Test
-        if compute_entropy(kmer) > snakemake.config["freebayesMaxEntropyTh"]:
+        if compute_entropy(kmer) < snakemake.config["kmerFilterMaxEntropyTh"]:
             yield kmer
         else:
             forward = reads_kmer[kmer]
