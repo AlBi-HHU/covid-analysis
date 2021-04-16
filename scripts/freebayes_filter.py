@@ -14,6 +14,10 @@ def main(vcf, entropy_th, ratio_ref_cov_th, out):
         elif float(record.QUAL) < float(snakemake.config["freebayesMinQual"]):
             continue
 
+        if (len(record.REF) - len(record.ALT[0].value)) % 3 != 0:
+            continue
+
+
         coverage = record.INFO["DP"]
         ref_cov = record.INFO["RO"]
         ratio = ref_cov / coverage
