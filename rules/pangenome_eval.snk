@@ -10,8 +10,10 @@ rule generateTestSet:
         samples = []
         for run in runs:
             for barcode in barcodes[run]:
-                samples.append((run,barcode))
-        test = random.sample(samples,k=30)
+                if run in illuminaMapping and barcode in illuminaMapping[run]:
+                    samples.append((run,barcode))
+        twentypercent = len(samples)*0.2
+        test = random.sample(samples,k=twentypercent)
         eval = set(samples)-set(test)
         with open(output['testSet'],'w') as testSet, open(output['evalSet'],'w') as evalSet:
             for t in test:
