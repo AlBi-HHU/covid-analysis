@@ -20,7 +20,6 @@ def main(
     supportFile,
     node2len_path,
     min_cov,
-    rvt,
     out_vcf,
 ):
 
@@ -92,8 +91,6 @@ def main(
             if strand_bias(variant, component="R", sb_max_threshold=float(snakemake.config["pangenomeMaxSB"])):
                 filters.append("RStrandBias")
 
-        if (vsup / (vsup + rsup)) < rvt:
-            filters.append("LowRVT")
 
         if len(filters) == 0:
             filters.append("PASS")
@@ -260,12 +257,6 @@ def add_header_filter(header):
         }
     )
 
-    header.add_filter_line(
-        {
-            "ID": "LowRVT",
-            "Description": "RVT is below threshold",
-        }
-    )
 
 
 if "snakemake" in locals():
@@ -274,7 +265,6 @@ if "snakemake" in locals():
         snakemake.input["support"],
         snakemake.input["node2len"],
         snakemake.config["pangenomeVarMinCov"],
-        snakemake.config["pangenomeRVTTSupport"],
         snakemake.output[0],
     )
 else:
