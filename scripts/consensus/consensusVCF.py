@@ -64,6 +64,8 @@ for record in reader:
     if pos in pileup:
         logging.debug("Corresponding pileup record: {}".format(pileup[pos]))
 
+    if 'LowRVT' in record.FILTER:
+        continue
 
     #Check all possible filter flags
     RCOVERAGE = 'RCoverage' in record.FILTER
