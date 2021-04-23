@@ -66,10 +66,10 @@ for record in reader:
 
 
     #Check all possible filter flags
-    RCOVERAGE = record.FILTER['RCoverage']
-    VCOVERAGE = record.FILTER['VCoverage']
-    RSTRANDBIAS = record.FILTER['RStrandBias']
-    VSTRANDBIAS = record.FILTER['VStrandBias']
+    RCOVERAGE = 'RCoverage' in record.FILTER
+    VCOVERAGE = 'VCoverage' in record.FILTER
+    RSTRANDBIAS = 'RStrandBias' in record.FILTER
+    VSTRANDBIAS = 'VStrandBias' in record.FILTER
 
     mask = str(RCOVERAGE)+str(RSTRANDBIAS)+str(VCOVERAGE)+str(VSTRANDBIAS)
 
