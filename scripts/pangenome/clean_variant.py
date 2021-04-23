@@ -37,9 +37,9 @@ def main(
 
     pos2var = defaultdict(list)
     for record in reader:
-        coverage = record.INFO["VCOVT"]
+        vcoverage = record.INFO["VCOVT"]
         pos2var[(record.POS, tuple(record.REF), tuple(record.ALT))].append(
-            (coverage, record, record.INFO["VCOVT"])
+            (vcoverage, record, record.INFO["VCOVT"])
         )
 
     # Add info line
@@ -55,7 +55,7 @@ def main(
 
         if len(values) != 1:
             values.sort(key=lambda x: x[0], reverse=True)
-            coverage = values[0][0]
+            vcoverage = values[0][0]
             variant = values[0][1]
 
         vsup_f, vsup_r = compute_support(
@@ -74,17 +74,26 @@ def main(
             cor_rsup = min(rsup_f, rsup_r) * 2
             variant.INFO["CORHETRATIO"] = cor_vsup / (cor_vsup + cor_rsup)
 
-        if vsup_f != float("nan") and rsup_f != float("nan"):
-            coverage = vsup_f + vsup_r
+        if vsup_f != float("nan") and vsup_r != float("nan"):
+            vcoverage = vsup_f + vsup_r
+        if rsup_f != float("nan") and rsup_r != float("nan"):
+            rcoverage = rsup_f + rsup_r
 
         filters = list()
-        if coverage < min_cov:
-            filters.append("Coverage")
+        if vcoverage < min_cov:
+            filters.append("VCoverage")
         elif not math.isnan(vsup):
             if strand_bias(variant, component="V", sb_max_threshold=float(snakemake.config["pangenomeMaxSB"])):
-                filters.append("StrandBias")
-            if (vsup + rsup) == 0 or (vsup / (vsup + rsup)) < rvt:
-                filters.append("NoRealSupport")
+                filters.append("VStrandBias")
+
+        if rcoverage < min_cov:
+            filters.append("RCoverage")
+        elif not math.isnan(rsup):
+            if strand_bias(variant, component="R", sb_max_threshold=float(snakemake.config["pangenomeMaxSB"])):
+                filters.append("RStrandBias")
+
+        if (vsup / (vsup + rsup)) < rvt:
+            filters.append("LowRVT")
 
         if len(filters) == 0:
             filters.append("PASS")
@@ -225,22 +234,36 @@ def create_header(header):
 def add_header_filter(header):
     header.add_filter_line(
         {
-            "ID": "Coverage",
-            "Description": "Total coverage is lower than minimal coverage",
+            "ID": "VCoverage",
+            "Description": "Variant coverage is lower than minimal coverage",
         }
     )
 
     header.add_filter_line(
         {
-            "ID": "StrandBias",
+            "ID": "VStrandBias",
             "Description": "We notice a strand bias in coverage of this variant",
         }
     )
-    # TODO: Better descriptions for those filters and more intuitive names
+
     header.add_filter_line(
         {
-            "ID": "NoRealSupport",
-            "Description": "This variant isn't really support",
+            "ID": "RCoverage",
+            "Description": "Reference coverage is lower than minimal coverage",
+        }
+    )
+
+    header.add_filter_line(
+        {
+            "ID": "RStrandBias",
+            "Description": "We notice a strand bias in coverage of the reference emissions",
+        }
+    )
+
+    header.add_filter_line(
+        {
+            "ID": "LowRVT",
+            "Description": "RVT is below threshold",
         }
     )
 
