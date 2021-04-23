@@ -71,7 +71,7 @@ for record in reader:
     RSTRANDBIAS = 'RStrandBias' in record.FILTER
     VSTRANDBIAS = 'VStrandBias' in record.FILTER
 
-    mask = str(RCOVERAGE)+str(RSTRANDBIAS)+str(VCOVERAGE)+str(VSTRANDBIAS)
+    mask = str(int(RCOVERAGE))+str(int(RSTRANDBIAS))+str(int(VCOVERAGE))+str(int(VSTRANDBIAS))
 
     if mask == '1111':
         raise Exception('Dropout, should have been caught before!')
