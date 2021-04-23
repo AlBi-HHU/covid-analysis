@@ -124,4 +124,5 @@ for record in reader:
         pass #HOM ALT
     elif mask == '0100':
         pass #HOM ALT
+    record.FILTER = list()
     writer.write_record(record)
