@@ -18,7 +18,7 @@ def main(vcf, entropy_th, ratio_ref_cov_th, out):
             continue
 
 
-        coverage = record.INFO["DP"]
+        coverage = record.INFO["RO"] + record.INFO["AO"][0]
         ref_cov = record.INFO["RO"]
         ratio = ref_cov / coverage
 
@@ -26,6 +26,9 @@ def main(vcf, entropy_th, ratio_ref_cov_th, out):
         var_r = int(record.INFO["SRF"])
 
         cov = var_f + var_r
+        if cov == 0:
+            continue
+
         mincov = min(var_f, var_r)
         fq = mincov / cov
         minfq = min(1 - fq, fq)
