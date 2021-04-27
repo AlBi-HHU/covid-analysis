@@ -394,7 +394,8 @@ with open(snakemake.output["text"], "w") as outfile, open(
                             and (position not in recordsNanopore)
                             and bool_heterozygousIllu
                         ):
-                            cnt_falseNegatives_HET += 2
+                            cnt_falseNegatives_HET += 1
+                            cnt_concordance_HET += 1
                             bool_falseNegative = True
                         # Case 2: It's a called HET but Illumina knows of no variant at this location
                         if (
@@ -404,11 +405,6 @@ with open(snakemake.output["text"], "w") as outfile, open(
                         ):
                             cnt_falsePositives_HET += 1
                             bool_falsePositive = True
-                            cnt_concordance_HET += 1
-                        # Case 3: It's called in both cases but there is disagreement
-                        if (bool_heterozygousIllu) and (position in recordsNanopore):
-                            cnt_falseNegatives_HET += 1
-                            bool_falseNegative = True
                             cnt_concordance_HET += 1
                         # Case 3: It's called in both cases but there is disagreement
                         if (bool_heterozygousIllu) and (position in recordsNanopore):
