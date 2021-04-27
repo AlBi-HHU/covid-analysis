@@ -17,7 +17,7 @@ def main(vcf, entropy_th, ratio_ref_cov_th, out):
         if (len(record.REF) - len(record.ALT[0].value)) % 3 != 0:
             continue
 
-        coverage = record.INFO["DP"]
+        coverage = record.INFO["RO"] + record.INFO["AO"][0]
         ref_cov = record.INFO["RO"]
         ratio = ref_cov / coverage
 
