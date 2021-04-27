@@ -49,8 +49,10 @@ writer = vcfpy.Writer.from_path(snakemake.output["vcf"], header)
 for record in reader:
     logging.debug("Processing record: {}".format(record))
 
+    '''
     if record.FILTER != ["PASS"]:
         continue
+    '''
 
     # We only have single variants
     ref = record.REF
@@ -62,24 +64,70 @@ for record in reader:
     if pos in pileup:
         logging.debug("Corresponding pileup record: {}".format(pileup[pos]))
 
-    varRatio = float(record.INFO["CORHETRATIO"])
+    if 'LowRVT' in record.FILTER:
+        continue
 
-    if th_het <= varRatio <= 1 - th_het:
+    #Check all possible filter flags
+    RCOVERAGE = 'RCoverage' in record.FILTER
+    VCOVERAGE = 'VCoverage' in record.FILTER
+    RSTRANDBIAS = 'RStrandBias' in record.FILTER
+    VSTRANDBIAS = 'VStrandBias' in record.FILTER
 
-        sb_ref = get_vcf_strand_bias_filter(
-            record, "R"
-        )  # True if there is a strand bias issue in the reference component of the HET call -> Assume a pure HOM call in this case
-        if sb_ref:
-            # Nothing needs to be done here: We will simply not substitute the matching ambiguity character, thus "keeping" the pure HOM call
-            pass
-        # SNPs get the ambiguous base characterss
-        elif len(alt) == 1 and len(ref) == 1:
+    mask = str(int(RCOVERAGE))+str(int(RSTRANDBIAS))+str(int(VCOVERAGE))+str(int(VSTRANDBIAS))
 
-            record.ALT[0].value = ambiguityLetters[
-                frozenset({record.ALT[0].value, record.REF})
-            ]
+    if mask == '1111':
+        raise Exception('Dropout, should have been caught before!')
+    elif mask == '1011':
+        raise Exception('Dropout, should have been caught before!')
+    elif mask == '1110':
+        raise Exception('Dropout, should have been caught before!')
+    elif mask == '1010':
+        raise Exception('Dropout, should have been caught before!')
+    elif mask == '0000':
+        varRatio = float(record.INFO["CORHETRATIO"])
+        if varRatio < th_het:
+            continue #REF
+        elif varRatio <= 1 - th_het:
+            if len(alt) == 1 and len(ref) == 1:
+
+                record.ALT[0].value = ambiguityLetters[
+                    frozenset({record.ALT[0].value, record.REF})
+                ]
+            else:
+                # Here, we have a heterozygous structural variant, since we can't really encode this in a linear consensus we just keep the information in the .vcf file
+                record.INFO["HSV"] = True
         else:
-            # Here, we have a heterozygous structural variant, since we can't really encode this in a linear consensus we just keep the information in the .vcf file
-            record.INFO["HSV"] = True
+            pass #HOM
+    elif mask == '0101':
+        varRatio = sum(record.INFO['VCOV'])/sum(record.INFO['RCOV'])
+        if th_het <= varRatio <= 1 - th_het:
+            if len(alt) == 1 and len(ref) == 1:
 
+                record.ALT[0].value = ambiguityLetters[
+                    frozenset({record.ALT[0].value, record.REF})
+                ]
+            else:
+                # Here, we have a heterozygous structural variant, since we can't really encode this in a linear consensus we just keep the information in the .vcf file
+                record.INFO["HSV"] = True
+    elif mask == '0001':
+        continue #REF
+    elif mask == '0010':
+        continue #REF
+    elif mask == '0011':
+        continue #REF
+    elif mask == '0110':
+        continue #REF
+    elif mask == '0111':
+        continue #REF
+    elif mask == '1000':
+        pass #HOM ALT
+    elif mask == '1001':
+        pass #HOM ALT
+    elif mask == '1100':
+        pass #HOM ALT
+    elif mask == '1101':
+        pass #HOM ALT
+    elif mask == '0100':
+        pass #HOM ALT
+    record.FILTER = ['PASS']
     writer.write_record(record)
