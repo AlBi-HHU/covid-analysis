@@ -21,6 +21,16 @@ rule generateTestSet:
             for e in eval:
                 evalSet.write('{}\t{}\n'.format(e[0],e[1]))
 
+
+rule getAllComparisonDatasets:
+    output:
+        'data/output/comparisonFiles.txt'
+    run:
+        with open(output[0],'w') as outfile:
+            for run in runs:
+                for barcode in barcodes[run]:
+                    if run in illuminaMapping and barcode in illuminaMapping[run]:
+                        outfile.write('{}\t{}\n'.format(run,barcode))
 ### Helper Functions (for Aggregation)
 
 def getAllPancovVCFs():
