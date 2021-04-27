@@ -85,8 +85,9 @@ for record in reader:
         raise Exception('Dropout, should have been caught before!')
     elif mask == '0000':
         varRatio = float(record.INFO["CORHETRATIO"])
-
-        if th_het <= varRatio <= 1 - th_het:
+        if varRatio < th_het:
+            continue #REF
+        elif varRatio <= 1 - th_het:
             if len(alt) == 1 and len(ref) == 1:
 
                 record.ALT[0].value = ambiguityLetters[
@@ -95,6 +96,8 @@ for record in reader:
             else:
                 # Here, we have a heterozygous structural variant, since we can't really encode this in a linear consensus we just keep the information in the .vcf file
                 record.INFO["HSV"] = True
+        else:
+            pass #HOM
     elif mask == '0101':
         varRatio = sum(record.INFO['VCOV'])/sum(record.INFO['RCOV'])
         if th_het <= varRatio <= 1 - th_het:
