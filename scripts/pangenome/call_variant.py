@@ -248,6 +248,26 @@ def main(
                     ),
                     file=fh,
                 )
+            else:
+                print(
+                    "Removed Var (RVT: {} < {}):\n{}\t{}\t.\t{}\t{}\t.\t.\tRCOVT={:.4f};RCOVF={:.4f};RCOVR={:.4f};VCOVT={:.4f};VCOVF={:.4f};VCOVR={:.4f};BUBBLEID={};REFPATH={};VARPATH={}".format(
+                        rvt,
+                        rvt_threshold,
+                        ref_name,
+                        pos + 1,
+                        r_seq,
+                        v_seq,
+                        ref_cov,
+                        ref_covf,
+                        ref_covr,
+                        var_cov,
+                        var_covf,
+                        var_covr,
+                        bubble_id,
+                        "_".join(ref_path),
+                        "_".join(var_path),
+                    )
+                )
 
 
 def index_of_last_common(ref_path, var_path):
@@ -275,7 +295,7 @@ def path_coverage(path, edge2cov, node2cov, node2seq):
 
     path_len = sum(len(node2seq[x]) for x in path[1:-1])
 
-    # Don't take ends whne compute var_cov
+    # Don't consider ends when computing var_cov
     return (
         sum(node2cov[node]["all"] for node in path[1:-1]) / path_len,
         sum(node2cov[node][True] for node in path[1:-1]) / path_len,
