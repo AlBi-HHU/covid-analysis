@@ -11,17 +11,18 @@ def getAllPangenomeGraphVCFs():
             all_vcfs += expand('data/auxiliary/discovery/freebayes/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', barcode=barcodes[run], run=run)
 
     #The two methods utilized by the ARTIC pipeline
-    allMethods = config['articMethods']
+    selectedMethods = config['articMethods']
 
     #We add all ARTIC pipeline VCFs as "known variants" to our pangenome graph in any case
     for run in runs:
         for barcode in barcodes[run]:
-            vcf = 'data/input/'+run+'/barcode'+barcode+'.nanopolish.'+config['vcf_suffix']
-            if os.path.isfile(vcf):
+            if 'nanopolish' in selectedMethods:
+                vcf = 'data/input/'+run+'/barcode'+barcode+'.nanopolish.'+config['vcf_suffix']
+                if os.path.isfile(vcf):
+                    all_vcfs.append(vcf)
+            if 'medaka' in selectedMethods:
+                vcf = f"data/auxiliary/pangenome/arti/{run}/{barcode}.{config['vcf_suffix']}"
                 all_vcfs.append(vcf)
-
-            vcf = f"data/auxiliary/pangenome/arti/{run}/{barcode}.{config['vcf_suffix']}"
-            all_vcfs.append(vcf)
 
 
     #Add additional vcf files
