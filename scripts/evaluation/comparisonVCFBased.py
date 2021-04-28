@@ -596,7 +596,7 @@ with open(snakemake.output["text"], "w") as outfile, open(
     outfile.write('False Negatives, where no method made a HET call: {}\n'.format(cnt_fn_perallele_hom))
     outfile.write('False Negatives, where at least one method made a HET call {}\n'.format(cnt_fn_perallele_het))
 
-    outfile.write('True Negatives are of infinite size due to an theoretically arbitrary amounf of alternative alleles \n')
+    outfile.write('True Negatives are of infinite size due to an theoretically arbitrary amount of alternative alleles \n')
 
 
     '''

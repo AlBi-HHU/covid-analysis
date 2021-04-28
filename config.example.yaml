@@ -1,23 +1,27 @@
 # Reference
+
 ## Reference Genome Length
 ref_genome_length: 29903
 ## Reference Genome Chromosome ID
 ref_genome_chr: MN908947.3
 
+## An upper limit for threads that should be used for an individual task
 max_thread_per_task: 8
 
-#Input 
+# Input 
 ## Suffix Definitions for Input Files
 vcf_suffix: pass.vcf
 bam_suffix: primertrimmed.rg.sorted.bam
 
-
-#fraction (between 0 and 0.5) of reads that need to support a variant for it to be labeled homozygous
-thresholdHomCall: 0.2 #This is used for consensus creation
-
-
+## Outputs quality control reports for each input file
 performQualityControl: True
 
+# Consensus Creation
+## Fraction (between 0 and 0.5) of reads that need to support a variant for it to be labeled homozygous
+## SNPs that are in this range will be represented as ambiguity base characters in the final consensus
+thresholdHomCall: 0.2
+
+# Read Correction
 
 correctionMinKmer: 11
 correctionMaxKmer: 15
@@ -46,7 +50,7 @@ pangenomeUseAdditionalVCFs: True
 pangenomeAdditionalVCFs: ['data/input/th_vars_all.vcf'] #relative to the snakemake root folder
 articMethods : ['medaka','nanopolish'] #which artic variant callers are used as input for pangenome graph creation
 
-# Pangenome variant calling
+# Pangenome variant calling #TODO: Add Descriptions
 medakaQualityThreshold: 7.0
 pangenomeVariantCalling: True
 pangenomeRVTTSupport: 0.25
@@ -69,38 +73,15 @@ consensusMinCov: 20
 VarAnnotSnpEff: False
 
 
-
 #if True, only use the given subset of run folders
 useSubsetOfRuns: False
-runs: ['20200715', '20200729','20200805','20200817','20200909','20200930','20201005','03_11', '26_37' ,'38_66' ]
-#runs : ['b117outbreak']
-#if True only use the given subset of barcodes
+runs: ['run1','run2']
+
+## if True only use the given subset of barcodes
+## in this case each run needs to be represented as a list of barcodes
 useSubsetOfBarcodes: False
 
-#########TEST SET#############
-
 barcodes:
-  '20200708' : ['14','20','22','24']
-  '20200715' : ['05','06','13']
-  '20200729' : ['03','04','05','11','17']
-  '20200805' : ['15','23']
-  '20200817' : ['02','07','16','18']
-  '20200902' : ['07']
-  '20200909' : ['19']
-  '20200930' : []
-  '20201005' : []
-  '03_11'    : ['12']
-  '26_37'    : ['03','05','07','11']
-  '38_66'    : ['06','19','20','23','24']
+  'run1' : ['14','20','22']
+  'run2' : ['05','06','13']
 
-#barcodes:
-#  '03_11' : ['01','04','08','11']
-#  '26_37' : ['01','02','03','04','06','07','08','09','10','11','12']
-#  '38_66' : ['01','02','03','06','08','13','14','15','18'] #16 and 17 are illumina sequenced but nanopore data is weak
-#  '20200715' : ['09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24']
-#  '20200729' : ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24']
-#  '20200805' : ['01','02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24']
-#  '20200817' : ['01','02','03','04','05','06','08','09','10','11','12','13','14','15','16','17','18','19','20','21']
-#  '20200909' : ['01','02','03','04','05','06','08','09','10','11','12','13','14','15','16','18','19']
-#  '20200930' : ['02','03','04','05','06','07','08','09','10','11','12','13','14','15','16','17','18','19','20','21','22','23']
-#  '20201005' : ['01','02','03','04','05','06','07','08','09']
