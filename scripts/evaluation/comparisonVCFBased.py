@@ -42,13 +42,13 @@ cnt_detectedDEL = 0  #
 cnt_realHETDEL = 0
 cnt_detectedHETDEL = 0
 
-cnt_concordance_HOM = 0  #
-cnt_concordance_HET = 0
-cnt_falsePositives_HOM = 0
-cnt_falsePositives_HET = 0
-cnt_falseNegatives_HOM = 0
-cnt_falseNegatives_HET = 0
-cnt_discordance = 0  #
+#cnt_concordance_HOM = 0  #
+#cnt_concordance_HET = 0
+#cnt_falsePositives_HOM = 0
+#cnt_falsePositives_HET = 0
+#cnt_falseNegatives_HOM = 0
+#cnt_falseNegatives_HET = 0
+#cnt_discordance = 0  #
 
 cnt_detectedVariants = 0  #
 cnt_relevantPositions = 0  #
@@ -56,6 +56,21 @@ cnt_comparablePositions = 0  #
 cnt_unscoredPositions = 0  #
 cnt_illuminaDropouts = 0  #
 cnt_nanoporeDropouts = 0  #
+
+
+cnt_tp_perallele_het = 0
+cnt_fp_perallele_het = 0
+cnt_fn_perallele_het = 0
+
+cnt_tp_perallele_hom = 0
+cnt_fp_perallele_hom = 0
+cnt_fn_perallele_hom = 0
+
+cnt_con_perposition_hom = 0
+cnt_dis_perposition_hom = 0
+
+cnt_con_perposition_het = 0
+cnt_dis_perposition_het = 0
 
 cnt_illuminaDropouts_unscored = 0  #
 cnt_nanoporeDropouts_unscored = 0  #
@@ -348,6 +363,11 @@ with open(snakemake.output["text"], "w") as outfile, open(
                                 frozenset((altval, refval))
                             ]
 
+                ################
+                #S C O R I N G
+                #
+                ################
+
                 if not (illuminaDropout or nanoporeDropout):
                     if (
                         (illuminaType == nanoporeType)
@@ -356,34 +376,39 @@ with open(snakemake.output["text"], "w") as outfile, open(
                     ):
                         # if this is a het position
                         if bool_heterozygousNano:
-                            cnt_concordance_HET += (
-                                2  # Both, alt and ref got called correctly
-                            )
+                            # Both, alt and ref got called correctly
+                            cnt_tp_perallele_het += 2
+                            cnt_con_perposition_het += 1
                         else:
-                            cnt_concordance_HOM += 1
+                            cnt_tp_perallele_hom += 1
+                            cnt_con_perposition_hom += 1
                         bool_concordance = True
-                    else:
-                        cnt_discordance += 1
-                        if (
+                    else: #Discordance, there is some sort of disagreement
+                        #cnt_discordance += 1
+                        if ( #clean, missed HOM call
                             (position in recordsIllumina)
                             and (position not in recordsNanopore)
                             and (not bool_heterozygousIllu)
                         ):
                             bool_falseNegative = True
-                            cnt_falseNegatives_HOM += 1
-                        if (
+                            cnt_fn_perallele_hom += 1
+                            cnt_dis_perposition_hom += 1
+                            #cnt_falseNegatives_HOM += 1
+                        if ( #clean, false positive HOM call
                             (position in recordsNanopore)
                             and (position not in recordsIllumina)
                             and (not bool_heterozygousNano)
                         ):
                             bool_falsePositive = True
-                            cnt_falsePositives_HOM += 1
+                            #cnt_falsePositives_HOM += 1
+                            cnt_fp_perallele_hom += 1
+                            cnt_dis_perposition_hom += 1
 
                         if bool_heterozygousIllu and not bool_heterozygousNano:
                             cnt_falseHomozygous += 1
+
                         if (
                             bool_heterozygousIllu
-                            and snakemake.params["method"] != "pancov"
                         ):
                             cnt_unfairComparisons += 1
 
@@ -394,8 +419,11 @@ with open(snakemake.output["text"], "w") as outfile, open(
                             and (position not in recordsNanopore)
                             and bool_heterozygousIllu
                         ):
-                            cnt_falseNegatives_HET += 1
-                            cnt_concordance_HET += 1
+                            cnt_tp_perallele_het += 1
+                            cnt_fn_perallele_het += 1
+                            cnt_dis_perposition_het += 1
+                            #cnt_falseNegatives_HET += 1
+                            #cnt_concordance_HET += 1
                             bool_falseNegative = True
                         # Case 2: It's a called HET but Illumina knows of no variant at this location
                         if (
@@ -403,30 +431,52 @@ with open(snakemake.output["text"], "w") as outfile, open(
                             and (position not in recordsIllumina)
                             and bool_heterozygousNano
                         ):
-                            cnt_falsePositives_HET += 1
+                            cnt_tp_perallele_het += 1 #called the ref part correctly
+                            cnt_fp_perallele_het += 1 #called the variant part incorrectly
+                            cnt_dis_perposition_het += 1
+                            #cnt_falsePositives_HET += 1
                             bool_falsePositive = True
-                            cnt_concordance_HET += 1
+                            #cnt_concordance_HET += 1
                         # Case 3: It's called in both cases but there is disagreement
+                        # Case 3.1: het call in illu and hom call in nano
                         if (bool_heterozygousIllu) and (position in recordsNanopore):
                             if illuminaType == "SNV":
-                                cnt_falseNegatives_HET += 1
-                                cnt_concordance_HET += 1
+                                cnt_tp_perallele_het += 1 #variant part called correctly
+                                cnt_fn_perallele_het += 1 #ref part called incorrectly
+                                cnt_dis_perposition_het += 1
+                                #cnt_falseNegatives_HET += 1
+                                #cnt_concordance_HET += 1
                                 bool_falseNegative = True
                             else:
                                 if illuminaValue == nanoporeValue:
+                                    '''
                                     bool_falseNegative = True
                                     cnt_falseNegatives_HET += 1
                                     cnt_concordance_HET += 1
+                                    '''
+                                    cnt_tp_perallele_het += 1 #variant part called correctly
+                                    cnt_fn_perallele_het += 1 #ref part called incorrectly
+                                    cnt_dis_perposition_het += 1
+                                    #cnt_falseNegatives_HET += 1
+                                    #cnt_concordance_HET += 1
+                                    bool_falseNegative = True
+                        # Case 3.2 het call in nano and hom call in illu
                         if (bool_heterozygousNano) and (position in recordsIllumina):
                             if illuminaType == "SNV":
-                                bool_falsePositive = True
-                                cnt_falsePositives_HET += 1
-                                cnt_concordance_HET += 1
+                                cnt_fp_perallele_het += 1
+                                cnt_tp_perallele_het += 1
+                                cnt_dis_perposition_het += 1
+                                #bool_falsePositive = True
+                                #cnt_falsePositives_HET += 1
+                                #cnt_concordance_HET += 1
                             else:
                                 if illuminaValue == nanoporeValue:
-                                    bool_falsePositive = True
-                                    cnt_falsePositives_HET += 1
-                                    cnt_concordance_HET += 1
+                                    cnt_fp_perallele_het += 1
+                                    cnt_tp_perallele_het += 1
+                                    cnt_dis_perposition_het += 1
+                                    #bool_falsePositive = True
+                                    #cnt_falsePositives_HET += 1
+                                    #cnt_concordance_HET += 1
 
             # Write Text Output
             outfile.write(
@@ -509,10 +559,47 @@ with open(snakemake.output["text"], "w") as outfile, open(
         )
     )
 
-    outfile.write("HOM Concordance:{} \n".format(cnt_concordance_HOM))
-    outfile.write("HOM FP:{} \n".format(cnt_falsePositives_HOM))
-    outfile.write("HOM FN:{} \n".format(cnt_falseNegatives_HOM))
+    outfile.write("Per Position Stats: \n")
 
+    #Aggregate sums
+    cnt_con_perposition = cnt_con_perposition_hom + cnt_con_perposition_het
+    cnt_dis_perposition = cnt_dis_perposition_hom + cnt_dis_perposition_het
+
+    outfile.write('Concordance (full agreement) per Position: {}\n'.format(cnt_con_perposition))
+    outfile.write('Concordance for homozygous variants : {}\n'.format(cnt_con_perposition_hom))
+    outfile.write('Concordance for heterozygous variants: {}\n'.format(cnt_con_perposition_het))
+
+    outfile.write('Discordance (disagreement in at least one allele) per Position: {}\n'.format(cnt_dis_perposition))
+    outfile.write('Discordance for homozygous variants (no method called a HET variant) : {}\n'.format(cnt_dis_perposition_hom))
+    outfile.write('Discordance for heterozygous variants (at least one method called a HET variant): {}\n'.format(cnt_dis_perposition_het))
+
+    #outfile.write("HOM Concordance:{} \n".format(cnt_concordance_HOM))
+    #outfile.write("HOM FP:{} \n".format(cnt_falsePositives_HOM))
+    #outfile.write("HOM FN:{} \n".format(cnt_falseNegatives_HOM))
+
+    #Aggregate Sums
+    cnt_tp_perallele = cnt_tp_perallele_hom + cnt_tp_perallele_het
+    cnt_fp_perallele = cnt_fp_perallele_hom +cnt_fp_perallele_het
+    cnt_fn_perallele = cnt_fn_perallele_hom +cnt_fn_perallele_het
+
+    outfile.write("Per Allele Stats: \n")
+
+    outfile.write('True Positives {}\n'.format(cnt_tp_perallele))
+    outfile.write('True Positives, where no method made a HET call: {}\n'.format(cnt_tp_perallele_hom))
+    outfile.write('True Positives, where at least one method made a HET call {}\n'.format(cnt_tp_perallele_het))
+
+    outfile.write('False Positives {}\n'.format(cnt_fp_perallele))
+    outfile.write('False Positives, where no method made a HET call: {}\n'.format(cnt_fp_perallele_hom))
+    outfile.write('False Positives, where at least one method made a HET call {}\n'.format(cnt_fp_perallele_het))
+
+    outfile.write('False Negatives {}\n'.format(cnt_fn_perallele))
+    outfile.write('False Negatives, where no method made a HET call: {}\n'.format(cnt_fn_perallele_hom))
+    outfile.write('False Negatives, where at least one method made a HET call {}\n'.format(cnt_fn_perallele_het))
+
+    outfile.write('True Negatives are of infinite size due to an theoretically arbitrary amounf of alternative alleles \n')
+
+
+    '''
     outfile.write("HET Concordance:{} \n".format(cnt_concordance_HET))
     outfile.write(
         "HET FP (Note: Each Allele counts separately) :{} \n".format(
@@ -530,6 +617,8 @@ with open(snakemake.output["text"], "w") as outfile, open(
             cnt_discordance, cnt_comparablePositions
         )
     )
+    '''
+
     outfile.write(
         "Possible unfair comparisons for methods that don't detect HET (HET was not found or only as HOM): {} \n".format(
             cnt_unfairComparisons
@@ -548,38 +637,34 @@ with open(snakemake.output["text"], "w") as outfile, open(
     )
 
     # Calculate top level stats
-    precision = cnt_concordance_HOM / (cnt_concordance_HOM + cnt_falsePositives_HOM)
-    recall = cnt_concordance_HOM / (cnt_concordance_HOM + cnt_falseNegatives_HOM)
-    f1 = (2 * cnt_concordance_HOM) / (
-        2 * cnt_concordance_HOM + cnt_falsePositives_HOM + cnt_falseNegatives_HOM
-    )
-    outfile.write("Precision (Concordance / (Concordance+FP)): {}\n".format(precision))
-    outfile.write("Recall (Concordance / (Concordance+FN)): {}\n".format(recall))
-    outfile.write("F1 ( (2*Concordance)/(2*Concordance+FP+FN)): {}\n".format(f1))
 
-    # Calculate top level stats for HET
-    precision_HET = cnt_concordance_HET / (cnt_concordance_HET + cnt_falsePositives_HET)
-    recall_HET = cnt_concordance_HET / (cnt_concordance_HET + cnt_falseNegatives_HET)
-    f1_HET = (2 * cnt_concordance_HET) / (
-        2 * cnt_concordance_HET + cnt_falsePositives_HET + cnt_falseNegatives_HET
-    )
-    outfile.write(
-        "Precision HET Only (Concordance / (Concordance+FP)): {}\n".format(
-            precision_HET
-        )
-    )
-    outfile.write(
-        "Recall HET only (Concordance / (Concordance+FN)): {}\n".format(recall_HET)
-    )
-    outfile.write(
-        "F1 HET only ( (2*Concordance)/(2*Concordance+FP+FN)): {}\n".format(f1_HET)
-    )
+    #precision = cnt_concordance_HOM / (cnt_concordance_HOM + cnt_falsePositives_HOM)
+    #recall = cnt_concordance_HOM / (cnt_concordance_HOM + cnt_falseNegatives_HOM)
+    #f1 = (2 * cnt_concordance_HOM) / (
+    #    2 * cnt_concordance_HOM + cnt_falsePositives_HOM + cnt_falseNegatives_HOM
+    #)
 
-    outfile.write("F1 Macro 1/2(F1+F1_HET): {}\n".format((f1_HET + f1) / 2))
+
+    precision_HOM = cnt_tp_perallele_hom / (cnt_tp_perallele_hom + cnt_fp_perallele_hom)
+    recall_HOM = cnt_tp_perallele_hom / (cnt_tp_perallele_hom + cnt_fn_perallele_hom)
+    f1_HOM = (2*cnt_tp_perallele_hom) / (2 * cnt_tp_perallele_hom + cnt_fp_perallele_hom + cnt_fn_perallele_hom)
+    outfile.write("HOM Precision (TP / (TP+FP)): {}\n".format(precision_HOM))
+    outfile.write("HOM Recall (TP / (TP+FN)): {}\n".format(recall_HOM))
+    outfile.write("HOM F1 ( (2*TP)/(2*TP+FP+FN)): {}\n".format(f1_HOM))
+
+    precision_HET = cnt_tp_perallele_het / (cnt_tp_perallele_het + cnt_fp_perallele_het)
+    recall_HET = cnt_tp_perallele_het / (cnt_tp_perallele_het + cnt_fn_perallele_het)
+    f1_HET = (2*cnt_tp_perallele_het) / (2 * cnt_tp_perallele_het + cnt_fp_perallele_het + cnt_fn_perallele_het)
+    outfile.write("HET Precision (TP / (TP+FP)): {}\n".format(precision_HET))
+    outfile.write("HET Recall (TP / (TP+FN)): {}\n".format(recall_HET))
+    outfile.write("HET F1 ( (2*TP)/(2*TP+FP+FN)): {}\n".format(f1_HET))
+
+    outfile.write("F1 Macro ( 1/2 (HOM F1+HET F1)): {}\n".format((f1_HET + f1_HOM) / 2))
 
     # Additional TLS
-    accuracy = cnt_concordance_HOM + cnt_concordance_HET / cnt_comparablePositions
-    outfile.write("Accuracy (Concordance/Comparable Positions): {}\n".format(accuracy))
+    accuracy = cnt_con_perposition / cnt_comparablePositions
+    outfile.write("Total Accuracy (Concordance/Comparable Positions): {}\n".format(accuracy))
+
     outfile.write(
         "Additional Nanopore Dropouts without VCs in either method: {}\n".format(
             cnt_nanoporeDropouts_unscored
@@ -595,6 +680,7 @@ with open(snakemake.output["text"], "w") as outfile, open(
     )
 
     # Calculate top level stats in a variation
+    '''
     precision_var = (
         cnt_concordance_HOM + cnt_concordance_HET + cnt_implicit_agreement
     ) / (
@@ -610,8 +696,13 @@ with open(snakemake.output["text"], "w") as outfile, open(
     accuracy = (cnt_concordance_HOM + cnt_concordance_HET + cnt_implicit_agreement) / (
         cnt_comparablePositions + cnt_implicit_agreement
     )
+    '''
+
+    accuracy = (cnt_con_perposition + cnt_implicit_agreement) / (
+        cnt_comparablePositions + cnt_implicit_agreement
+    )
     outfile.write(
-        "Accuracy ((Concordance+IA)/(Comparable Positions+IA)): {}\n".format(accuracy)
+        "Global Accuracy ((Concordance+IA)/(Comparable Positions+IA)): {}\n".format(accuracy)
     )
 
 

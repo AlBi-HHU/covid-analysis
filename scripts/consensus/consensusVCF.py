@@ -76,13 +76,17 @@ for record in reader:
     mask = str(int(RCOVERAGE))+str(int(RSTRANDBIAS))+str(int(VCOVERAGE))+str(int(VSTRANDBIAS))
 
     if mask == '1111':
-        raise Exception('Dropout, should have been caught before!')
+        continue #REF
+        #raise Exception('Dropout, should have been caught before!')
     elif mask == '1011':
-        raise Exception('Dropout, should have been caught before!')
+        continue #REF
+        #raise Exception('Dropout, should have been caught before!')
     elif mask == '1110':
-        raise Exception('Dropout, should have been caught before!')
+        continue #REF
+        #raise Exception('Dropout, should have been caught before!')
     elif mask == '1010':
-        raise Exception('Dropout, should have been caught before!')
+        continue #REF
+        #raise Exception('Dropout, should have been caught before!')
     elif mask == '0000':
         varRatio = float(record.INFO["CORHETRATIO"])
         if varRatio < th_het:
