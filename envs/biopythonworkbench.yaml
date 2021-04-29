@@ -1,0 +1,15 @@
+name: BioPythonWorkbench
+
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - biopython=1.71
+  - python=3.7
+  - regex
+  - openssl = 1.0
+  - samtools = 1.9
+  - seaborn = 0.9.0
+  - scipy = 1.2.1
+  - pysam = 0.15.2 

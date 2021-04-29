@@ -1,0 +1,202 @@
+import os
+
+### Helper functions
+
+def getAllPangenomeGraphVCFs():
+    all_vcfs = []
+
+    #Optional: We add additional variants, found by our discovery routine to the pangenome graph
+    if config["pangenomeUseFreebayes"]:
+        for run in runs:
+            all_vcfs += expand('data/auxiliary/discovery/freebayes/{run}/' + str(config["pangenomeCorrectionK"]) + '/{barcode}.vcf', barcode=barcodes[run], run=run)
+
+    #The two methods utilized by the ARTIC pipeline
+    selectedMethods = config['articMethods']
+
+    #We add all ARTIC pipeline VCFs as "known variants" to our pangenome graph in any case
+    for run in runs:
+        for barcode in barcodes[run]:
+            if 'nanopolish' in selectedMethods:
+                vcf = 'data/input/'+run+'/barcode'+barcode+'.nanopolish.'+config['vcf_suffix']
+                if os.path.isfile(vcf):
+                    all_vcfs.append(vcf)
+            if 'medaka' in selectedMethods:
+                vcf = f"data/auxiliary/pangenome/arti/{run}/{barcode}.{config['vcf_suffix']}"
+                all_vcfs.append(vcf)
+
+
+    #Add additional vcf files
+    if config['pangenomeUseAdditionalVCFs']:
+        all_vcfs += config['pangenomeAdditionalVCFs']
+    return all_vcfs
+
+
+def artic_filter_input(wcd):
+    run = wcd["run"]
+    barcode = wcd["barcode"]
+    
+    out = dict()
+    vcf = f"data/input/{run}/barcode{barcode}.medaka.{config['vcf_suffix']}"
+    out["medaka"] = vcf
+
+    vcf = f"data/input/{run}/barcode{barcode}.nanopolish.{config['vcf_suffix']}"
+    if os.path.isfile(vcf):
+        out["nanopolish"] = vcf
+
+    return out
+
+
+#### Snakemake Rules
+rule concatenate_vcf:
+    input:
+        vcfs = getAllPangenomeGraphVCFs()
+    output:
+        out = "data/auxiliary/pangenome/merge.vcf"
+    conda:
+        '../envs/freebayes.yaml',
+    threads:
+        config["max_thread_per_task"]
+    log:
+        'logs/pangenome_concatenate_vcf.log'
+    script:
+        '../scripts/pangenome/concatenate_vcf.py'
+
+
+rule artic_vcf_filter:
+    input:
+        unpack(artic_filter_input)
+    output:
+        f"data/auxiliary/pangenome/arti/{{run}}/{{barcode}}.{config['vcf_suffix']}"
+    conda:
+        '../envs/freebayes.yaml',
+    script:
+        "../scripts/pangenome/medaka_filter.py"
+
+        
+rule hackfix:
+    input:
+        "data/auxiliary/pangenome/merge.vcf"
+    output:
+        "data/auxiliary/pangenome/merge_fixed.vcf"
+    shell:
+        "sed 's/FORMAT\tall_var/FORMAT/' {input} > {output}"
+
+
+rule sortVCF:
+    input:
+        file = "data/auxiliary/pangenome/merge_fixed.vcf"
+    output:
+        "data/auxiliary/pangenome/merge_sorted.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt sort {input.file} -o {output}'
+
+
+rule decompose1:
+    input:
+        "data/auxiliary/pangenome/merge_sorted.vcf"
+    output:
+        "data/auxiliary/pangenome/merge_dc1.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt decompose {input} -o {output}'
+
+
+rule decompose2:
+    input:
+        "data/auxiliary/pangenome/merge_dc1.vcf"
+    output:
+        "data/auxiliary/pangenome/merge_dc2.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt decompose_blocksub -a {input} -o {output}'
+
+
+rule dropDuplicates:
+    input:
+        "data/auxiliary/pangenome/merge_dc2.vcf"
+    output:
+        "data/auxiliary/pangenome/merge_unique.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt uniq {input} -o {output}'
+
+
+rule bgzip:
+    input:
+        "data/auxiliary/pangenome/merge_unique.vcf"
+    output:
+        "data/auxiliary/pangenome/merge_unique.vcf.gz"
+    conda:
+        '../envs/tabix.yaml',
+
+    shell:
+        "bgzip {input}"
+
+
+rule indexVcf:
+    input:
+        "data/auxiliary/pangenome/merge_unique.vcf.gz"
+    output:
+        "data/auxiliary/pangenome/merge_unique.vcf.gz.tbi"
+    conda:
+        '../envs/tabix.yaml',
+
+    shell:
+        "tabix -f -p vcf {input}"
+       
+
+rule pangenome:
+    input:
+        vcf = "data/auxiliary/pangenome/merge_unique.vcf.gz",
+        reference = "data/input/nCoV-2019.reference.fasta",
+        idx ="data/auxiliary/pangenome/merge_unique.vcf.gz.tbi"
+    output:
+        asm = "data/auxiliary/pangenome/pangenome_messy.gfa",
+
+    conda:
+        '../envs/vg.yaml',
+
+    threads:
+        config["max_thread_per_task"]
+
+    log:
+        'logs/pangenome_build_pangenome.log'
+
+    shell:
+        "vg construct -t {threads} -S -i -r {input.reference} -v {input.vcf} | vg view -g - > {output}"
+
+
+rule unchop:
+    input:
+        "data/auxiliary/pangenome/pangenome_messy.gfa",
+    output:
+        "data/auxiliary/pangenome/pangenome.gfa"
+    conda:
+        "../envs/vg.yaml"
+    shell:
+        "vg view -Fv {input} | vg mod -u - | vg view - > {output}"
+
+
+rule found_bubble:
+    input:
+        "data/auxiliary/pangenome/pangenome.gfa"
+    output:
+        "data/auxiliary/pangenome/bubble.json"
+    conda:
+        "../envs/bubblegun.yaml"
+    shell:
+        "BubbleGun -g {input}  bchains --bubble_json {output}"
+
+        
+rule compute_node2len:
+    input:
+        graph = "data/auxiliary/pangenome/pangenome.gfa"
+    output:
+        data = "data/auxiliary/pangenome/node2len.csv"
+    script:
+        "../scripts/pangenome/node2len.py"

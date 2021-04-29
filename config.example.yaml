@@ -1,0 +1,97 @@
+# Reference
+
+## Reference Genome Length
+ref_genome_length: 29903
+## Reference Genome Chromosome ID
+ref_genome_chr: MN908947.3
+
+## An upper limit for threads that should be used for an individual task
+max_thread_per_task: 8
+
+# Input 
+## Suffix Definitions for Input Files
+vcf_suffix: pass.vcf
+bam_suffix: primertrimmed.rg.sorted.bam
+
+## Outputs quality control reports for each input file
+performQualityControl: True
+
+# Consensus Creation
+## Fraction (between 0 and 0.5) of reads that need to support a variant for it to be labeled homozygous
+## SNPs that are in this range will be represented as ambiguity base characters in the final consensus
+thresholdHomCall: 0.2
+## Consensus section
+consensusMinCov: 20
+
+# Read Correction
+
+correctionMinKmer: 11
+correctionMaxKmer: 15
+correctionKmerStep: 2
+
+kmerFilterMin: 10                 # kmer lower than this threshold is discard
+kmerFilterFRMinRatio: 0.3         # if forward / (forward + reverse) is lower than this threshold is discard
+kmerFilterTrustAbundance: 50      # kmer with abundance lower than this threshold must pass guess coverage ratio
+kmerFilterGuessCoverageRatio: 0.7 # kmer with abundance lower than guess coverage times this threshold kmer is discard
+kmerFilterMaxEntropyTh: 1.5       # kmer with abundance lower than this value is ignore due to his low complexity
+
+correctionClip: False
+
+# VariantAnotation
+VarAnnotSnpEff: False
+
+#FreeBayes Parameters
+freebayesMaxEntropyTh: 1.7
+freebayesMaxRefCovRatio: 0.8
+freebayesMaxSB: 0.30
+freebayesMinQual: 15
+
+# Pangenome section
+pangenomeUseFreebayes: True
+pangenomeCorrectionK: 15
+#Use additional vcf's with known variants for pangenome graph generation (for example GISAID variants)
+pangenomeUseAdditionalVCFs: True
+pangenomeAdditionalVCFs: ['data/input/th_vars_all.vcf'] #relative to the snakemake root folder
+articMethods : ['medaka','nanopolish'] #which artic variant callers are used as input for pangenome graph creation
+
+# Pangenome variant calling #TODO: Add Descriptions
+medakaQualityThreshold: 7.0
+pangenomeVariantCalling: True
+pangenomeRVTTSupport: 0.25
+pangenomeMinCovFactor: 0.15
+pangenomeMinEndsCovBubble: 10
+pangenomeVarMinCov: 10
+pangenomeMaxSB: 0.30
+
+#if True, only use the given subset of run folders
+useSubsetOfRuns: False
+runs: ['run1','run2']
+
+## if True only use the given subset of barcodes
+## in this case each run needs to be represented as a list of barcodes
+useSubsetOfBarcodes: False
+
+barcodes:
+  'run1' : ['14','20','22']
+  'run2' : ['05','06','13']
+
+######## Evaluation #########
+# Not required for productive use
+#############################
+
+evaluate: False
+
+# Illumina variant calling
+illuminaAlleleFreqCutoff: 0.8
+
+# Illumina cutoff for evaluation
+illuminaCoverageCutoff: 0.2
+nanoporeCoverageCutoff: 20
+
+
+
+
+
+
+
+

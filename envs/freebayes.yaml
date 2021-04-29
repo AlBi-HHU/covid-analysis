@@ -1,0 +1,9 @@
+name: FreeBayes
+
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - vcfpy = 0.12.1
+  - freebayes = 1.3.2

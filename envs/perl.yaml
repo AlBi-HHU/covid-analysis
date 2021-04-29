@@ -1,0 +1,9 @@
+name: Perl
+
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - perl = 5.26.2
+

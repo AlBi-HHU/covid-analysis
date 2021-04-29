@@ -1,0 +1,9 @@
+name: Bcalm
+
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - bcalm = 2.2.2
+

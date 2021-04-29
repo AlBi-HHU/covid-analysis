@@ -1,0 +1,8 @@
+name: Tabix
+
+channels:
+  - main
+  - bioconda
+
+dependencies:
+  - tabix = 0.2.6

@@ -1,0 +1,63 @@
+#Note: We use the medaka bam files here for extraction, this is arbitrary
+rule extractSoftClippedReads:
+    input:
+        alignment = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix'],
+        index = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix']+'.bai'
+    output:
+        'data/auxiliary/softClippedSeqs/{run}/{barcode}.fasta'
+    conda:
+        '../envs/biopythonworkbench.yaml'
+    script:
+        '../scripts/extractSoftClippedReads.py'
+
+rule addPseudoQualities:
+    input:
+        'data/auxiliary/softClippedSeqs/{run}/{barcode}.fasta'
+    output:
+        'data/auxiliary/softClippedSeqs/{run}/{barcode}.fq'
+    conda:
+        '../envs/perl.yaml'
+    shell:
+        'perl scripts/fasta_to_fastq.pl {input} > {output}'
+
+rule overabundance_analysis:
+    input:
+        'data/auxiliary/softClippedSeqs/{run}/{barcode}.fq'
+    output:
+        reporthtml = report('data/output/softClippedSeqs/{run}/{barcode}.html',category='Quality Control'),
+        reportjson = report('data/output/softClippedSeqs/{run}/{barcode}.json',category='Quality Control'),
+        fixedFasta = 'data/auxiliary/softClippedSeqs/{run}/{barcode}.corrected.fasta'
+    conda:
+        '../envs/fastp.yaml'
+    shell:
+        'fastp -i {input} -o {output.fixedFasta} -p -j {output.reportjson} -h {output.reporthtml}'
+
+rule generateIGVSessions:
+    input:
+        reference = 'data/input/nCoV-2019.reference.fasta',
+        vcfFileMeda = 'data/input/{run}/barcode{barcode}.medaka.'+config['vcf_suffix'],
+        alignmentFileIndex = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix']+'.bai'
+    output:
+        report('data/output/IgvSessions/{run}/{barcode}.igv.xml',category='IGVSessions')
+    params:
+        alignmentFile = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix'],
+    conda:
+        '../envs/perl.yaml'
+    shell:
+        'perl scripts/generate_IGV.pl --covidReference {input.reference} --BAM {params.alignmentFile} --output {output} --VCF_Medaka {input.vcfFileMeda}'
+
+
+rule pileupAnalysis:
+    input:
+        alignment = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix'],
+        alignment_index = 'data/input/{run}/barcode{barcode}.medaka.'+config['bam_suffix']+'.bai',
+        reference = 'data/input/nCoV-2019.reference.fasta'
+    wildcard_constraints:
+        barcode = "\d+",
+        run = "\w+"
+    output:
+        'data/auxiliary/pileupAnalysis/nanopore/{run}/{barcode}.pileupanalysis.txt'
+    conda:
+        '../envs/biopythonworkbench.yaml'
+    shell:
+        'perl scripts/getCompleteMycoFrequencies.pl --BAM {input.alignment} --output {output} --minMappingQuality 0 --minBaseQuality 0 --referenceGenome {input.reference}'

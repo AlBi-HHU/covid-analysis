@@ -1,0 +1,11 @@
+name: altair
+
+channels:
+  - conda-forge
+  - bioconda
+  -
+dependencies:
+  - pandas
+  - altair
+  - vcfpy = 0.13
+

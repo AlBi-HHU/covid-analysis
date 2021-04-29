@@ -1,0 +1,446 @@
+import random
+import os
+
+#Should only be called on demand and not added to the SF as a default target file
+rule generateTestSet:
+    output:
+        testSet = 'data/output/testSet.txt',
+        evalSet = 'data/output/evaluationSet.txt'
+    run:
+        samples = []
+        for run in runs:
+            for barcode in barcodes[run]:
+                if run in illuminaMapping and barcode in illuminaMapping[run]:
+                    samples.append((run,barcode))
+        twentypercent = round(len(samples)*0.2)
+        test = random.sample(samples,k=twentypercent)
+        eval = set(samples)-set(test)
+        with open(output['testSet'],'w') as testSet, open(output['evalSet'],'w') as evalSet:
+            for t in test:
+                testSet.write('{}\t{}\n'.format(t[0],t[1]))
+            for e in eval:
+                evalSet.write('{}\t{}\n'.format(e[0],e[1]))
+
+
+rule getAllComparisonDatasets:
+    output:
+        'data/output/comparisonFiles.txt'
+    run:
+        with open(output[0],'w') as outfile:
+            outfile.write('{}\t{}\t{}\n'.format('run','barcode','illumina'))
+            for run in runs:
+                for barcode in barcodes[run]:
+                    illumina = (run in illuminaMapping and barcode in illuminaMapping[run])
+                    outfile.write('{}\t{}\t{}\n'.format(run,barcode,illumina))
+
+### Helper Functions (for Aggregation)
+
+def getAllPancovVCFs():
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            # check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+            allFiles += [
+                "data/output/consensus/" + run + "/" + barcode + "/variant.vcf"
+            ]
+    return allFiles
+
+
+def getAllIVarTables():
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            # check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+            allFiles += [
+                'data/auxiliary/illuminaVarCalls/' + run + '_' + barcode + '/ivar.vcf.tsv'
+            ]
+    return allFiles
+
+
+def getAllNanoporeVCFs():
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            # check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+            npfile = 'data/input/' + run + '/' + 'barcode' + barcode + '.nanopolish.pass.vcf'
+            allFiles.append(npfile)
+    return allFiles
+
+
+def getAllIlluminaPileups():
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+            # check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+            allFiles += [
+                'data/auxiliary/pileupAnalysis/illumina/' + run + '/' + barcode + '.pileupanalysis.txt'
+            ]
+    return allFiles
+
+def getAllIlluminaFiles(type,wildcards):
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+
+            #Check for missing gisaid files
+            if wildcards.method == 'gisaid':
+                if run in gisaidMapping and barcode in gisaidMapping[run]:
+                    pass
+                else:
+                    #print('skipping run {} barcode {} for gisaid comparison as we have no seq yet ...'.format(run,barcode))
+                    continue
+
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                #print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                continue
+
+            allFiles += [
+                'data/auxiliary/evaluation/illumina/'+run+'_'+barcode+'_'+wildcards.method+'.'+type+'.txt'
+            ]
+    return allFiles
+
+def getAllComparisonFiles(wildcards):
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+
+            # check for missing gisaid files
+            if wildcards.method == 'gisaid':
+                if run in gisaidMapping and barcode in gisaidMapping[run]:
+                    pass
+                else:
+                    # print('skipping run {} barcode {} for gisaid comparison as we have no seq yet ...'.format(run,barcode))
+                    continue
+
+            # check for missing illumina files
+            if wildcards.method == 'illumina':
+                if run in illuminaMapping and barcode in illuminaMapping[run]:
+                    pass
+                else:
+                    # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
+                    continue
+            # check for missing method files
+            if os.path.isfile("data/auxiliary/evaluation/consensusVariantExtraction/{method}/" + run + "_" + barcode + ".info") == False:
+                continue
+
+            allFiles += [
+                "data/auxiliary/evaluation/consensusVariantExtraction/pancov/" + run + "_" + barcode + ".info",
+                "data/auxiliary/evaluation/consensusVariantExtraction/{method}/" + run + "_" + barcode + ".info",
+                'data/auxiliary/pileupAnalysis/nanopore/' + run + '/' + barcode + '.pileupanalysis.txt'
+            ]
+    return allFiles
+
+def getAllVCFComparisonRequirements(wildcards):
+    allFiles = []
+    for run in runs:
+        for barcode in barcodes[run]:
+
+            # check for missing illumina files
+            if run in illuminaMapping and barcode in illuminaMapping[run]:
+                pass
+            else:
+                continue
+
+            vcf = None
+            if wildcards.method == 'pancov':
+                vcf = 'data/auxiliary/consensus/' + run + '/' + barcode + '/variant.vcf.gz'
+            elif wildcards.method == 'medaka':
+                vcf = 'data/input/'+run+'/barcode'+barcode+'.medaka.'+config['vcf_suffix']
+            elif wildcards.method == 'nanopolish':
+                vcf = 'data/input/'+run+'/barcode'+barcode+'.nanopolish.'+config['vcf_suffix']
+            allFiles += [
+                'data/auxiliary/illuminaVarCalls/' + run + '_' + barcode + '/ivar.vcf.tsv',
+                vcf,
+                'data/auxiliary/pileupAnalysis/illumina/'+run+'/'+barcode+'.pileupanalysis.txt',
+                'data/auxiliary/pileupAnalysis/nanopore/'+run+'/'+barcode+'.pileupanalysis.txt',
+            ]
+
+    return allFiles
+
+
+def getAllConsensus():
+    inputList = []
+    for run in runs:
+        # Mandatory: For each sample we curate a consensus sequence
+        inputList += expand('data/output/consensus/' + run + '/{barcode}/consensus.fasta', barcode=barcodes[run])
+    return inputList
+
+
+
+### Snakemake Rules
+
+
+rule combineWithReference_pancov:
+    input:
+        reference = "data/input/nCoV-2019.reference.fasta",
+        consensus = "data/output/consensus/{run}/{barcode}/consensus.fasta"
+    output:
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/pancov/{run}_{barcode}.cmb"
+    shell:
+        'cat {input.reference} {input.consensus} > {output.combined}'
+
+rule combineWithReference_meda:
+    input:
+        reference = "data/input/nCoV-2019.reference.fasta",
+        consensus = "data/input/{run}/barcode{barcode}.medaka.consensus.fasta"
+    output:
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/medaka/{run}_{barcode}.cmb"
+    shell:
+        'cat {input.reference} {input.consensus} > {output.combined}'
+        
+rule combineWithReference_nano:
+    input:
+        reference = "data/input/nCoV-2019.reference.fasta",
+        consensus = "data/input/{run}/barcode{barcode}.nanopolish.consensus.fasta"
+    output:
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/nanopolish/{run}_{barcode}.cmb"
+    shell:
+        'cat {input.reference} {input.consensus} > {output.combined}'
+        
+rule combineWithReference_illumina:
+    input:
+        reference = "data/input/nCoV-2019.reference.fasta",
+        consensus = "data/auxiliary/consensus/illumina/{run}/{barcode}/consensus.fa"
+    output:
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/illumina/{run}_{barcode}.cmb"
+    shell:
+        'cat {input.reference} {input.consensus} > {output.combined}'
+
+rule combineWithReference_gisaid:
+    input:
+        reference = "data/input/nCoV-2019.reference.fasta",
+        consensus = lambda wildcards : "data/input/gisaidseqs/Germany_NW-HHU-"+getGisaidFile(wildcards.run,wildcards.barcode)+".fasta"
+    output:
+        combined = "data/auxiliary/evaluation/consensusVariantExtraction/gisaid/{run}_{barcode}.cmb"
+    shell:
+        'cat {input.reference} {input.consensus} > {output.combined}'
+
+rule muscle:
+    input:
+        "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.cmb"
+    output:
+        "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.aln"
+    conda:
+        "../envs/muscle.yaml"
+    shell:
+        'muscle -in {input} -clwout {output}'
+
+
+rule createInfoFile:
+    input:
+        alignment = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.aln"
+    output:
+        info = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info"
+    script:
+        '../scripts/evaluation/consensusToTable.py'
+
+rule assembleMedians:
+    input:
+        fetchAllPileups()
+    output:
+        'data/auxiliary/pileupAnalysis/medians.json'
+    script:
+        '../scripts/evaluation/assembleMedians.py'
+
+rule comparePancovToX_ConsensusBased:
+    input:
+        iteratorList = getAllComparisonFiles,
+        medians = 'data/auxiliary/pileupAnalysis/medians.json',
+        reference = "data/input/nCoV-2019.reference.fasta"
+    output:
+        'data/output/evaluation/comparisonFastaBased/{method}.eval'
+    conda:
+        "../envs/biopythonworkbench.yaml"
+    script:
+        '../scripts/evaluation/variantdiff_summary.py'
+
+rule evaluateHeterozygosityVisual:
+    input:
+        pancov = getAllPancovVCFs(),
+        illuminaPileups = getAllIlluminaPileups(),
+        nanopore = getAllNanoporeVCFs(),
+        ivar = getAllIVarTables()
+    output:
+        hetfolder = directory('data/output/evaluation/heterozygosity'),
+        overview = 'data/output/evaluation/heterozygosity.html',
+        resume = 'data/output/evaluation/heterozygosity.csv',
+    conda:
+        '../envs/altair.yaml'
+    script:
+        '../scripts/evaluation/hetPlot1.py'
+
+### Consensus Based Evaluation
+
+rule illuminaVerify:
+    input:
+        pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info",
+        illuminaPileup = 'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt',
+        nanoporePileup = 'data/auxiliary/pileupAnalysis/nanopore/{run}/{barcode}.pileupanalysis.txt'
+    output:
+        diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}_{method}.verification.txt'
+    script:
+        '../scripts/evaluation/illumina_verification.py'
+
+
+
+rule illuminaRecover:
+    input:
+        pancovInfo = "data/auxiliary/evaluation/consensusVariantExtraction/{method}/{run}_{barcode}.info",
+        iVarInfo = "data/auxiliary/evaluation/consensusVariantExtraction/illumina/{run}_{barcode}.info",
+        illuminaPileup = 'data/auxiliary/pileupAnalysis/illumina/{run}/{barcode}.pileupanalysis.txt',
+        nanoporePileup = 'data/auxiliary/pileupAnalysis/nanopore/{run}/{barcode}.pileupanalysis.txt'
+    output:
+        diffFile = 'data/auxiliary/evaluation/illumina/{run}_{barcode}_{method}.recovery.txt'
+    script:
+        '../scripts/evaluation/illumina_recovery.py'
+
+
+
+rule aggregateVerification:
+    input:
+        iteratorList = lambda wildcards : getAllIlluminaFiles('verification',wildcards)
+    output:
+        'data/output/evaluation/illumina_verification_{method}.eval'
+    script:
+        '../scripts/evaluation/aggregateVerifications.py'
+
+
+
+rule aggregateRecoveries:
+    input:
+        iteratorList = lambda wildcards : getAllIlluminaFiles('recovery',wildcards)
+    output:
+        'data/output/evaluation/illumina_recovery_{method}.eval'
+    script:
+        '../scripts/evaluation/aggregateRecoveries.py'
+
+
+### Consensus Aggregation for Pangolin
+
+
+
+rule aggregateOneFile:
+    input:
+        getAllConsensus()
+    output:
+        'data/output/consensus/aggregated.fa'
+    conda:
+        '../envs/biopythonworkbench.yaml'
+    script:
+        '../scripts/consensus/aggregateConsensus.py'
+
+### VCF Based Comparison
+
+rule compareBasedOnVCF:
+    input:
+        cov = 'data/auxiliary/illumina/averageCovPerPosition.csv',
+        comparisonFiles = getAllVCFComparisonRequirements,
+        ref = "data/input/nCoV-2019.reference.fasta",
+    output:
+        text = 'data/output/evaluation/vcfbased/comparison_{method}.tsv',
+        dataframe = 'data/output/evaluation/vcfbased/comparison_{method}.csv',
+        filter = 'data/output/evaluation/vcfbased/filtered_{method}.txt'
+    log:
+        'logs/evaluation/vcfbased/filtered_{method}.txt'
+    params:
+        method = lambda wc : wc.method
+    conda:
+        '../envs/vcfpy.yaml'
+    script:
+        '../scripts/evaluation/comparisonVCFBased.py'
+
+
+### Additional Evaluation
+
+rule plotCoveragePerVariant:
+    input:
+        verification = 'data/output/evaluation/illumina_verification_{method}.eval',
+        iteratorList = lambda wildcards: getAllIlluminaPileups()
+    output:
+        directory('data/output/evaluation/coveragePlots_{method}')
+    conda:
+        '../envs/altair.yaml'
+    script:
+        '../scripts/evaluation/plotCoveragePerVariant.py'
+
+rule topLevelStats:
+    input:
+        verification = 'data/output/evaluation/illumina_verification_{method}.eval',
+        recovery = 'data/output/evaluation/illumina_recovery_{method}.eval',
+        het_resume = 'data/output/evaluation/heterozygosity.csv',
+    output:
+        'data/output/evaluation/toplevelStats_{method}.eval'
+    script:
+        '../scripts/evaluation/topLevelStats.py'
+
+
+### Visualizations ###
+
+rule illuminaVerifyVisualize:
+    input:
+        'data/output/evaluation/illumina_verification_{method}.eval'
+    output:
+        full='data/output/evaluation/illumina_verification_{method}.html',
+        reduced='data/output/evaluation/illumina_verification_{method}_reduced.html'
+    conda:
+        '../envs/altair.yaml'
+    script:
+        '../scripts/evaluation/verifyAltair.py'
+
+rule illuminaRecoverVisualize:
+    input:
+        'data/output/evaluation/illumina_recovery_{method}.eval'
+    output:
+        full = 'data/output/evaluation/illumina_recovery_{method}.html',
+        reduced = 'data/output/evaluation/illumina_recovery_{method}_reduced.html'
+    conda:
+        '../envs/altair.yaml'
+    script:
+        '../scripts/evaluation/recoveryAltair.py'
+
+rule concordanceVisualize:
+    input:
+        'data/output/evaluation/vcfbased/comparison_{method}.csv'
+    output:
+        'data/output/evaluation/vcfbased/concordance_{method}.html'
+    conda:
+        '../envs/altair.yaml'
+    script:
+        '../scripts/evaluation/visualizeConcordance.py'
+
+
+#Compare Nanopore Based Var Callers
+
+rule compareNanoporeCallers:
+    input:
+        method1 = 'data/output/evaluation/vcfbased/comparison_{method1}.tsv',
+        method2 = 'data/output/evaluation/vcfbased/comparison_{method2}.tsv'
+    params:
+        method1name = lambda wc : wc.method1,
+        method2name = lambda wc: wc.method2
+    output:
+        'data/output/evaluation/vcfbased/{method1}_vs_{method2}.tsv'
+    script:
+        '../scripts/evaluation/comparisonBetweenTwoNanoporeMethods.py'

@@ -1,0 +1,98 @@
+rule map_read_pangenome:
+    input:
+        graph = "data/auxiliary/pangenome/pangenome.gfa",
+        reads = "data/auxiliary/softClippedSeqs/{run}/{barcode}.fasta",
+    output:
+        mappings = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
+    conda:
+        '../envs/graphaligner.yaml',
+    threads:
+        config["max_thread_per_task"]
+    log:
+        'logs/pangenome_vc_read_mapping_{run}_{barcode}.log',
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.reads}  -a {output.mappings} -x vg 2>&1 > {log}"
+
+
+rule map_ref_pangenome:
+    input:
+        graph = "data/auxiliary/pangenome/pangenome.gfa",
+        ref = "data/input/nCoV-2019.reference.fasta",
+    output:
+        mappings = "data/auxiliary/pangenome_vc/reference.gaf",
+    conda:
+        '../envs/graphaligner.yaml',
+    threads:
+        config["max_thread_per_task"]
+    log:
+        'logs/pangenome_vc_reference_mapping.log',
+    shell:
+        "GraphAligner -t {threads} -g {input.graph} -f {input.ref}  -a {output.mappings} -x vg 2>&1 > {log}"
+
+rule node_pos_on_ref:
+    input:
+        graph = "data/auxiliary/pangenome/pangenome.gfa",
+        mappings = "data/auxiliary/pangenome_vc/reference.gaf",
+    output:
+        node_pos_on_ref = "data/auxiliary/pangenome_vc/node2pos.csv"
+    script:
+        "../scripts/pangenome/node2pos.py"
+        
+rule call_variant:
+    input:
+        pangenome = "data/auxiliary/pangenome/pangenome.gfa",
+        bubble = "data/auxiliary/pangenome/bubble.json",
+        node2pos = "data/auxiliary/pangenome_vc/node2pos.csv",
+        support = "data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json",
+    output:
+        variant = "data/auxiliary/pangenome_vc/{run}/{barcode}/variant.vcf.ugly",
+    log:
+        'logs/pangenome_vc_call_variant_{run}_{barcode}.log',
+    script:
+        "../scripts/pangenome/call_variant.py"
+
+rule normalize_variant_pg:
+    input:
+        ugly_variant = 'data/auxiliary/pangenome_vc/{run}/{barcode}/variant.vcf.ugly',
+        reference = "data/input/nCoV-2019.reference.fasta"
+    output:
+        variant = 'data/auxiliary/pangenome_vc/{run}/{barcode}/variant.vcf'
+    conda:
+        '../envs/vt.yaml',
+    log:
+        'logs/pangenome_vc_normalize_variant_{run}_{barcode}_variant.log'
+    shell:
+        'if [ -s {input.ugly_variant} ]; then vt normalize -r {input.reference} -o {output.variant} {input.ugly_variant}; else touch {output.variant}; fi 2> {log}'
+
+rule decomposeBlockSubs:
+    input:
+        "data/auxiliary/pangenome_vc/{run}/{barcode}/variant.vcf",
+    output:
+        "data/auxiliary/pangenome_vc/{run}/{barcode}/decomposed.vcf",
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt decompose_blocksub -a {input} -o {output}'
+
+rule calculateRealBaseSupport:
+    input:
+        alignment = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
+        pangenome = "data/auxiliary/pangenome/pangenome.gfa",
+    output:
+        'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json'
+    log:
+        'logs/pangenome_vc/{run}/{barcode}/nodeSupport.txt'
+    script:
+        '../scripts/pangenome/calculateSupport.py'
+
+rule cleanVariants:
+    input:
+        vcf = "data/auxiliary/pangenome_vc/{run}/{barcode}/decomposed.vcf",
+        support = 'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json',
+        node2len = 'data/auxiliary/pangenome/node2len.csv'
+    output:
+        "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
+    conda:
+        '../envs/freebayes.yaml',
+    script:
+        '../scripts/pangenome/clean_variant.py'

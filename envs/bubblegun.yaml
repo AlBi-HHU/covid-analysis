@@ -1,0 +1,6 @@
+name: bubblegun
+channels:
+  - defaults
+dependencies:
+  - pip:
+      - git+https://github.com/fawaz-dabbaghieh/bubble_gun.git@v1.1.0

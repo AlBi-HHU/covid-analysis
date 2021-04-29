@@ -1,0 +1,6 @@
+name: muscle
+channels:
+  - bioconda
+  - defaults
+dependencies:
+  - muscle=3.8.1551

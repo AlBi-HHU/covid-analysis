@@ -1,0 +1,9 @@
+name: Stark
+
+channels:
+  - conda-forge
+  - bioconda
+
+dependencies:
+  - stark = 0.1
+

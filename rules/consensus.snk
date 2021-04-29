@@ -1,0 +1,68 @@
+#TODO: Handle multiple conflicting records (e.g. REF C two vars with ALT T and ALT G respectively at 40%)
+rule decideFinalVCF:
+    input:
+        vcf = "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf",
+        pileup = 'data/auxiliary/pileupAnalysis/nanopore/{run}/{barcode}.pileupanalysis.txt'
+    output:
+        vcf = "data/output/consensus/{run}/{barcode}/variant.vcf",
+        nMask = "data/auxiliary/consensus/{run}/{barcode}/mask.tsv"
+    log:
+        'logs/decideFinalVCF_{run}_{barcode}.txt'
+    conda:
+        '../envs/vcfpy.yaml'
+    script:
+            '../scripts/consensus/consensusVCF.py'
+
+
+rule sort_vcf_consensus:
+    input:
+        "data/output/consensus/{run}/{barcode}/variant.vcf"
+    output:
+        "data/auxiliary/consensus/{run}/{barcode}/variant.sorted.vcf"
+    conda:
+        '../envs/vt.yaml'
+    shell:
+        'vt sort -w 10000 {input} -o {output}'
+
+rule compress_vcf:
+    input:
+        vcf = "data/auxiliary/consensus/{run}/{barcode}/variant.sorted.vcf"
+
+    output:
+        gvcf = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz"
+
+    conda:
+        '../envs/realign.yaml'
+
+    shell:
+        'bgzip -c {input.vcf} > {output.gvcf}'
+
+
+rule index_vcf:
+    input:
+        vcf = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz"
+
+    output:
+        index = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz.csi"
+
+    conda:
+        '../envs/realign.yaml'
+
+    shell:
+        'bcftools index {input.vcf}'
+
+
+rule apply_vcf:
+    input:
+        ref = "data/input/nCoV-2019.reference.fasta",
+        vcf = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz",
+        index = "data/auxiliary/consensus/{run}/{barcode}/variant.vcf.gz.csi",
+        nMask = "data/auxiliary/consensus/{run}/{barcode}/mask.tsv"
+    output:
+        var_ref = "data/output/consensus/{run}/{barcode}/consensus.fasta"
+
+    conda:
+        '../envs/realign.yaml'
+
+    shell:
+        'bcftools consensus -f {input.ref} -m {input.nMask} {input.vcf} > {output.var_ref}'
