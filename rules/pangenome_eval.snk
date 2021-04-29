@@ -27,10 +27,12 @@ rule getAllComparisonDatasets:
         'data/output/comparisonFiles.txt'
     run:
         with open(output[0],'w') as outfile:
+            outfile.write('{}\t{}\t{}\n'.format('run','barcode','illumina'))
             for run in runs:
                 for barcode in barcodes[run]:
-                    if run in illuminaMapping and barcode in illuminaMapping[run]:
-                        outfile.write('{}\t{}\n'.format(run,barcode))
+                    illumina = (run in illuminaMapping and barcode in illuminaMapping[run])
+                    outfile.write('{}\t{}\t{}\n'.format(run,barcode,illumina))
+
 ### Helper Functions (for Aggregation)
 
 def getAllPancovVCFs():
