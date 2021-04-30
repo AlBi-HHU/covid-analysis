@@ -21,6 +21,24 @@ rule generateTestSet:
             for e in eval:
                 evalSet.write('{}\t{}\n'.format(e[0],e[1]))
 
+rule generateSplitSets:
+    output:
+        splitSets = 'data/output/splitSets.txt'
+    run:
+        samples = []
+        for run in runs:
+            for barcode in barcodes[run]:
+                if run in illuminaMapping and barcode in illuminaMapping[run]:
+                    samples.append((run, barcode))
+        random.shuffle(samples)
+        cutoff = len(samples)//2
+        with open(output['splitSets'], 'w') as outfile:
+            outfile.write('set 1 \n')
+            for i in range(0,cutoff):
+                outfile.write('{}\t{}\n'.format(samples[i][0], samples[i][1]))
+            outfile.write('set 2 \n')
+            for i in range(cutoff,len(samples)):
+                outfile.write('{}\t{}\n'.format(samples[i][0], samples[i][1]))
 
 rule getAllComparisonDatasets:
     output:
@@ -34,7 +52,6 @@ rule getAllComparisonDatasets:
                     outfile.write('{}\t{}\t{}\n'.format(run,barcode,illumina))
 
 ### Helper Functions (for Aggregation)
-
 def getAllPancovVCFs():
     allFiles = []
     for run in runs:
