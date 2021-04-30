@@ -1,5 +1,6 @@
 import os
 
+configfile: "config.yaml"
 
 #We detect the runs that are provided as input, alternatively we can use a user-defined subset of runs (this needs to be toggled in the cofig.yaml)
 runs = config['runs'] if config['useSubsetOfRuns'] else glob_wildcards('data/input/{run}').run
