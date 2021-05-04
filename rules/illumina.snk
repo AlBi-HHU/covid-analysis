@@ -47,6 +47,14 @@ rule ivar_consensus:
     shell:
         'samtools mpileup -aa -A -d 0 -B -Q 0 --reference {input.reference} {input.alignment} | ivar consensus -t {params.iac} -m 20 {input.alignment} -p {params.prefix}'
 
+rule addInformation:
+    input:
+        "data/auxiliary/consensus/illumina/{run}/{barcode}/consensus.fa"
+    output:
+        "data/output/consensus/illumina/{run}/{barcode}/consensus.fa"
+    shell:
+        "sed -r 's/Consensus_consensus_threshold_(.+)_quality_(.+)/{wildcards.run}:{wildcards.barcode}/g' {input} > {output}"
+
 def getAllIVarConsensus():
     allFiles = []
     for run in runs:
@@ -58,7 +66,7 @@ def getAllIVarConsensus():
                 # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
                 continue
             allFiles += [
-                "data/auxiliary/consensus/illumina/"+run+"/"+barcode+"/consensus.fa"
+                "data/output/consensus/illumina/"+run+"/"+barcode+"/consensus.fa"
             ]
     return allFiles
 
