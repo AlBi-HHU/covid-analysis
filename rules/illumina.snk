@@ -55,29 +55,6 @@ rule addInformation:
     shell:
         "sed -r 's/Consensus_consensus_threshold_(.+)_quality_(.+)/{wildcards.run}:{wildcards.barcode}/g' {input} > {output}"
 
-def getAllIVarConsensus():
-    allFiles = []
-    for run in runs:
-        for barcode in barcodes[run]:
-            # check for missing illumina files
-            if run in illuminaMapping and barcode in illuminaMapping[run]:
-                pass
-            else:
-                # print('skipping run {} barcode {} for illumina comparison as we have no seq yet ...'.format(run,barcode))
-                continue
-            allFiles += [
-                "data/output/consensus/illumina/"+run+"/"+barcode+"/consensus.fa"
-            ]
-    return allFiles
-
-rule combine_ivar_consensus:
-    input:
-        getAllIVarConsensus()
-    output:
-        'data/output/consensus/illuminaCombined.fa'
-    shell:
-        'cat {input} > {output}'
-
 
 rule calculateAverageIlluminaCoveragePerPosition:
     input:

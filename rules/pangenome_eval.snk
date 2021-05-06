@@ -197,14 +197,36 @@ def getAllVCFComparisonRequirements(wildcards):
     return allFiles
 
 
-def getAllConsensus():
+def getAllConsensus(wildcards):
     inputList = []
     for run in runs:
-        # Mandatory: For each sample we curate a consensus sequence
-        inputList += expand('data/output/consensus/' + run + '/{barcode}/consensus.fasta', barcode=barcodes[run])
+        for barcode in barcodes[run]:
+            files = {
+                'nanopolish' :'data/input/' + run + '/barcode'+barcode+'.nanopolish.consensus.fasta',
+                'ivar' : 'data/output/consensus/illumina/'+run+'/'+barcode+'/consensus.fa',
+                'pancov' : 'data/output/consensus/' + run + '/'+barcode+'/consensus.fasta',
+                'medaka' : 'data/input/' + run + '/barcode'+barcode+'.medaka.consensus.fasta'
+            }
+
+            if all(map(lambda x: os.path.isfile(x),files.values())):
+                inputList.append(files[wildcards.method]+'<::>'+run+'<::>'+barcode)
+
+
     return inputList
 
+### Consensus Aggregation for Pangolin
 
+
+
+rule aggregateOneFile:
+    output:
+        'data/output/consensus/aggregated_{method}.fa'
+    conda:
+        '../envs/biopythonworkbench.yaml'
+    params:
+        input = lambda wc: getAllConsensus(wc)
+    script:
+        '../scripts/consensus/aggregateConsensus.py'
 
 ### Snakemake Rules
 
@@ -354,19 +376,7 @@ rule aggregateRecoveries:
         '../scripts/evaluation/aggregateRecoveries.py'
 
 
-### Consensus Aggregation for Pangolin
 
-
-
-rule aggregateOneFile:
-    input:
-        getAllConsensus()
-    output:
-        'data/output/consensus/aggregated.fa'
-    conda:
-        '../envs/biopythonworkbench.yaml'
-    script:
-        '../scripts/consensus/aggregateConsensus.py'
 
 ### VCF Based Comparison
 
