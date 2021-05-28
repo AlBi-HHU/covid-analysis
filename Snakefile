@@ -124,6 +124,7 @@ include: 'rules/consensus.snk'
 include: 'rules/pangenome.snk'
 include: 'rules/discovery.snk'
 include: 'rules/pangenome_variant_call.snk'
+include: 'rules/monogenomic.snk'
 ### EVALUATION ONLY
 include: 'rules/pangenome_eval.snk'
 include: 'rules/illumina.snk'

@@ -1,0 +1,104 @@
+import os
+
+### Helper functions
+
+def getAllPangenomeGraphVCFs_MONO(wildcards):
+    all_vcfs = []
+
+    #Optional: We add additional variants, found by our discovery routine to the pangenome graph
+    if config["pangenomeUseFreebayes"]:
+        all_vcfs.append('data/auxiliary/discovery/freebayes/'+wildcards.run+'/' + str(config["pangenomeCorrectionK"]) + '/'+wildcards.barcode+'.vcf')
+
+    #The two methods utilized by the ARTIC pipeline
+    selectedMethods = config['articMethods']
+
+    if 'nanopolish' in selectedMethods:
+        vcf = 'data/input/'+wildcards.run+'/barcode'+wildcards.barcode+'.nanopolish.'+config['vcf_suffix']
+        if os.path.isfile(vcf):
+            all_vcfs.append(vcf)
+    if 'medaka' in selectedMethods:
+        vcf = f"data/auxiliary/pangenome/arti/{wildcards.run}/{wildcards.barcode}.{config['vcf_suffix']}"
+        all_vcfs.append(vcf)
+
+    #Add additional vcf files
+    if config['pangenomeUseAdditionalVCFs']:
+        all_vcfs += config['pangenomeAdditionalVCFs']
+    return all_vcfs
+
+
+if config['monogenomic']:
+
+    #### Snakemake Rules
+    rule concatenate_vcf_MONO:
+        input:
+            vcfs = getAllPangenomeGraphVCFs_MONO
+        output:
+            out = "data/auxiliary/pangenome/{run}_{barcode}/merge.vcf"
+        conda:
+            '../envs/freebayes.yaml',
+        threads:
+            config["max_thread_per_task"]
+        log:
+            'logs/monogenomic/{run}_{barcode}/pangenome_concatenate_vcf.log'
+        script:
+            '../scripts/pangenome/concatenate_vcf.py'
+
+    rule map_ref_monogenome_MONO:
+        input:
+            graph = "data/auxiliary/pangenome/{run}_{barcode}/pangenome.gfa",
+            ref = "data/input/nCoV-2019.reference.fasta",
+        output:
+            mappings = "data/auxiliary/pangenome_vc/{run}_{barcode}/reference.gaf",
+        conda:
+            '../envs/graphaligner.yaml',
+        threads:
+            config["max_thread_per_task"]
+        log:
+            'logs/pangenome_vc_reference_mapping_{run}_{barcode}.log',
+        shell:
+            "GraphAligner -t {threads} -g {input.graph} -f {input.ref}  -a {output.mappings} -x vg 2>&1 > {log}"
+
+    rule node_pos_on_ref_MONO:
+        input:
+            graph = "data/auxiliary/pangenome/{run}_{barcode}/pangenome.gfa",
+            mappings = "data/auxiliary/pangenome_vc/{run}_{barcode}/reference.gaf",
+        output:
+            node_pos_on_ref = "data/auxiliary/pangenome_vc/{run}_{barcode}/node2pos.csv"
+        script:
+            "../scripts/pangenome/node2pos.py"
+
+    rule call_variant_MONO:
+        input:
+            pangenome = "data/auxiliary/pangenome/{run}_{barcode}/pangenome.gfa",
+            bubble = "data/auxiliary/pangenome/{run}_{barcode}/bubble.json",
+            node2pos = "data/auxiliary/pangenome_vc/{run}_{barcode}/node2pos.csv",
+            support = "data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json",
+        output:
+            variant = "data/auxiliary/pangenome_vc/{run}/{barcode}/variant.vcf.ugly",
+        log:
+            'logs/pangenome_vc_call_variant_{run}_{barcode}.log',
+        script:
+            "../scripts/pangenome/call_variant.py"
+
+    rule calculateRealBaseSupport_MONO:
+        input:
+            alignment = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
+            pangenome = "data/auxiliary/pangenome/{run}_{barcode}/pangenome.gfa",
+        output:
+            'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json'
+        log:
+            'logs/pangenome_vc/{run}/{barcode}/nodeSupport.txt'
+        script:
+            '../scripts/pangenome/calculateSupport.py'
+
+    rule cleanVariants_MONO:
+        input:
+            vcf = "data/auxiliary/pangenome_vc/{run}/{barcode}/decomposed.vcf",
+            support = 'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json',
+            node2len = 'data/auxiliary/pangenome/{run}_{barcode}/node2len.csv'
+        output:
+            "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
+        conda:
+            '../envs/freebayes.yaml',
+        script:
+            '../scripts/pangenome/clean_variant.py'

@@ -1,6 +1,6 @@
 rule map_read_pangenome:
     input:
-        graph = "data/auxiliary/pangenome/pangenome.gfa",
+        graph = "data/auxiliary/pangenome/pangenome.gfa" if config['monogenomic'] == False else "data/auxiliary/pangenome/{run}_{barcode}/pangenome.gfa",
         reads = "data/auxiliary/softClippedSeqs/{run}/{barcode}.fasta",
     output:
         mappings = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
@@ -29,27 +29,53 @@ rule map_ref_pangenome:
     shell:
         "GraphAligner -t {threads} -g {input.graph} -f {input.ref}  -a {output.mappings} -x vg 2>&1 > {log}"
 
-rule node_pos_on_ref:
-    input:
-        graph = "data/auxiliary/pangenome/pangenome.gfa",
-        mappings = "data/auxiliary/pangenome_vc/reference.gaf",
-    output:
-        node_pos_on_ref = "data/auxiliary/pangenome_vc/node2pos.csv"
-    script:
-        "../scripts/pangenome/node2pos.py"
-        
-rule call_variant:
-    input:
-        pangenome = "data/auxiliary/pangenome/pangenome.gfa",
-        bubble = "data/auxiliary/pangenome/bubble.json",
-        node2pos = "data/auxiliary/pangenome_vc/node2pos.csv",
-        support = "data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json",
-    output:
-        variant = "data/auxiliary/pangenome_vc/{run}/{barcode}/variant.vcf.ugly",
-    log:
-        'logs/pangenome_vc_call_variant_{run}_{barcode}.log',
-    script:
-        "../scripts/pangenome/call_variant.py"
+
+if not config['monogenomic']:
+
+    rule node_pos_on_ref:
+        input:
+            graph = "data/auxiliary/pangenome/pangenome.gfa",
+            mappings = "data/auxiliary/pangenome_vc/reference.gaf",
+        output:
+            node_pos_on_ref = "data/auxiliary/pangenome_vc/node2pos.csv"
+        script:
+            "../scripts/pangenome/node2pos.py"
+
+    rule call_variant:
+        input:
+            pangenome = "data/auxiliary/pangenome/pangenome.gfa",
+            bubble = "data/auxiliary/pangenome/bubble.json",
+            node2pos = "data/auxiliary/pangenome_vc/node2pos.csv",
+            support = "data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json",
+        output:
+            variant = "data/auxiliary/pangenome_vc/{run}/{barcode}/variant.vcf.ugly",
+        log:
+            'logs/pangenome_vc_call_variant_{run}_{barcode}.log',
+        script:
+            "../scripts/pangenome/call_variant.py"
+
+    rule calculateRealBaseSupport:
+        input:
+            alignment = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
+            pangenome = "data/auxiliary/pangenome/pangenome.gfa",
+        output:
+            'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json'
+        log:
+            'logs/pangenome_vc/{run}/{barcode}/nodeSupport.txt'
+        script:
+            '../scripts/pangenome/calculateSupport.py'
+
+    rule cleanVariants:
+        input:
+            vcf = "data/auxiliary/pangenome_vc/{run}/{barcode}/decomposed.vcf",
+            support = 'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json',
+            node2len = 'data/auxiliary/pangenome/node2len.csv'
+        output:
+            "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
+        conda:
+            '../envs/freebayes.yaml',
+        script:
+            '../scripts/pangenome/clean_variant.py'
 
 rule normalize_variant_pg:
     input:
@@ -74,25 +100,4 @@ rule decomposeBlockSubs:
     shell:
         'vt decompose_blocksub -a {input} -o {output}'
 
-rule calculateRealBaseSupport:
-    input:
-        alignment = "data/auxiliary/pangenome_vc/{run}/{barcode}/reads.gaf",
-        pangenome = "data/auxiliary/pangenome/pangenome.gfa",
-    output:
-        'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json'
-    log:
-        'logs/pangenome_vc/{run}/{barcode}/nodeSupport.txt'
-    script:
-        '../scripts/pangenome/calculateSupport.py'
 
-rule cleanVariants:
-    input:
-        vcf = "data/auxiliary/pangenome_vc/{run}/{barcode}/decomposed.vcf",
-        support = 'data/auxiliary/pangenome_vc/{run}/{barcode}/nodeSupport.json',
-        node2len = 'data/auxiliary/pangenome/node2len.csv'
-    output:
-        "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
-    conda:
-        '../envs/freebayes.yaml',
-    script:
-        '../scripts/pangenome/clean_variant.py'

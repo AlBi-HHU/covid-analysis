@@ -63,6 +63,8 @@ pangenomeMinEndsCovBubble: 10
 pangenomeVarMinCov: 10
 pangenomeMaxSB: 0.30
 
+monogenomic: True
+
 #if True, only use the given subset of run folders
 useSubsetOfRuns: False
 runs: ['run1','run2']
