@@ -208,7 +208,7 @@ def getAllConsensus(wildcards):
                 'medaka' : 'data/input/' + run + '/barcode'+barcode+'.medaka.consensus.fasta'
             }
 
-            if all(map(lambda x: os.path.isfile(x),files.values())):
+            if os.path.isfile(files[wildcards.method]):
                 inputList.append(files[wildcards.method]+'<::>'+run+'<::>'+barcode)
 
 
