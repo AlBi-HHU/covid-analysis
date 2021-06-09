@@ -676,8 +676,15 @@ with open(snakemake.output["text"], "w") as outfile, open(
     outfile.write("Per Allele F1 (2TP/(2TP+FN+FP)): {}\n".format(2*cnt_tp_perallele/(2*cnt_tp_perallele+cnt_fn_perallele+cnt_fp_perallele)))
 
     #Multiallelic Classification
-    outfile.write("Multi-Allelic Precision (TP/(TP+FP)): {}\n".format(cnt_multiallelic_tp/(cnt_multiallelic_tp+cnt_multiallelic_fp)))
-    outfile.write("Multi-Allelic Recall (TP/(TP+FN)): {}\n".format(cnt_multiallelic_tp/(cnt_multiallelic_tp+cnt_multiallelic_fn)))
+    outfile.write("Multi-Allelic TP: {}\n".format(cnt_multiallelic_tp))
+    outfile.write("Multi-Allelic TN: {}\n".format(cnt_multiallelic_tn))
+    outfile.write("Multi-Allelic FP: {}\n".format(cnt_multiallelic_fp))
+    outfile.write("Multi-Allelic FN: {}\n".format(cnt_multiallelic_fn))
+
+    ma_prec = (cnt_multiallelic_tp / (cnt_multiallelic_tp + cnt_multiallelic_fp)) if (cnt_multiallelic_tp + cnt_multiallelic_fp) != 0 else '?'
+    outfile.write("Multi-Allelic Precision (TP/(TP+FP)): {}\n".format(ma_prec))
+    ma_recall = cnt_multiallelic_tp/(cnt_multiallelic_tp+cnt_multiallelic_fn) if (cnt_multiallelic_tp + cnt_multiallelic_fn) != 0 else '?'
+    outfile.write("Multi-Allelic Recall (TP/(TP+FN)): {}\n".format(ma_recall))
     outfile.write("Multi-Allelic F1 (2TP/(2TP+FN+FP)): {}\n".format(2*cnt_multiallelic_tp/(2*cnt_multiallelic_tp+cnt_multiallelic_fp+cnt_multiallelic_fn)))
 
     outfile.write("Multi-Allelic Specificity (TN/(FP+TN)): {}\n".format(cnt_multiallelic_tn/(cnt_multiallelic_tn+cnt_multiallelic_fp)))
