@@ -42,19 +42,20 @@ def artic_filter_input(wcd):
 
 
 #### Snakemake Rules
-rule concatenate_vcf:
-    input:
-        vcfs = getAllPangenomeGraphVCFs()
-    output:
-        out = "data/auxiliary/pangenome/merge.vcf"
-    conda:
-        '../envs/freebayes.yaml',
-    threads:
-        config["max_thread_per_task"]
-    log:
-        'logs/pangenome_concatenate_vcf.log'
-    script:
-        '../scripts/pangenome/concatenate_vcf.py'
+if not config['monogenomic']:
+    rule concatenate_vcf:
+        input:
+            vcfs = getAllPangenomeGraphVCFs()
+        output:
+            out = "data/auxiliary/pangenome/merge.vcf"
+        conda:
+            '../envs/freebayes.yaml',
+        threads:
+            config["max_thread_per_task"]
+        log:
+            'logs/pangenome_concatenate_vcf.log'
+        script:
+            '../scripts/pangenome/concatenate_vcf.py'
 
 
 rule artic_vcf_filter:
