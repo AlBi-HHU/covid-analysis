@@ -117,12 +117,10 @@ rule all:
         getInput
 
 include: 'rules/shared.snk'
-include: 'rules/errorCorrection.snk'
 include: 'rules/readAnalysis.snk'
 include: 'rules/variantAnalysis.snk'
 include: 'rules/consensus.snk'
 include: 'rules/pangenome.snk'
-include: 'rules/discovery.snk'
 include: 'rules/pangenome_variant_call.snk'
 include: 'rules/monogenomic.snk'
 ### EVALUATION ONLY

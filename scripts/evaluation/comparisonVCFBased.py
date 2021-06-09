@@ -81,6 +81,10 @@ cnt_unfairComparisons = 0  #
 
 cnt_falseHomozygous = 0  #
 
+cnt_multiallelic_tp = 0
+cnt_multiallelic_fn = 0
+cnt_multiallelic_fp = 0
+
 # TODO: Track structural SV, Track detected Heterozygosity based on Medaka / Nano Info
 
 # We keep track of tuples in addition to construct a pandas dataframe for easy transformation into altair plots
@@ -369,6 +373,16 @@ with open(snakemake.output["text"], "w") as outfile, open(
                 ################
 
                 if not (illuminaDropout or nanoporeDropout):
+
+                    #Multi-Allelic Classification
+                    if bool_heterozygousNano and not bool_heterozygousIllu:
+                        cnt_multiallelic_fp += 1
+                    elif bool_heterozygousIllu and not bool_heterozygousNano:
+                        cnt_multiallelic_fn += 1
+                    elif bool_heterozygousIllu == bool_heterozygousNano:
+                        cnt_multiallelic_tp += 1
+
+
                     if (
                         (illuminaType == nanoporeType)
                         and (illuminaValue == nanoporeValue)
@@ -548,16 +562,15 @@ with open(snakemake.output["text"], "w") as outfile, open(
     outfile.write("Detected HET DEL:{} \n".format(cnt_detectedHETDEL))
 
     outfile.write(
-        "Detected HETs total : {} \n".format(
+        "Detected Multi Allelics total : {} \n".format(
             cnt_detectedHETSNPs + cnt_detectedHETINS + cnt_detectedHETDEL
         )
     )
 
-    outfile.write(
-        "Relevant Positions: {} (of which {} could not be evaluated)\n".format(
-            cnt_relevantPositions, cnt_unscoredPositions
-        )
-    )
+    outfile.write("Relevant Positions: {}\n".format(cnt_relevantPositions))
+    outfile.write("Unscored Positions: {}\n".format(cnt_unscoredPositions))
+    outfile.write("Illumina Dropouts: {}\n".format(cnt_illuminaDropouts))
+    outfile.write("Nanopore Dropouts: {}\n".format( cnt_nanoporeDropouts))
 
     outfile.write("Per Position Stats: \n")
 
@@ -584,65 +597,31 @@ with open(snakemake.output["text"], "w") as outfile, open(
 
     outfile.write("Per Allele Stats: \n")
 
-    outfile.write('True Positives {}\n'.format(cnt_tp_perallele))
-    outfile.write('True Positives, where no method made a HET call: {}\n'.format(cnt_tp_perallele_hom))
-    outfile.write('True Positives, where at least one method made a HET call {}\n'.format(cnt_tp_perallele_het))
+    outfile.write('True Positives: {}\n'.format(cnt_tp_perallele))
+    outfile.write('True Positives, where no method made a multi-allelic call: {}\n'.format(cnt_tp_perallele_hom))
+    outfile.write('True Positives, where at least one method made a multi-allelic call: {}\n'.format(cnt_tp_perallele_het))
 
-    outfile.write('False Positives {}\n'.format(cnt_fp_perallele))
-    outfile.write('False Positives, where no method made a HET call: {}\n'.format(cnt_fp_perallele_hom))
-    outfile.write('False Positives, where at least one method made a HET call {}\n'.format(cnt_fp_perallele_het))
+    outfile.write('False Positives: {}\n'.format(cnt_fp_perallele))
+    outfile.write('False Positives, where no method made a multi-allelic call: {}\n'.format(cnt_fp_perallele_hom))
+    outfile.write('False Positives, where at least one method made a multi-allelic call: {}\n'.format(cnt_fp_perallele_het))
 
-    outfile.write('False Negatives {}\n'.format(cnt_fn_perallele))
-    outfile.write('False Negatives, where no method made a HET call: {}\n'.format(cnt_fn_perallele_hom))
-    outfile.write('False Negatives, where at least one method made a HET call {}\n'.format(cnt_fn_perallele_het))
+    outfile.write('False Negatives: {}\n'.format(cnt_fn_perallele))
+    outfile.write('False Negatives, where no method made a multi-allelic call: {}\n'.format(cnt_fn_perallele_hom))
+    outfile.write('False Negatives, where at least one method made a multi-allelic call: {}\n'.format(cnt_fn_perallele_het))
 
     outfile.write('True Negatives are of infinite size due to an theoretically arbitrary amount of alternative alleles \n')
 
-
-    '''
-    outfile.write("HET Concordance:{} \n".format(cnt_concordance_HET))
     outfile.write(
-        "HET FP (Note: Each Allele counts separately) :{} \n".format(
-            cnt_falsePositives_HET
-        )
-    )
-    outfile.write(
-        "HET FN (Note: Each Allele counts separately) :{} \n".format(
-            cnt_falseNegatives_HET
-        )
-    )
-
-    outfile.write(
-        "Discordance: {} of {} comparable positions \n".format(
-            cnt_discordance, cnt_comparablePositions
-        )
-    )
-    '''
-
-    outfile.write(
-        "Possible unfair comparisons for methods that don't detect HET (HET was not found or only as HOM): {} \n".format(
+        "Possible unfair comparisons for methods that don't detect multi-allelic (multi-allelic was not found or only as HOM): {} \n".format(
             cnt_unfairComparisons
         )
     )
     outfile.write(
-        "Positions where a HOM variant was detected but iVar detected a HET: {} \n".format(
+        "Positions where a HOM variant was detected but iVar detected a multi-allelic: {} \n".format(
             cnt_falseHomozygous
         )
     )
     outfile.write("Detected Variants: {} \n".format(cnt_detectedVariants))
-    outfile.write(
-        "Unscored Positions: {} ({} Illumina and {} Nanopore Dropouts) \n".format(
-            cnt_unscoredPositions, cnt_illuminaDropouts, cnt_nanoporeDropouts
-        )
-    )
-
-    # Calculate top level stats
-
-    #precision = cnt_concordance_HOM / (cnt_concordance_HOM + cnt_falsePositives_HOM)
-    #recall = cnt_concordance_HOM / (cnt_concordance_HOM + cnt_falseNegatives_HOM)
-    #f1 = (2 * cnt_concordance_HOM) / (
-    #    2 * cnt_concordance_HOM + cnt_falsePositives_HOM + cnt_falseNegatives_HOM
-    #)
 
 
     precision_HOM = cnt_tp_perallele_hom / (cnt_tp_perallele_hom + cnt_fp_perallele_hom)
@@ -655,11 +634,11 @@ with open(snakemake.output["text"], "w") as outfile, open(
     precision_HET = cnt_tp_perallele_het / (cnt_tp_perallele_het + cnt_fp_perallele_het)
     recall_HET = cnt_tp_perallele_het / (cnt_tp_perallele_het + cnt_fn_perallele_het)
     f1_HET = (2*cnt_tp_perallele_het) / (2 * cnt_tp_perallele_het + cnt_fp_perallele_het + cnt_fn_perallele_het)
-    outfile.write("HET Precision (TP / (TP+FP)): {}\n".format(precision_HET))
-    outfile.write("HET Recall (TP / (TP+FN)): {}\n".format(recall_HET))
-    outfile.write("HET F1 ( (2*TP)/(2*TP+FP+FN)): {}\n".format(f1_HET))
+    outfile.write("Multi-allelic Precision (TP / (TP+FP)): {}\n".format(precision_HET))
+    outfile.write("Multi-allelic Recall (TP / (TP+FN)): {}\n".format(recall_HET))
+    outfile.write("Multi-allelic F1 ( (2*TP)/(2*TP+FP+FN)): {}\n".format(f1_HET))
 
-    outfile.write("F1 Macro ( 1/2 (HOM F1+HET F1)): {}\n".format((f1_HET + f1_HOM) / 2))
+    outfile.write("F1 Macro ( 1/2 (HOM F1+Multi-allelic F1)): {}\n".format((f1_HET + f1_HOM) / 2))
 
     # Additional TLS
     accuracy = cnt_con_perposition / cnt_comparablePositions
@@ -678,26 +657,6 @@ with open(snakemake.output["text"], "w") as outfile, open(
     outfile.write(
         "Implicit reference agreement (IA): {}\n".format(cnt_implicit_agreement)
     )
-
-    # Calculate top level stats in a variation
-    '''
-    precision_var = (
-        cnt_concordance_HOM + cnt_concordance_HET + cnt_implicit_agreement
-    ) / (
-        cnt_concordance_HOM
-        + cnt_concordance_HET
-        + cnt_falsePositives_HOM
-        + cnt_falsePositives_HET
-        + cnt_implicit_agreement
-    )
-    outfile.write(
-        "Precision (Concordance+IA / (Concordance+FP+IA)): {}\n".format(precision)
-    )
-    accuracy = (cnt_concordance_HOM + cnt_concordance_HET + cnt_implicit_agreement) / (
-        cnt_comparablePositions + cnt_implicit_agreement
-    )
-    '''
-
     accuracy = (cnt_con_perposition + cnt_implicit_agreement) / (
         cnt_comparablePositions + cnt_implicit_agreement
     )
@@ -705,6 +664,19 @@ with open(snakemake.output["text"], "w") as outfile, open(
         "Global Accuracy ((Concordance+IA)/(Comparable Positions+IA)): {}\n".format(accuracy)
     )
 
+    outfile.write(
+        "Global Error Rate (1- Global Accuracy): {}\n".format(1-accuracy)
+    )
+
+    #Combined Per Allele Stats
+    outfile.write("Per Allele Precision (TP/(TP+FP)): {}\n".format(cnt_tp_perallele/(cnt_tp_perallele+cnt_fp_perallele)))
+    outfile.write("Per Allele Recall (TP/(TP+FN)): {}\n".format(cnt_tp_perallele/(cnt_tp_perallele+cnt_fn_perallele)))
+    outfile.write("Per Allele F1 (2TP/(2TP+FN+FP)): {}\n".format(2*cnt_tp_perallele/(2*cnt_tp_perallele+cnt_fn_perallele+cnt_fp_perallele)))
+
+    #Multiallelic Classification
+    outfile.write("Multi-Allelic Precision (TP/(TP+FP)): {}\n".format(cnt_multiallelic_tp/(cnt_multiallelic_tp+cnt_multiallelic_fp)))
+    outfile.write("Multi-Allelic Recall (TP/(TP+FN)): {}\n".format(cnt_multiallelic_tp/(cnt_multiallelic_tp+cnt_multiallelic_fn)))
+    outfile.write("Multi-Allelic F1 (2TP/(2TP+FN+FP)): {}\n".format(2*cnt_multiallelic_tp/(2*cnt_multiallelic_tp+cnt_multiallelic_fp+cnt_multiallelic_fn)))
 
 # Write Pandas Dataframe
 df = pd.DataFrame(
