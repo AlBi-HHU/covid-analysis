@@ -84,6 +84,7 @@ cnt_falseHomozygous = 0  #
 cnt_multiallelic_tp = 0
 cnt_multiallelic_fn = 0
 cnt_multiallelic_fp = 0
+cnt_multiallelic_tn = 0
 
 # TODO: Track structural SV, Track detected Heterozygosity based on Medaka / Nano Info
 
@@ -379,9 +380,10 @@ with open(snakemake.output["text"], "w") as outfile, open(
                         cnt_multiallelic_fp += 1
                     elif bool_heterozygousIllu and not bool_heterozygousNano:
                         cnt_multiallelic_fn += 1
-                    elif bool_heterozygousIllu == bool_heterozygousNano:
+                    elif bool_heterozygousIllu and bool_heterozygousNano:
                         cnt_multiallelic_tp += 1
-
+                    elif not bool_heterozygousIllu and not bool_heterozygousNano:
+                        cnt_multiallelic_tn += 1
 
                     if (
                         (illuminaType == nanoporeType)
@@ -677,6 +679,9 @@ with open(snakemake.output["text"], "w") as outfile, open(
     outfile.write("Multi-Allelic Precision (TP/(TP+FP)): {}\n".format(cnt_multiallelic_tp/(cnt_multiallelic_tp+cnt_multiallelic_fp)))
     outfile.write("Multi-Allelic Recall (TP/(TP+FN)): {}\n".format(cnt_multiallelic_tp/(cnt_multiallelic_tp+cnt_multiallelic_fn)))
     outfile.write("Multi-Allelic F1 (2TP/(2TP+FN+FP)): {}\n".format(2*cnt_multiallelic_tp/(2*cnt_multiallelic_tp+cnt_multiallelic_fp+cnt_multiallelic_fn)))
+
+    outfile.write("Multi-Allelic Specificity (TN/(FP+TN)): {}\n".format(cnt_multiallelic_tn/(cnt_multiallelic_tn+cnt_multiallelic_fp)))
+    outfile.write("Multi-Allelic Negative Predictive Value (TN/(FN+TN)): {}\n".format(cnt_multiallelic_tn/(cnt_multiallelic_tn+cnt_multiallelic_fn)))
 
 # Write Pandas Dataframe
 df = pd.DataFrame(
