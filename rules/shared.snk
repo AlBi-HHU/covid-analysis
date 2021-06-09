@@ -3,6 +3,7 @@ def fetchAllPileups():
     for run in barcodes:
         list += expand('data/auxiliary/pileupAnalysis/nanopore/' + run + '/{barcode}.pileupanalysis.txt',
                        barcode=barcodes[run])
+    return list
 
 rule bwa_index_fasta:
     input:
