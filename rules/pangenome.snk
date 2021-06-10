@@ -186,7 +186,7 @@ rule found_bubble:
     conda:
         "../envs/bubblegun.yaml"
     shell: #TODO: Might mask real BubbleGun errors to create empty bubble file on failure
-        "BubbleGun -g {input} bchains --bubble_json {output} || echo '{}' > {output}"
+        "BubbleGun -g {input} bchains --bubble_json {output} || echo {} > {output}"
 
         
 rule compute_node2len:
