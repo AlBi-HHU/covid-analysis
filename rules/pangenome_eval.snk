@@ -203,7 +203,6 @@ def getAllConsensus(wildcards):
         for barcode in barcodes[run]:
             files = {
                 'nanopolish' :'data/input/' + run + '/barcode'+barcode+'.nanopolish.consensus.fasta',
-                'ivar' : 'data/output/consensus/illumina/'+run+'/'+barcode+'/consensus.fa',
                 'pancov' : 'data/output/consensus/' + run + '/'+barcode+'/consensus.fasta',
                 'medaka' : 'data/input/' + run + '/barcode'+barcode+'.medaka.consensus.fasta'
             }
