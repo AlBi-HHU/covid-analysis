@@ -2,6 +2,15 @@ import os
 
 configfile: "config.yaml"
 
+#We process the covid reference that is used and extract basic information
+
+with open(config['ref_genome'],'r') as infile:
+    raw = infile.read().splitlines()
+    header = raw[0]
+    bases = ''.join(raw[1:])
+    config['ref_genome_chr'] = header[1:]
+    config['ref_genome_length'] = len(bases)
+
 #We detect the runs that are provided as input, alternatively we can use a user-defined subset of runs (this needs to be toggled in the cofig.yaml)
 runs = config['runs'] if config['useSubsetOfRuns'] else glob_wildcards('data/input/{run}').run
 

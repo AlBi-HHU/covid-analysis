@@ -1,15 +1,13 @@
 # Reference
 
-## Reference Genome Length
-ref_genome_length: 29903
-## Reference Genome Chromosome ID
-ref_genome_chr: MN908947.3
+## Reference Genome (should be placed in data/input)
+ref_genome: nCoV-2019.reference.fasta
 
 ## An upper limit for threads that should be used for an individual task
 max_thread_per_task: 8
 
 # Input 
-## Suffix Definitions for Input Files
+## Suffix Definitions for Input Files (Should be placed in data/input/[run]) where each run can be represented as a separate subfolder
 vcf_suffix: pass.vcf
 bam_suffix: primertrimmed.rg.sorted.bam
 
@@ -21,10 +19,10 @@ performQualityControl: True
 ## SNPs that are in this range will be represented as ambiguity base characters in the final consensus
 thresholdHomCall: 0.2
 
-## Consensus section
+## The amount of depth required to take a base into the consensus sequence (will be masked as N otherwise)
 consensusMinCov: 20
 
-# VariantAnotation
+# Variant anotation with SnpEff can be toggled
 VarAnnotSnpEff: False
 
 #Use additional vcf's with known variants for pangenome graph generation (for example GISAID variants)
@@ -32,14 +30,14 @@ pangenomeUseAdditionalVCFs: True
 pangenomeAdditionalVCFs: ['data/input/th_vars_all.vcf'] #relative to the snakemake root folder
 articMethods : ['medaka','nanopolish'] #which artic variant callers are used as input for pangenome graph creation
 
-# Pangenome variant calling #TODO: Add Descriptions
-medakaQualityThreshold: 7.0
+# Pangenome variant calling
 pangenomeVariantCalling: True
-pangenomeRVTTSupport: 0.25
-pangenomeMinCovFactor: 0.15
-pangenomeMinEndsCovBubble: 10
-pangenomeVarMinCov: 10
-pangenomeMaxSB: 0.30
+medakaQualityThreshold: 7.0 #If medaka variants are used they are discarded below this threshold
+pangenomeRVTTSupport: 0.25 #The variant path needs to be supported by at least this fraction of reads to result in a called variant
+pangenomeMinCovFactor: 0.15 #If a node within a bubble has less than this fraction of the surrounding node's mean coverage, it is considered not covered
+pangenomeMinEndsCovBubble: 10 #Used to distinguish between ref/var bubbles and pure var bubbles, if the surrounding node's mean coverage is below this threshold we consider the node to be a variant only bubble
+pangenomeVarMinCov: 10 #The minimum amount of support a variant path needs to have (absolute) to be considered valid
+pangenomeMaxSB: 0.30 #The strand bias factor that is used as a guideline of which value should not be passed (see shared.py for details)
 
 # If True, processes each sample individually (together with addition vcf's) with disregard for variants from other samples
 monogenomic: True
