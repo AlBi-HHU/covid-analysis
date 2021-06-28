@@ -4,7 +4,7 @@ configfile: "config.yaml"
 
 #We process the covid reference that is used and extract basic information
 
-with open(config['ref_genome'],'r') as infile:
+with open('data/input/'+config['ref_genome'],'r') as infile:
     raw = infile.read().splitlines()
     header = raw[0]
     bases = ''.join(raw[1:])
@@ -132,6 +132,7 @@ include: 'rules/consensus.snk'
 include: 'rules/pangenome.snk'
 include: 'rules/pangenome_variant_call.snk'
 include: 'rules/monogenomic.snk'
-### EVALUATION ONLY
-include: 'rules/pangenome_eval.snk'
-include: 'rules/illumina.snk'
+if config['evaluate']:
+	### EVALUATION ONLY
+	include: 'rules/pangenome_eval.snk'
+	include: 'rules/illumina.snk'
