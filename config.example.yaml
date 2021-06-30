@@ -23,10 +23,10 @@ thresholdHomCall: 0.2
 consensusMinCov: 20
 
 # Variant anotation with SnpEff can be toggled
-VarAnnotSnpEff: False
+VarAnnotSnpEff: True
 
 #Use additional vcf's with known variants for pangenome graph generation (for example GISAID variants)
-pangenomeUseAdditionalVCFs: True
+pangenomeUseAdditionalVCFs: False
 pangenomeAdditionalVCFs: ['data/input/th_vars_all.vcf'] #relative to the snakemake root folder
 articMethods : ['medaka','nanopolish'] #which artic variant callers are used as input for pangenome graph creation
 
@@ -40,7 +40,7 @@ pangenomeVarMinCov: 10 #The minimum amount of support a variant path needs to ha
 pangenomeMaxSB: 0.30 #The strand bias factor that is used as a guideline of which value should not be passed (see shared.py for details)
 
 # If True, processes each sample individually (together with addition vcf's) with disregard for variants from other samples
-monogenomic: True
+monogenomic: False
 
 #if True, only use the given subset of run folders
 useSubsetOfRuns: False
