@@ -10,6 +10,8 @@ This repository is a snakemake workflow that uses conda as a software versioning
 
 In order to run it you need to have a working conda installation as well as snakemake installed.
 
+As an alternative to using conda yourself we provide a docker image that can be used which contains all conda environments.
+
 To execute the workflow, simply edit the ```config.example.yaml``` and rename it to ```config.yaml```.
 
 Place the required input files in ```data/input```.
@@ -27,8 +29,16 @@ data/input/run1/sample2.medaka.primertrimmed.rg.sorted.bam
 Then run:
 
 ```
-snakemake --use-conda
+snakemake --use-conda --cores X
 ```
+
+or to use the dockerized version:
+
+```
+snakemake --use-singularity --use-conda --cores X
+```
+
+where X is the amount of concurrent cores you want to utilize.
 
 # Methods
 
