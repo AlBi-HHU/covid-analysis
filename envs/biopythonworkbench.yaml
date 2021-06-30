@@ -5,7 +5,7 @@ channels:
   - bioconda
 
 dependencies:
-  - biopython=1.71
+  - biopython=1.78
   - python=3.7
   - regex
   - openssl = 1.0

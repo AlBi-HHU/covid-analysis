@@ -1,5 +1,7 @@
 import os
 
+containerized: "docker://albihhu/pancov:latest"
+
 configfile: "config.yaml"
 
 #We process the covid reference that is used and extract basic information

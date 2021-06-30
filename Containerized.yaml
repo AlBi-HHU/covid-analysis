@@ -1,0 +1,203 @@
+FROM condaforge/mambaforge:latest
+LABEL io.github.snakemake.containerized="true"
+LABEL io.github.snakemake.conda_env_hash="9a7fb71cfa65d62fa3fd1e7f9da4dd1de45c6ca8b8543b9cdae8b44fe492cac9"
+
+# Step 1: Retrieve conda environments
+
+# Conda environment:
+#   source: envs/biopythonworkbench.yaml
+#   prefix: /conda-envs/02513b697be05eae15d6cf4e14fe6149
+#   name: BioPythonWorkbench
+#   
+#   channels:
+#     - conda-forge
+#     - bioconda
+#   
+#   dependencies:
+#     - biopython=1.71
+#     - python=3.7
+#     - regex
+#     - openssl = 1.0
+#     - samtools = 1.9
+#     - seaborn = 0.9.0
+#     - scipy = 1.2.1
+#     - pysam = 0.15.2
+RUN mkdir -p /conda-envs/02513b697be05eae15d6cf4e14fe6149
+COPY envs/biopythonworkbench.yaml /conda-envs/02513b697be05eae15d6cf4e14fe6149/environment.yaml
+
+# Conda environment:
+#   source: envs/bubblegun.yaml
+#   prefix: /conda-envs/f41f5f010351dae40f5533ec40c5318c
+#   name: bubblegun
+#   channels:
+#     - defaults
+#   dependencies:
+#     - pip:
+#         - git+https://github.com/fawaz-dabbaghieh/bubble_gun.git@v1.1.0
+RUN mkdir -p /conda-envs/f41f5f010351dae40f5533ec40c5318c
+COPY envs/bubblegun.yaml /conda-envs/f41f5f010351dae40f5533ec40c5318c/environment.yaml
+
+# Conda environment:
+#   source: envs/fastp.yaml
+#   prefix: /conda-envs/136a25abbd0e323b4374d8420a0d10a2
+#   name: Fastp
+#   
+#   channels:
+#     - conda-forge
+#     - bioconda
+#   
+#   dependencies:
+#     - fastp = 0.20.0
+RUN mkdir -p /conda-envs/136a25abbd0e323b4374d8420a0d10a2
+COPY envs/fastp.yaml /conda-envs/136a25abbd0e323b4374d8420a0d10a2/environment.yaml
+
+# Conda environment:
+#   source: envs/freebayes.yaml
+#   prefix: /conda-envs/cb781f676fafdca20da354465b43ef17
+#   name: FreeBayes
+#   
+#   channels:
+#     - conda-forge
+#     - bioconda
+#   
+#   dependencies:
+#     - vcfpy = 0.12.1
+#     - freebayes = 1.3.2
+RUN mkdir -p /conda-envs/cb781f676fafdca20da354465b43ef17
+COPY envs/freebayes.yaml /conda-envs/cb781f676fafdca20da354465b43ef17/environment.yaml
+
+# Conda environment:
+#   source: envs/graphaligner.yaml
+#   prefix: /conda-envs/21cd67a1b5af5ed83c331dbe5ab3da98
+#   name: GraphAligner
+#   
+#   channels:
+#     - defaults
+#     - bioconda
+#     - conda-forge
+#   
+#   dependencies:
+#     - graphaligner = 1.0.12
+RUN mkdir -p /conda-envs/21cd67a1b5af5ed83c331dbe5ab3da98
+COPY envs/graphaligner.yaml /conda-envs/21cd67a1b5af5ed83c331dbe5ab3da98/environment.yaml
+
+# Conda environment:
+#   source: envs/perl.yaml
+#   prefix: /conda-envs/539abccfb55947617de4f6a9867b5a82
+#   name: Perl
+#   
+#   channels:
+#     - conda-forge
+#     - bioconda
+#   
+#   dependencies:
+#     - perl = 5.26.2
+RUN mkdir -p /conda-envs/539abccfb55947617de4f6a9867b5a82
+COPY envs/perl.yaml /conda-envs/539abccfb55947617de4f6a9867b5a82/environment.yaml
+
+# Conda environment:
+#   source: envs/realign.yaml
+#   prefix: /conda-envs/6a51a8e6053d01010b475e9d4469c72f
+#   name: realign
+#   
+#   channels:
+#     - conda-forge
+#     - bioconda
+#   
+#   dependencies:
+#     - bwa = 0.7.17
+#     - samtools = 1.10
+#     - bcftools = 1.10.2
+RUN mkdir -p /conda-envs/6a51a8e6053d01010b475e9d4469c72f
+COPY envs/realign.yaml /conda-envs/6a51a8e6053d01010b475e9d4469c72f/environment.yaml
+
+# Conda environment:
+#   source: envs/snpEff.yaml
+#   prefix: /conda-envs/09544774d13a78b52ccadc8d16ce3a7f
+#   name: snpEff
+#   
+#   channels:
+#     - conda-forge
+#     - bioconda
+#   
+#   dependencies:
+#     - snpEff = 5.0
+RUN mkdir -p /conda-envs/09544774d13a78b52ccadc8d16ce3a7f
+COPY envs/snpEff.yaml /conda-envs/09544774d13a78b52ccadc8d16ce3a7f/environment.yaml
+
+# Conda environment:
+#   source: envs/tabix.yaml
+#   prefix: /conda-envs/7a3dde4bdb157c84c6f94fd4d5b1e145
+#   name: Tabix
+#   
+#   channels:
+#     - main
+#     - bioconda
+#   
+#   dependencies:
+#     - tabix = 0.2.6
+RUN mkdir -p /conda-envs/7a3dde4bdb157c84c6f94fd4d5b1e145
+COPY envs/tabix.yaml /conda-envs/7a3dde4bdb157c84c6f94fd4d5b1e145/environment.yaml
+
+# Conda environment:
+#   source: envs/vcfpy.yaml
+#   prefix: /conda-envs/ccbf4f98fbf836ecfedbe13ce212ef0e
+#   name: vcfpy
+#   
+#   channels:
+#     - conda-forge
+#     - bioconda
+#   
+#   dependencies:
+#     - vcfpy = 0.13
+#     - scipy = 1.2.1
+#     - biopython = 1.71
+#     - pip:
+#       - upsetplot == 0.4.1
+#       - pandas == 1.1.3
+RUN mkdir -p /conda-envs/ccbf4f98fbf836ecfedbe13ce212ef0e
+COPY envs/vcfpy.yaml /conda-envs/ccbf4f98fbf836ecfedbe13ce212ef0e/environment.yaml
+
+# Conda environment:
+#   source: envs/vg.yaml
+#   prefix: /conda-envs/01c584e0f11dd76facd4aaec0e5fbb34
+#   name: vg
+#   
+#   channels:
+#     - conda-forge
+#     - bioconda
+#   
+#   dependencies:
+#     - vg = 1.24
+RUN mkdir -p /conda-envs/01c584e0f11dd76facd4aaec0e5fbb34
+COPY envs/vg.yaml /conda-envs/01c584e0f11dd76facd4aaec0e5fbb34/environment.yaml
+
+# Conda environment:
+#   source: envs/vt.yaml
+#   prefix: /conda-envs/abc940c44070c41f466b8a2821b4e242
+#   name: vt
+#   
+#   channels:
+#     - conda-forge
+#     - bioconda
+#   
+#   dependencies:
+#     - vt=2015.11.10=he941832_3
+RUN mkdir -p /conda-envs/abc940c44070c41f466b8a2821b4e242
+COPY envs/vt.yaml /conda-envs/abc940c44070c41f466b8a2821b4e242/environment.yaml
+
+# Step 2: Generate conda environments
+
+RUN mamba env create --prefix /conda-envs/02513b697be05eae15d6cf4e14fe6149 --file /conda-envs/02513b697be05eae15d6cf4e14fe6149/environment.yaml && \
+    mamba env create --prefix /conda-envs/f41f5f010351dae40f5533ec40c5318c --file /conda-envs/f41f5f010351dae40f5533ec40c5318c/environment.yaml && \
+    mamba env create --prefix /conda-envs/136a25abbd0e323b4374d8420a0d10a2 --file /conda-envs/136a25abbd0e323b4374d8420a0d10a2/environment.yaml && \
+    mamba env create --prefix /conda-envs/cb781f676fafdca20da354465b43ef17 --file /conda-envs/cb781f676fafdca20da354465b43ef17/environment.yaml && \
+    mamba env create --prefix /conda-envs/21cd67a1b5af5ed83c331dbe5ab3da98 --file /conda-envs/21cd67a1b5af5ed83c331dbe5ab3da98/environment.yaml && \
+    mamba env create --prefix /conda-envs/539abccfb55947617de4f6a9867b5a82 --file /conda-envs/539abccfb55947617de4f6a9867b5a82/environment.yaml && \
+    mamba env create --prefix /conda-envs/6a51a8e6053d01010b475e9d4469c72f --file /conda-envs/6a51a8e6053d01010b475e9d4469c72f/environment.yaml && \
+    mamba env create --prefix /conda-envs/09544774d13a78b52ccadc8d16ce3a7f --file /conda-envs/09544774d13a78b52ccadc8d16ce3a7f/environment.yaml && \
+    mamba env create --prefix /conda-envs/7a3dde4bdb157c84c6f94fd4d5b1e145 --file /conda-envs/7a3dde4bdb157c84c6f94fd4d5b1e145/environment.yaml && \
+    mamba env create --prefix /conda-envs/ccbf4f98fbf836ecfedbe13ce212ef0e --file /conda-envs/ccbf4f98fbf836ecfedbe13ce212ef0e/environment.yaml && \
+    mamba env create --prefix /conda-envs/01c584e0f11dd76facd4aaec0e5fbb34 --file /conda-envs/01c584e0f11dd76facd4aaec0e5fbb34/environment.yaml && \
+    mamba env create --prefix /conda-envs/abc940c44070c41f466b8a2821b4e242 --file /conda-envs/abc940c44070c41f466b8a2821b4e242/environment.yaml && \
+    mamba clean --all -y
