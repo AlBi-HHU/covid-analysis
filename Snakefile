@@ -1,6 +1,6 @@
 import os
 
-container: "docker://albihhu/pancov:latest"
+containerized: "docker://albihhu/pancov:latest"
 
 configfile: "config.yaml"
 
