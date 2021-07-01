@@ -73,7 +73,7 @@ if not config['monogenomic']:
         output:
             "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
         conda:
-            '../envs/freebayes.yaml',
+            '../envs/vcfpy.yaml',
         script:
             '../scripts/pangenome/clean_variant.py'
 

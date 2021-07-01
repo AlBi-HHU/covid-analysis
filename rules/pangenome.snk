@@ -49,7 +49,7 @@ if not config['monogenomic']:
         output:
             out = "data/auxiliary/pangenome/merge.vcf"
         conda:
-            '../envs/freebayes.yaml',
+            '../envs/vcfpy.yaml',
         threads:
             config["max_thread_per_task"]
         log:
@@ -64,7 +64,7 @@ rule artic_vcf_filter:
     output:
         f"data/auxiliary/pangenome/arti/{{run}}/{{barcode}}.{config['vcf_suffix']}"
     conda:
-        '../envs/freebayes.yaml',
+        '../envs/vcfpy.yaml',
     script:
         "../scripts/pangenome/medaka_filter.py"
 
@@ -153,10 +153,8 @@ rule pangenome:
         idx ="data/auxiliary/{pangenome}/merge_unique.vcf.gz.tbi"
     output:
         asm = "data/auxiliary/{pangenome}/pangenome_messy.gfa",
-
     conda:
         '../envs/vg.yaml',
-
     threads:
         config["max_thread_per_task"]
 

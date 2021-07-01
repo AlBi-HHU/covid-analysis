@@ -1,12 +1,12 @@
 FROM condaforge/mambaforge:latest
 LABEL io.github.snakemake.containerized="true"
-LABEL io.github.snakemake.conda_env_hash="9a7fb71cfa65d62fa3fd1e7f9da4dd1de45c6ca8b8543b9cdae8b44fe492cac9"
+LABEL io.github.snakemake.conda_env_hash="5bc8ff0455fe0665bf3e263dd1f199b62fb7667eb7cba687564d66faa0c8a576"
 
 # Step 1: Retrieve conda environments
 
 # Conda environment:
 #   source: envs/biopythonworkbench.yaml
-#   prefix: /conda-envs/02513b697be05eae15d6cf4e14fe6149
+#   prefix: /conda-envs/dd35d0924e74f8ddd08ab182fd45fb7a
 #   name: BioPythonWorkbench
 #   
 #   channels:
@@ -14,7 +14,7 @@ LABEL io.github.snakemake.conda_env_hash="9a7fb71cfa65d62fa3fd1e7f9da4dd1de45c6c
 #     - bioconda
 #   
 #   dependencies:
-#     - biopython=1.71
+#     - biopython=1.78
 #     - python=3.7
 #     - regex
 #     - openssl = 1.0
@@ -22,8 +22,8 @@ LABEL io.github.snakemake.conda_env_hash="9a7fb71cfa65d62fa3fd1e7f9da4dd1de45c6c
 #     - seaborn = 0.9.0
 #     - scipy = 1.2.1
 #     - pysam = 0.15.2
-RUN mkdir -p /conda-envs/02513b697be05eae15d6cf4e14fe6149
-COPY envs/biopythonworkbench.yaml /conda-envs/02513b697be05eae15d6cf4e14fe6149/environment.yaml
+RUN mkdir -p /conda-envs/dd35d0924e74f8ddd08ab182fd45fb7a
+COPY envs/biopythonworkbench.yaml /conda-envs/dd35d0924e74f8ddd08ab182fd45fb7a/environment.yaml
 
 # Conda environment:
 #   source: envs/bubblegun.yaml
@@ -188,7 +188,7 @@ COPY envs/vt.yaml /conda-envs/abc940c44070c41f466b8a2821b4e242/environment.yaml
 
 # Step 2: Generate conda environments
 
-RUN mamba env create --prefix /conda-envs/02513b697be05eae15d6cf4e14fe6149 --file /conda-envs/02513b697be05eae15d6cf4e14fe6149/environment.yaml && \
+RUN mamba env create --prefix /conda-envs/dd35d0924e74f8ddd08ab182fd45fb7a --file /conda-envs/dd35d0924e74f8ddd08ab182fd45fb7a/environment.yaml && \
     mamba env create --prefix /conda-envs/f41f5f010351dae40f5533ec40c5318c --file /conda-envs/f41f5f010351dae40f5533ec40c5318c/environment.yaml && \
     mamba env create --prefix /conda-envs/136a25abbd0e323b4374d8420a0d10a2 --file /conda-envs/136a25abbd0e323b4374d8420a0d10a2/environment.yaml && \
     mamba env create --prefix /conda-envs/cb781f676fafdca20da354465b43ef17 --file /conda-envs/cb781f676fafdca20da354465b43ef17/environment.yaml && \

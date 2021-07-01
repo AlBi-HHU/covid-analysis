@@ -31,7 +31,7 @@ if config['monogenomic']:
         output:
             out = "data/auxiliary/pangenome/{run}_{barcode}/merge.vcf"
         conda:
-            '../envs/freebayes.yaml',
+            '../envs/vcfpy.yaml',
         threads:
             config["max_thread_per_task"]
         log:
@@ -95,6 +95,6 @@ if config['monogenomic']:
         output:
             "data/auxiliary/pangenome_vc/{run}/{barcode}/filter.vcf"
         conda:
-            '../envs/freebayes.yaml',
+            '../envs/vcfpy.yaml',
         script:
             '../scripts/pangenome/clean_variant.py'

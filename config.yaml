@@ -1,0 +1,76 @@
+# Reference
+
+## Reference Genome (should be placed in data/input)
+ref_genome: nCoV-2019.reference.fasta
+
+## An upper limit for threads that should be used for an individual task
+max_thread_per_task: 8
+
+# Input 
+## Suffix Definitions for Input Files (Should be placed in data/input/[run]) where each run can be represented as a separate subfolder
+vcf_suffix: pass.vcf
+bam_suffix: primertrimmed.rg.sorted.bam
+
+## Outputs quality control reports for each input file
+performQualityControl: True
+
+# Consensus Creation
+## Fraction (between 0 and 0.5) of reads that need to support a variant for it to be labeled homozygous
+## SNPs that are in this range will be represented as ambiguity base characters in the final consensus
+thresholdHomCall: 0.2
+
+## The amount of depth required to take a base into the consensus sequence (will be masked as N otherwise)
+consensusMinCov: 20
+
+# Variant anotation with SnpEff can be toggled
+VarAnnotSnpEff: False
+
+#Use additional vcf's with known variants for pangenome graph generation (for example GISAID variants)
+pangenomeUseAdditionalVCFs: False
+pangenomeAdditionalVCFs: ['data/input/th_vars_all.vcf'] #relative to the snakemake root folder
+articMethods : ['medaka','nanopolish'] #which artic variant callers are used as input for pangenome graph creation
+
+# Pangenome variant calling
+pangenomeVariantCalling: True
+medakaQualityThreshold: 7.0 #If medaka variants are used they are discarded below this threshold
+pangenomeRVTTSupport: 0.25 #The variant path needs to be supported by at least this fraction of reads to result in a called variant
+pangenomeMinCovFactor: 0.15 #If a node within a bubble has less than this fraction of the surrounding node's mean coverage, it is considered not covered
+pangenomeMinEndsCovBubble: 10 #Used to distinguish between ref/var bubbles and pure var bubbles, if the surrounding node's mean coverage is below this threshold we consider the node to be a variant only bubble
+pangenomeVarMinCov: 10 #The minimum amount of support a variant path needs to have (absolute) to be considered valid
+pangenomeMaxSB: 0.30 #The strand bias factor that is used as a guideline of which value should not be passed (see shared.py for details)
+
+# If True, processes each sample individually (together with addition vcf's) with disregard for variants from other samples
+monogenomic: False
+
+#if True, only use the given subset of run folders
+useSubsetOfRuns: False
+runs: ['run1','run2']
+
+## if True only use the given subset of barcodes
+## in this case each run needs to be represented as a list of barcodes
+useSubsetOfBarcodes: False
+
+barcodes:
+  'run1' : ['14','20','22']
+  'run2' : ['05','06','13']
+
+######## Evaluation #########
+# Not required for productive use
+#############################
+
+evaluate: False
+
+# Illumina variant calling
+illuminaAlleleFreqCutoff: 0.8
+
+# Illumina cutoff for evaluation
+illuminaCoverageCutoff: 0.2
+nanoporeCoverageCutoff: 20
+
+
+
+
+
+
+
+

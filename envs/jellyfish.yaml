@@ -1,9 +1,0 @@
-name: jellyfish
-
-channels:
-  - conda-forge
-  - bioconda
-
-dependencies:
-  - jellyfish = 2.2.10
-
