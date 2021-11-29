@@ -195,7 +195,7 @@ def getAllVCFComparisonRequirements(wildcards):
             if wildcards.method == 'pancov':
                 vcf = 'data/auxiliary/consensus/' + run + '/' + barcode + '/variant.vcf.gz'
             elif wildcards.method == 'medaka':
-                vcf = 'data/auxiliary/medakaVCFsDecomposed/'+run+'_'+barcode+'.vcf
+                vcf = 'data/auxiliary/medakaVCFsDecomposed/'+run+'_'+barcode+'.vcf'
             elif wildcards.method == 'nanopolish':
                 vcf = 'data/input/'+run+'/barcode'+barcode+'.nanopolish.'+config['vcf_suffix']
             allFiles += [
