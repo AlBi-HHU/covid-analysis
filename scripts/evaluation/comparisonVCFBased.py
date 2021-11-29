@@ -313,7 +313,9 @@ with open(snakemake.output["text"], "w") as outfile, open(
                             nanoporeValue = ambiguityLetters[
                                 frozenset((altval, refval))
                             ]
-
+                    else:
+                        print('Case not handled: {} / {}'.format(nanoporeType,nanoporeValue))
+                        assert False
                 illuminaType = "Not Called"  # INS,DEL,SNP
                 illuminaValue = ""  # Length of Del / Alt Allele / Insertion Seq
 
