@@ -143,7 +143,7 @@ rule preprocessMedakaVCFs:
     input:
         'data/input/{run}/barcode{barcode}.medaka.'+config['vcf_suffix']
     output:
-        "data/auxiliary/medakaVCFsDecomposed/{run}_{barcode.vcf"
+        "data/auxiliary/medakaVCFsDecomposed/{run}_{barcode}.vcf"
     conda:
         '../envs/vt.yaml'
     shell:
